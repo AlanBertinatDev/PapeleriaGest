@@ -1,0 +1,82 @@
+:root {
+  --pink: #f6cfd9;
+  --peach: #fbe3c6;
+  --yellow: #f5efc0;
+  --mint: #cceaDA;
+  --sky: #c8e2f0;
+  --gradient: linear-gradient(120deg, var(--pink), var(--peach), var(--yellow), var(--mint), var(--sky));
+
+  --ink: #1c1a20;
+  --ink-soft: #6b6673;
+  --surface: #ffffff;
+  --surface-alt: #faf8fb;
+  --border: #ebe7ee;
+
+  --accent: #b25f8c;
+  --accent-soft: #f3dde7;
+
+  --ok: #2f9e6e;
+  --ok-bg: #dff3e9;
+  --warn: #b8862f;
+  --warn-bg: #faedd4;
+  --danger: #c1466a;
+  --danger-bg: #fbe2ea;
+
+  --radius: 14px;
+  --shadow: 0 2px 10px rgba(28, 26, 32, 0.06);
+  --shadow-lg: 0 8px 30px rgba(28, 26, 32, 0.1);
+
+  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --display: 'Quicksand', var(--sans);
+
+  font: 16px/1.5 var(--sans);
+  color-scheme: light;
+  color: var(--ink);
+  background: var(--surface-alt);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--display);
+  font-weight: 700;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+h2 {
+  font-size: 22px;
+}
+
+h3 {
+  font-size: 17px;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: var(--accent);
+}

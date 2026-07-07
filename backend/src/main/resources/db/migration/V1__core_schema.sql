@@ -1,0 +1,24 @@
+CREATE TABLE nivel (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre VARCHAR(50) NOT NULL,
+    admin BOOLEAN NOT NULL DEFAULT FALSE,
+    estandar BOOLEAN NOT NULL DEFAULT FALSE,
+    activo BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE usuario (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nombre VARCHAR(200) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    cedula VARCHAR(50) NOT NULL UNIQUE,
+    telefono VARCHAR(50),
+    nro_carpeta INTEGER,
+    password_hash VARCHAR(255) NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    recive_ofertas BOOLEAN NOT NULL DEFAULT FALSE,
+    nivel_id BIGINT NOT NULL REFERENCES nivel(id)
+);
+
+INSERT INTO nivel (nombre, admin, estandar, activo) VALUES
+    ('Administrador', TRUE, FALSE, TRUE),
+    ('Estandar', FALSE, TRUE, TRUE);

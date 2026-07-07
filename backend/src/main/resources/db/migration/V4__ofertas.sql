@@ -1,0 +1,16 @@
+CREATE TABLE oferta (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    titulo VARCHAR(200) NOT NULL,
+    descripcion VARCHAR(1000),
+    precio NUMERIC(12, 2) NOT NULL,
+    fecha_desde DATE NOT NULL,
+    fecha_hasta DATE NOT NULL,
+    activo BOOLEAN NOT NULL DEFAULT TRUE,
+    usuario_id BIGINT NOT NULL REFERENCES usuario(id)
+);
+
+CREATE TABLE imagen (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    url VARCHAR(500) NOT NULL,
+    oferta_id BIGINT NOT NULL REFERENCES oferta(id)
+);
