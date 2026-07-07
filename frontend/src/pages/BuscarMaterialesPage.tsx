@@ -3,6 +3,7 @@ import { cursosApi, type CursoResponse } from '../api/cursos'
 import { documentosApi, type DocumentoResponse } from '../api/documentos'
 import { ApiError } from '../api/client'
 import { DocumentoCard } from '../components/DocumentoCard'
+import { PageHeader } from '../components/PageHeader'
 
 export function BuscarMaterialesPage() {
   const [cursos, setCursos] = useState<CursoResponse[]>([])
@@ -35,10 +36,10 @@ export function BuscarMaterialesPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Buscar materiales</h1>
-        <p>Encontrá lo que dejó tu docente para tu curso y pedilo en el mostrador</p>
-      </div>
+      <PageHeader
+        title="Buscar materiales"
+        subtitle="Encontrá lo que dejó tu docente para tu curso y pedilo en el mostrador"
+      />
       {error && <p className="error">{error}</p>}
 
       <div className="card">

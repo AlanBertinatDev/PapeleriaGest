@@ -3,10 +3,12 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { NotificationCenter } from './NotificationCenter'
 import logo from '../assets/logo.jpeg'
+import styles from './Layout.module.css'
+import { iniciales } from '../lib/iniciales'
 
 function SidebarLink({ to, children }: { to: string; children: ReactNode }) {
   return (
-    <NavLink to={to} className={({ isActive }) => (isActive ? 'active' : undefined)} end={to === '/'}>
+    <NavLink to={to} className={({ isActive }) => (isActive ? styles.active : undefined)} end={to === '/'}>
       {children}
     </NavLink>
   )
@@ -41,17 +43,20 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <Link to={isAdmin ? '/admin/dashboard' : '/'} className="sidebar-brand">
-          <img src={logo} alt="Bertinat Papelería" />
-          <span>Bertinat Papelería</span>
+      <aside className={styles.sidebar}>
+        <Link to={isAdmin ? '/admin/dashboard' : '/'} className={styles.brand}>
+          <img src={logo} alt="Bertinat Papelería" className={styles.brandLogo} />
+          <span className={styles.brandText}>
+            Bertinat
+            <span className={styles.brandSub}>Papelería</span>
+          </span>
         </Link>
 
-        <nav className="sidebar-nav">
+        <nav className={styles.nav}>
           {isAdmin ? (
             <div>
-              <div className="sidebar-section-title">Administración</div>
-              <div className="sidebar-links">
+              <div className={styles.sectionTitle}>Administración</div>
+              <div className={styles.links}>
                 <SidebarLink to="/admin/dashboard">Inicio</SidebarLink>
                 <SidebarLink to="/admin/productos">Productos</SidebarLink>
                 <SidebarLink to="/admin/pedidos">Pedidos</SidebarLink>
@@ -66,8 +71,8 @@ export function Layout({ children }: { children: ReactNode }) {
           ) : (
             <>
               <div>
-                <div className="sidebar-section-title">Comprar</div>
-                <div className="sidebar-links">
+                <div className={styles.sectionTitle}>Comprar</div>
+                <div className={styles.links}>
                   <SidebarLink to="/catalogo">Catálogo</SidebarLink>
                   <SidebarLink to="/mis-pedidos">Mis pedidos</SidebarLink>
                   <SidebarLink to="/ofertas">Ofertas</SidebarLink>
@@ -75,8 +80,8 @@ export function Layout({ children }: { children: ReactNode }) {
               </div>
 
               <div>
-                <div className="sidebar-section-title">Imprimir</div>
-                <div className="sidebar-links">
+                <div className={styles.sectionTitle}>Imprimir</div>
+                <div className={styles.links}>
                   <SidebarLink to="/buscar-materiales">Buscar materiales</SidebarLink>
                   <SidebarLink to="/mis-documentos">Mis documentos</SidebarLink>
                 </div>
@@ -84,8 +89,8 @@ export function Layout({ children }: { children: ReactNode }) {
 
               {isDocente && (
                 <div>
-                  <div className="sidebar-section-title">Docencia</div>
-                  <div className="sidebar-links">
+                  <div className={styles.sectionTitle}>Docencia</div>
+                  <div className={styles.links}>
                     <SidebarLink to="/docente/materiales">Cargar material</SidebarLink>
                   </div>
                 </div>
@@ -94,12 +99,15 @@ export function Layout({ children }: { children: ReactNode }) {
           )}
         </nav>
 
-        <div className="sidebar-user">
-          <div className="sidebar-user-info">
-            <span className="sidebar-user-name">{usuario.nombre}</span>
-            <span className="sidebar-user-role">{usuario.nivel}</span>
+        <div className={styles.userFooter}>
+          <div className={styles.userRow}>
+            <div className={styles.avatar}>{iniciales(usuario.nombre)}</div>
+            <div className={styles.userInfo}>
+              <span className={styles.userName}>{usuario.nombre}</span>
+              <span className={styles.userRole}>{usuario.nivel}</span>
+            </div>
           </div>
-          <button className="secondary" onClick={handleLogout} style={{ marginLeft: 10 }}>
+          <button className={styles.logoutButton} onClick={handleLogout}>
             Salir
           </button>
         </div>

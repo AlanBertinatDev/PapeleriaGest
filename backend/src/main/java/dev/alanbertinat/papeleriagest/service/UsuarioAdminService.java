@@ -2,6 +2,7 @@ package dev.alanbertinat.papeleriagest.service;
 
 import dev.alanbertinat.papeleriagest.domain.Nivel;
 import dev.alanbertinat.papeleriagest.domain.Usuario;
+import dev.alanbertinat.papeleriagest.exception.ConflictException;
 import dev.alanbertinat.papeleriagest.exception.ResourceNotFoundException;
 import dev.alanbertinat.papeleriagest.repository.NivelRepository;
 import dev.alanbertinat.papeleriagest.repository.UsuarioRepository;
@@ -33,17 +34,29 @@ public class UsuarioAdminService {
     }
 
     @Transactional
-    public UsuarioResponse cambiarNivel(Long usuarioId, Long nivelId) {
+    public UsuarioResponse cambiarNivel(Usuario actor, Long usuarioId, Long nivelId) {
+        if (actor.getId().equals(usuarioId)) {
+            throw new ConflictException("No podés cambiar tu propio rol");
+        }
         Usuario usuario = buscarUsuario(usuarioId);
         Nivel nivel = nivelRepository.findById(nivelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Nivel no encontrado: " + nivelId));
+        if (usuario.getNivel().isAdmin() && !nivel.isAdmin() && usuarioRepository.countByNivel_AdminTrueAndActivoTrue() <= 1) {
+            throw new ConflictException("No podés quitarle el rol de administrador al único admin activo");
+        }
         usuario.setNivel(nivel);
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }
 
     @Transactional
-    public UsuarioResponse cambiarActivo(Long usuarioId, boolean activo) {
+    public UsuarioResponse cambiarActivo(Usuario actor, Long usuarioId, boolean activo) {
+        if (actor.getId().equals(usuarioId)) {
+            throw new ConflictException("No podés activar o desactivar tu propia cuenta");
+        }
         Usuario usuario = buscarUsuario(usuarioId);
+        if (!activo && usuario.getNivel().isAdmin() && usuarioRepository.countByNivel_AdminTrueAndActivoTrue() <= 1) {
+            throw new ConflictException("No podés desactivar al único administrador activo");
+        }
         usuario.setActivo(activo);
         return UsuarioResponse.from(usuarioRepository.save(usuario));
     }

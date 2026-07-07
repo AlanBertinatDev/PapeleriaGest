@@ -1,0 +1,52 @@
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 12.5px 'Inter', sans-serif;
+  color: var(--ink-soft);
+  margin-bottom: 14px;
+}
+
+.breadcrumb a {
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--ink);
+}
+
+.breadcrumbCurrent {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.titleBlock {
+  min-width: 0;
+}
+
+.title {
+  font: 700 24px/1.2 'Poppins', sans-serif;
+  color: var(--ink);
+}
+
+.subtitle {
+  font: 400 13.5px/1.4 'Inter', sans-serif;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}

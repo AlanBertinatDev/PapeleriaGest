@@ -1,7 +1,8 @@
 package dev.alanbertinat.papeleriagest.domain;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,13 +11,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -52,13 +50,21 @@ public class Oferta {
 
     private boolean activo;
 
+    @Enumerated(EnumType.STRING)
+    private TipoOferta tipo;
+
+    private String imagenArchivo;
+
+    private boolean notificado;
+
+    private Integer notificadoCantidad;
+
+    @Enumerated(EnumType.STRING)
+    private AudienciaNotificacion audienciaNotificacion;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
-
-    @Builder.Default
-    @OneToMany(mappedBy = "oferta", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Imagen> imagenes = new ArrayList<>();
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.EAGER)

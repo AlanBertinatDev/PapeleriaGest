@@ -3,6 +3,7 @@ import { pedidosApi, type PedidoResponse } from '../api/pedidos'
 import { ApiError } from '../api/client'
 import { PedidoCard } from '../components/PedidoCard'
 import { FilterPills } from '../components/FilterPills'
+import { PageHeader } from '../components/PageHeader'
 
 type Filtro = 'TODOS' | 'PENDIENTE' | 'ENTREGADO' | 'CANCELADO'
 
@@ -44,10 +45,7 @@ export function MisPedidosPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Mis pedidos</h1>
-        <p>Seguimiento de tus compras en la papelería</p>
-      </div>
+      <PageHeader title="Mis pedidos" subtitle="Seguimiento de tus compras en la papelería" />
       {error && <p className="error">{error}</p>}
 
       <FilterPills options={opciones} active={filtro} onChange={(k) => setFiltro(k as Filtro)} />

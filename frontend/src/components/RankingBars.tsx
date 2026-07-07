@@ -5,7 +5,15 @@ interface RankingItem {
   displayValue: string
 }
 
-export function RankingBars({ items, emptyMessage }: { items: RankingItem[]; emptyMessage: string }) {
+export function RankingBars({
+  items,
+  emptyMessage,
+  color = 'menta',
+}: {
+  items: RankingItem[]
+  emptyMessage: string
+  color?: 'menta' | 'celeste'
+}) {
   if (items.length === 0) {
     return <p className="empty-state">{emptyMessage}</p>
   }
@@ -21,7 +29,10 @@ export function RankingBars({ items, emptyMessage }: { items: RankingItem[]; emp
             <span className="ranking-value">{item.displayValue}</span>
           </div>
           <div className="ranking-track">
-            <div className="ranking-fill" style={{ width: `${Math.max((item.value / max) * 100, 4)}%` }} />
+            <div
+              className={color === 'celeste' ? 'ranking-fill celeste' : 'ranking-fill'}
+              style={{ width: `${Math.max((item.value / max) * 100, 4)}%` }}
+            />
           </div>
         </div>
       ))}

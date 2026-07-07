@@ -1,28 +1,33 @@
+import styles from './FilterPills.module.css'
+
 interface FilterOption {
   key: string
   label: string
-  count: number
+  count?: number
 }
 
 export function FilterPills({
   options,
   active,
   onChange,
+  className,
 }: {
   options: FilterOption[]
   active: string
   onChange: (key: string) => void
+  className?: string
 }) {
   return (
-    <div className="filter-pills">
+    <div className={className ? `${styles.track} ${className}` : styles.track}>
       {options.map((opt) => (
         <button
           key={opt.key}
-          className={`filter-pill${active === opt.key ? ' active' : ''}`}
+          type="button"
+          className={active === opt.key ? `${styles.tab} ${styles.active}` : styles.tab}
           onClick={() => onChange(opt.key)}
         >
           {opt.label}
-          <span className="count">{opt.count}</span>
+          {opt.count !== undefined && <span className={styles.count}>{opt.count}</span>}
         </button>
       ))}
     </div>

@@ -1,0 +1,17 @@
+.filtersForm {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  max-width: none;
+  margin-bottom: 20px;
+}
+
+.filtersForm label {
+  flex: 0 0 auto;
+}
+
+.noMargin {
+  margin-bottom: 0;
+}

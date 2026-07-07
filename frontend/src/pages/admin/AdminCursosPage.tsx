@@ -4,6 +4,7 @@ import { usuariosApi } from '../../api/usuarios'
 import type { UsuarioResponse } from '../../api/auth'
 import { ApiError } from '../../api/client'
 import { Modal } from '../../components/Modal'
+import { PageHeader } from '../../components/PageHeader'
 
 export function AdminCursosPage() {
   const [cursos, setCursos] = useState<CursoResponse[]>([])
@@ -18,8 +19,8 @@ export function AdminCursosPage() {
   const [materia, setMateria] = useState('')
   const [modalCursoAbierto, setModalCursoAbierto] = useState(false)
 
-  const estudiantesDisponibles = usuarios.filter((u) => u.nivel === 'Estandar')
-  const docentesDisponibles = usuarios.filter((u) => u.nivel === 'Docente')
+  const estudiantesDisponibles = usuarios.filter((u) => u.nivel === 'Estandar' && u.activo)
+  const docentesDisponibles = usuarios.filter((u) => u.nivel === 'Docente' && u.activo)
 
   function cargarCursos() {
     cursosApi
@@ -92,39 +93,37 @@ export function AdminCursosPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Cursos</h1>
-        <p>Grados y grupos, docentes y alumnos asociados</p>
-      </div>
-
-      <div className="section-header">
-        <h3>Listado</h3>
-        <button onClick={() => setModalCursoAbierto(true)}>Agregar curso</button>
-      </div>
+      <PageHeader
+        title="Cursos"
+        subtitle="Grados y grupos, docentes y alumnos asociados"
+        action={<button onClick={() => setModalCursoAbierto(true)}>+ Nuevo curso</button>}
+      />
       {error && !modalCursoAbierto && !cursoSeleccionado && <p className="error">{error}</p>}
 
-      <table>
-        <thead>
-          <tr>
-            <th>Grado</th>
-            <th>Grupo</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {cursos.map((c) => (
-            <tr key={c.id}>
-              <td>{c.grado}</td>
-              <td>{c.grupo}</td>
-              <td>
-                <button className="secondary" onClick={() => seleccionarCurso(c)}>
-                  Gestionar
-                </button>
-              </td>
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table>
+          <thead>
+            <tr>
+              <th>Grado</th>
+              <th>Grupo</th>
+              <th></th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {cursos.map((c) => (
+              <tr key={c.id}>
+                <td>{c.grado}</td>
+                <td>{c.grupo}</td>
+                <td>
+                  <button className="secondary" onClick={() => seleccionarCurso(c)}>
+                    Gestionar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       {modalCursoAbierto && (
         <Modal title="Nuevo curso" onClose={cerrarModalCurso}>

@@ -1,5 +1,6 @@
 package dev.alanbertinat.papeleriagest.web.controller;
 
+import dev.alanbertinat.papeleriagest.security.UsuarioPrincipal;
 import dev.alanbertinat.papeleriagest.service.UsuarioAdminService;
 import dev.alanbertinat.papeleriagest.web.dto.CambiarNivelRequest;
 import dev.alanbertinat.papeleriagest.web.dto.NivelResponse;
@@ -7,6 +8,7 @@ import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,17 +38,20 @@ public class UsuarioAdminController {
     }
 
     @PutMapping("/{id}/nivel")
-    public UsuarioResponse cambiarNivel(@PathVariable Long id, @Valid @RequestBody CambiarNivelRequest request) {
-        return usuarioAdminService.cambiarNivel(id, request.nivelId());
+    public UsuarioResponse cambiarNivel(
+            @AuthenticationPrincipal UsuarioPrincipal principal,
+            @PathVariable Long id,
+            @Valid @RequestBody CambiarNivelRequest request) {
+        return usuarioAdminService.cambiarNivel(principal.usuario(), id, request.nivelId());
     }
 
     @PutMapping("/{id}/activar")
-    public UsuarioResponse activar(@PathVariable Long id) {
-        return usuarioAdminService.cambiarActivo(id, true);
+    public UsuarioResponse activar(@AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Long id) {
+        return usuarioAdminService.cambiarActivo(principal.usuario(), id, true);
     }
 
     @PutMapping("/{id}/desactivar")
-    public UsuarioResponse desactivar(@PathVariable Long id) {
-        return usuarioAdminService.cambiarActivo(id, false);
+    public UsuarioResponse desactivar(@AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Long id) {
+        return usuarioAdminService.cambiarActivo(principal.usuario(), id, false);
     }
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { productosApi, type ProductoResponse } from '../api/productos'
 import { pedidosApi } from '../api/pedidos'
 import { ApiError } from '../api/client'
+import { PageHeader } from '../components/PageHeader'
 
 export function CatalogoPage() {
   const [productos, setProductos] = useState<ProductoResponse[]>([])
@@ -51,10 +52,7 @@ export function CatalogoPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Catálogo</h1>
-        <p>Elegí productos y cantidades para armar tu pedido</p>
-      </div>
+      <PageHeader title="Catálogo" subtitle="Elegí productos y cantidades para armar tu pedido" />
       {error && <p className="error">{error}</p>}
       {productos.length === 0 ? (
         <p className="empty-state">Todavía no hay productos cargados.</p>

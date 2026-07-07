@@ -54,6 +54,12 @@ public class CursoService {
     public CursoEstudianteResponse asignarEstudiante(Long cursoId, AsignarEstudianteRequest request) {
         Curso curso = buscarCurso(cursoId);
         Usuario estudiante = buscarUsuario(request.estudianteId());
+        if (!estudiante.isActivo()) {
+            throw new ConflictException("El usuario está desactivado y no se puede asignar a un curso");
+        }
+        if (!estudiante.getNivel().isEstandar()) {
+            throw new ConflictException("Solo se pueden asignar como estudiantes usuarios con rol Estándar");
+        }
         if (cursoEstudianteRepository.existsByCursoIdAndEstudianteId(cursoId, estudiante.getId())) {
             throw new ConflictException("El estudiante ya está asignado a este curso");
         }
@@ -73,6 +79,12 @@ public class CursoService {
     public MateriaCursoDocenteResponse asignarDocente(Long cursoId, AsignarDocenteRequest request) {
         Curso curso = buscarCurso(cursoId);
         Usuario docente = buscarUsuario(request.docenteId());
+        if (!docente.isActivo()) {
+            throw new ConflictException("El usuario está desactivado y no se puede asignar a un curso");
+        }
+        if (!docente.getNivel().isDocente()) {
+            throw new ConflictException("Solo se pueden asignar como docentes usuarios con rol Docente");
+        }
         if (materiaCursoDocenteRepository.existsByCursoIdAndDocenteIdAndMateria(
                 cursoId, docente.getId(), request.materia())) {
             throw new ConflictException("El docente ya tiene asignada esa materia en este curso");

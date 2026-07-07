@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.alanbertinat.papeleriagest.domain.CategoriaProducto;
 import dev.alanbertinat.papeleriagest.domain.Configuracion;
+import dev.alanbertinat.papeleriagest.domain.EstadoPedido;
 import dev.alanbertinat.papeleriagest.domain.Producto;
 import dev.alanbertinat.papeleriagest.domain.Usuario;
 import dev.alanbertinat.papeleriagest.repository.CategoriaProductoRepository;
@@ -210,6 +211,36 @@ class PedidoFlowTest extends AbstractIntegrationTest {
                 "/api/productos/" + producto.getCodigoProducto(), HttpMethod.GET,
                 new HttpEntity<>(authHeaders(ownerToken)), dev.alanbertinat.papeleriagest.web.dto.ProductoResponse.class);
         assertThat(despuesDeCancelar.getBody().cantidad()).isEqualTo(10);
+
+        ResponseEntity<PedidoResponse> reabierto = restTemplate.exchange(
+                "/api/pedidos/" + created.getBody().id() + "/estado", HttpMethod.PUT,
+                new HttpEntity<>(new CambiarEstadoPedidoRequest(EstadoPedido.PENDIENTE), authHeaders(adminToken)),
+                PedidoResponse.class);
+        assertThat(reabierto.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(reabierto.getBody().estado()).isEqualTo("PENDIENTE");
+
+        ResponseEntity<dev.alanbertinat.papeleriagest.web.dto.ProductoResponse> despuesDeReabrir = restTemplate.exchange(
+                "/api/productos/" + producto.getCodigoProducto(), HttpMethod.GET,
+                new HttpEntity<>(authHeaders(ownerToken)), dev.alanbertinat.papeleriagest.web.dto.ProductoResponse.class);
+        assertThat(despuesDeReabrir.getBody().cantidad()).isEqualTo(6);
+
+        ResponseEntity<PedidoResponse[]> misPedidosDespuesDeReabrir = restTemplate.exchange(
+                "/api/pedidos/mios", HttpMethod.GET,
+                new HttpEntity<>(authHeaders(ownerToken)), PedidoResponse[].class);
+        assertThat(misPedidosDespuesDeReabrir.getBody())
+                .extracting(PedidoResponse::id)
+                .contains(created.getBody().id());
+
+        ResponseEntity<PedidoResponse> canceladoDeNuevo = restTemplate.exchange(
+                "/api/pedidos/" + created.getBody().id() + "/cancelar", HttpMethod.PUT,
+                new HttpEntity<>(authHeaders(ownerToken)), PedidoResponse.class);
+        assertThat(canceladoDeNuevo.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        ResponseEntity<String> soloPendienteAlReabrir = restTemplate.exchange(
+                "/api/pedidos/" + created.getBody().id() + "/estado", HttpMethod.PUT,
+                new HttpEntity<>(new CambiarEstadoPedidoRequest(EstadoPedido.ENTREGADO), authHeaders(adminToken)),
+                String.class);
+        assertThat(soloPendienteAlReabrir.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 
     @Test

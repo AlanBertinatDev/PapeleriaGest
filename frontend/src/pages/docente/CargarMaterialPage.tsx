@@ -6,6 +6,7 @@ import { ApiError } from '../../api/client'
 import { Modal } from '../../components/Modal'
 import { DocumentoCard } from '../../components/DocumentoCard'
 import { FilterPills } from '../../components/FilterPills'
+import { PageHeader } from '../../components/PageHeader'
 
 type Filtro = 'TODOS' | 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
 
@@ -92,13 +93,10 @@ export function CargarMaterialPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Cargar material</h1>
-        <p>
-          Hola {usuario?.nombre}: subí el material del curso y las instrucciones de copiado para que la papelería lo
-          prepare
-        </p>
-      </div>
+      <PageHeader
+        title="Cargar material"
+        subtitle={`Hola ${usuario?.nombre}: subí el material del curso y las instrucciones de copiado para que la papelería lo prepare`}
+      />
 
       <div className="section-header">
         <h3>Materiales que cargaste</h3>

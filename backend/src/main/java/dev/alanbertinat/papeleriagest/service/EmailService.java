@@ -1,7 +1,9 @@
 package dev.alanbertinat.papeleriagest.service;
 
 import dev.alanbertinat.papeleriagest.repository.ConfiguracionRepository;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import java.util.List;
 import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
  * (CorreoEmpresa, Contraseñamail, CorreoAdmin) en vez de fijas en el deploy,
  * ya que la dueña las administra desde la pantalla de Configuración.
  * Si falta alguna, la notificación se omite sin romper el flujo que la disparó.
+ * CorreoAdmin admite varias direcciones separadas por coma.
+ * notificarClientesOferta manda un único email con los clientes en BCC (no expone
+ * direcciones entre ellos) usando las mismas credenciales de CorreoEmpresa/Contraseñamail.
  */
 @Service
 public class EmailService {
@@ -61,13 +66,52 @@ public class EmailService {
             MimeMessage mensaje = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mensaje);
             helper.setFrom(correoEmpresa);
-            helper.setTo(correoAdmin);
+            helper.setTo(InternetAddress.parse(correoAdmin));
             helper.setSubject(asunto);
             helper.setText(cuerpo);
 
             mailSender.send(mensaje);
         } catch (Exception ex) {
             log.warn("No se pudo enviar el email de notificación: {}", ex.getMessage());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void notificarClientesOferta(String tituloOferta, String cuerpo, List<String> destinatariosBcc) {
+        if (destinatariosBcc.isEmpty()) {
+            return;
+        }
+        String correoEmpresa = valorConfiguracion("CorreoEmpresa");
+        String contrasenia = valorConfiguracion("Contraseñamail");
+
+        if (correoEmpresa == null || contrasenia == null) {
+            log.debug("Notificación de oferta omitida: falta configurar CorreoEmpresa/Contraseñamail");
+            return;
+        }
+
+        try {
+            JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+            mailSender.setHost(host);
+            mailSender.setPort(port);
+            mailSender.setUsername(correoEmpresa);
+            mailSender.setPassword(contrasenia);
+
+            Properties props = mailSender.getJavaMailProperties();
+            props.put("mail.transport.protocol", "smtp");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+
+            MimeMessage mensaje = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensaje);
+            helper.setFrom(correoEmpresa);
+            helper.setTo(correoEmpresa);
+            helper.setBcc(InternetAddress.parse(String.join(",", destinatariosBcc)));
+            helper.setSubject("Nueva oferta: " + tituloOferta);
+            helper.setText(cuerpo);
+
+            mailSender.send(mensaje);
+        } catch (Exception ex) {
+            log.warn("No se pudo enviar el email de oferta: {}", ex.getMessage());
         }
     }
 

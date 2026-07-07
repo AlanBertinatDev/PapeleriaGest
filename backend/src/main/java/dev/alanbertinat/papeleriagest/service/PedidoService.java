@@ -152,10 +152,28 @@ public class PedidoService {
     public PedidoResponse cambiarEstado(Long id, EstadoPedido nuevoEstado) {
         Pedido pedido = buscarEntidad(id);
         if (pedido.getEstado() == EstadoPedido.CANCELADO) {
-            throw new ConflictException("No se puede cambiar el estado de un pedido cancelado");
+            if (nuevoEstado != EstadoPedido.PENDIENTE) {
+                throw new ConflictException("Un pedido cancelado solo se puede reabrir como pendiente");
+            }
+            reabrir(pedido);
+            return PedidoResponse.from(pedidoRepository.save(pedido));
         }
         pedido.setEstado(nuevoEstado);
         return PedidoResponse.from(pedidoRepository.save(pedido));
+    }
+
+    private void reabrir(Pedido pedido) {
+        for (PedidoItem item : pedido.getItems()) {
+            Producto producto = item.getProducto();
+            if (producto.getCantidad() < item.getCantidad()) {
+                throw new ConflictException("Stock insuficiente de " + producto.getNombre()
+                        + " para reabrir el pedido (disponible: " + producto.getCantidad() + ")");
+            }
+            producto.setCantidad(producto.getCantidad() - item.getCantidad());
+            productoRepository.save(producto);
+        }
+        pedido.setEstado(EstadoPedido.PENDIENTE);
+        pedido.setActivo(true);
     }
 
     private Pedido buscarEntidad(Long id) {

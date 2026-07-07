@@ -4,6 +4,7 @@ import { ApiError } from '../../api/client'
 import { DocumentoCard } from '../../components/DocumentoCard'
 import { FilterPills } from '../../components/FilterPills'
 import { Modal } from '../../components/Modal'
+import { PageHeader } from '../../components/PageHeader'
 
 type Filtro = 'TODOS' | 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
 
@@ -85,15 +86,11 @@ export function AdminDocumentosPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Documentos</h1>
-        <p>Cola de impresión: materiales de docentes y documentos personales</p>
-      </div>
-
-      <div className="section-header">
-        <h3>Traza de documentos</h3>
-        <button onClick={() => setModalAbierto(true)}>Subir archivo propio</button>
-      </div>
+      <PageHeader
+        title="Documentos"
+        subtitle="Cola de impresión: materiales de docentes y documentos personales"
+        action={<button onClick={() => setModalAbierto(true)}>Subir archivo propio</button>}
+      />
       {error && !modalAbierto && <p className="error">{error}</p>}
 
       <FilterPills options={opciones} active={filtro} onChange={(k) => setFiltro(k as Filtro)} />

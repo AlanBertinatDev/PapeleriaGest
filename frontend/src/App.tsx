@@ -14,6 +14,7 @@ import { BuscarMaterialesPage } from './pages/BuscarMaterialesPage'
 import { CargarMaterialPage } from './pages/docente/CargarMaterialPage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminProductosPage } from './pages/admin/AdminProductosPage'
+import { AdminProductoDetallePage } from './pages/admin/AdminProductoDetallePage'
 import { AdminPedidosPage } from './pages/admin/AdminPedidosPage'
 import { AdminOfertasPage } from './pages/admin/AdminOfertasPage'
 import { AdminDocumentosPage } from './pages/admin/AdminDocumentosPage'
@@ -99,6 +100,22 @@ function App() {
               element={
                 <AdminRoute>
                   <AdminProductosPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/productos/nuevo"
+              element={
+                <AdminRoute>
+                  <AdminProductoDetallePage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/productos/:codigo"
+              element={
+                <AdminRoute>
+                  <AdminProductoDetallePage />
                 </AdminRoute>
               }
             />

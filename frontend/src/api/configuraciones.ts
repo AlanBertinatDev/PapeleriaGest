@@ -10,4 +10,5 @@ export const configuracionesApi = {
   listar: () => api.get<ConfiguracionResponse[]>('/configuraciones'),
   upsert: (nombre: string, valor: string) =>
     api.put<ConfiguracionResponse>('/configuraciones', { nombre, valor }),
+  eliminar: (id: number) => api.delete<void>(`/configuraciones/${id}`),
 }

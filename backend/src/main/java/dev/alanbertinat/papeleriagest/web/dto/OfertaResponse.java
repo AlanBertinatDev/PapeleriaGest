@@ -1,6 +1,8 @@
 package dev.alanbertinat.papeleriagest.web.dto;
 
+import dev.alanbertinat.papeleriagest.domain.AudienciaNotificacion;
 import dev.alanbertinat.papeleriagest.domain.Oferta;
+import dev.alanbertinat.papeleriagest.domain.TipoOferta;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -14,9 +16,13 @@ public record OfertaResponse(
         LocalDate fechaDesde,
         LocalDate fechaHasta,
         boolean activo,
+        TipoOferta tipo,
+        boolean tieneImagen,
         Long usuarioId,
         String usuarioNombre,
-        List<String> imagenesUrls,
+        boolean notificado,
+        Integer notificadoCantidad,
+        AudienciaNotificacion audienciaNotificacion,
         List<ProductoResponse> productos) {
 
     public static OfertaResponse from(Oferta oferta) {
@@ -28,9 +34,13 @@ public record OfertaResponse(
                 oferta.getFechaDesde(),
                 oferta.getFechaHasta(),
                 oferta.isActivo(),
+                oferta.getTipo(),
+                oferta.getImagenArchivo() != null,
                 oferta.getUsuario().getId(),
                 oferta.getUsuario().getNombre(),
-                oferta.getImagenes().stream().map(dev.alanbertinat.papeleriagest.domain.Imagen::getUrl).toList(),
+                oferta.isNotificado(),
+                oferta.getNotificadoCantidad(),
+                oferta.getAudienciaNotificacion(),
                 oferta.getProductos().stream()
                         .map(ProductoResponse::from)
                         .sorted(Comparator.comparing(ProductoResponse::nombre))

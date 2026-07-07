@@ -1,0 +1,55 @@
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stockBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  font: 600 11.5px 'Inter', sans-serif;
+  background: var(--ok-bg);
+  color: var(--ok);
+  white-space: nowrap;
+}
+
+.stockBadge.bajo {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.desactivarLink {
+  text-align: center;
+  padding: 6px;
+  font: 500 12px 'Inter', sans-serif;
+  color: oklch(0.6 0.1 20);
+  background: transparent;
+  box-shadow: none;
+}
+
+.desactivarLink:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---- edit form (modal) ---- */
+
+.formHint {
+  margin-top: -8px;
+  font-size: 12px;
+  color: var(--ink-soft);
+  text-transform: none;
+  letter-spacing: normal;
+}

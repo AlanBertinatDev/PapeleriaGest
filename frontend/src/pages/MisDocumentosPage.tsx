@@ -4,6 +4,7 @@ import { ApiError } from '../api/client'
 import { Modal } from '../components/Modal'
 import { DocumentoCard } from '../components/DocumentoCard'
 import { FilterPills } from '../components/FilterPills'
+import { PageHeader } from '../components/PageHeader'
 
 type Filtro = 'TODOS' | 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
 
@@ -90,10 +91,7 @@ export function MisDocumentosPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Mis documentos</h1>
-        <p>Documentos personales que cargaste para imprimir</p>
-      </div>
+      <PageHeader title="Mis documentos" subtitle="Documentos personales que cargaste para imprimir" />
 
       <div className="section-header">
         <h3>Listado</h3>

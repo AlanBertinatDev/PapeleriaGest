@@ -1,0 +1,200 @@
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.groupHeaderTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.groupIcon {
+  font-size: 15px;
+}
+
+.groupTitle {
+  font: 600 13.5px 'Inter', sans-serif;
+  color: oklch(0.3 0.01 75);
+}
+
+.groupCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 4px 24px;
+  margin-bottom: 22px;
+}
+
+.paramRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border-soft);
+}
+
+.paramRow:first-of-type {
+  border-top: none;
+}
+
+.paramName {
+  font: 600 14px 'Inter', sans-serif;
+  color: var(--ink);
+}
+
+.paramDesc {
+  font: 400 12.5px/1.5 'Inter', sans-serif;
+  color: var(--ink-faint);
+  margin-top: 2px;
+  max-width: 560px;
+}
+
+.paramActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.valuePill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 600 12px 'Inter', sans-serif;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.valuePill.email {
+  background: var(--ok-bg);
+  color: var(--ok);
+}
+
+.valuePill.password {
+  background: var(--surface-alt);
+  color: var(--ink-soft);
+  font-family: ui-monospace, monospace;
+  letter-spacing: 2px;
+}
+
+.valuePill.currency {
+  background: var(--info-bg);
+  color: var(--info);
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+}
+
+.editBtn {
+  font: 600 12.5px 'Inter', sans-serif;
+  color: oklch(0.35 0.01 75);
+  border: 1px solid var(--border);
+  padding: 7px 14px;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+}
+
+.editBtn:hover {
+  opacity: 1;
+  border-color: var(--ink-faint);
+}
+
+.otrosHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.emptyOtros {
+  padding: 34px 20px;
+  text-align: center;
+  font: 400 13px 'Inter', sans-serif;
+  color: var(--ink-soft);
+}
+
+/* ---- contextual modals ---- */
+
+.modalLabel {
+  font: 600 11px 'Inter', sans-serif;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+.highlightBox {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border: 1.5px solid oklch(0.6 0.09 230);
+  border-radius: var(--radius-sm);
+  background: oklch(0.97 0.015 230);
+}
+
+.highlightBox input {
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  flex: 1;
+  font: 600 14px 'Inter', sans-serif;
+  color: var(--ink);
+}
+
+.plainBox {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.plainBox input {
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  flex: 1;
+  font: 500 14px ui-monospace, monospace;
+  color: var(--ink-soft);
+  letter-spacing: 2px;
+}
+
+.mostrarToggle {
+  font: 600 11.5px 'Inter', sans-serif;
+  color: oklch(0.45 0.08 230);
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+.currencyPrefix {
+  font: 700 15px 'Poppins', sans-serif;
+  color: var(--accent);
+}
+
+.currencyBox input {
+  font: 700 16px 'Poppins', sans-serif;
+  color: var(--ink);
+}
+
+.modalHelp {
+  font: 400 11.5px 'Inter', sans-serif;
+  color: var(--ink-soft);
+  margin-top: 6px;
+}
+
+.modalSubmit {
+  width: 100%;
+  margin-top: 20px;
+}

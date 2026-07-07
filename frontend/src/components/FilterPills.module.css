@@ -1,0 +1,50 @@
+.track {
+  display: flex;
+  gap: 6px;
+  background: var(--surface-alt);
+  padding: 4px;
+  border-radius: 10px;
+  width: fit-content;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--ink-soft);
+  font: 500 13px 'Inter', sans-serif;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: none;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  opacity: 1;
+  color: var(--ink);
+}
+
+.tab.active {
+  background: var(--surface);
+  color: var(--ink);
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+}
+
+.count {
+  background: var(--neutral-bg);
+  color: var(--neutral);
+  font: 600 10.5px 'Inter', sans-serif;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+}
+
+.tab.active .count {
+  background: var(--accent-soft);
+  color: var(--accent);
+}

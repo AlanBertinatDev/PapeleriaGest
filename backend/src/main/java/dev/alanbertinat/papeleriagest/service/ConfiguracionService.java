@@ -1,6 +1,7 @@
 package dev.alanbertinat.papeleriagest.service;
 
 import dev.alanbertinat.papeleriagest.domain.Configuracion;
+import dev.alanbertinat.papeleriagest.exception.ResourceNotFoundException;
 import dev.alanbertinat.papeleriagest.repository.ConfiguracionRepository;
 import dev.alanbertinat.papeleriagest.web.dto.ConfiguracionRequest;
 import dev.alanbertinat.papeleriagest.web.dto.ConfiguracionResponse;
@@ -31,5 +32,13 @@ public class ConfiguracionService {
                         .build());
         configuracion.setValor(request.valor());
         return ConfiguracionResponse.from(configuracionRepository.save(configuracion));
+    }
+
+    @Transactional
+    public void eliminar(Long id) {
+        Configuracion configuracion = configuracionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Configuración no encontrada: " + id));
+        configuracion.setActivo(false);
+        configuracionRepository.save(configuracion);
     }
 }

@@ -22,7 +22,7 @@ export function DocumentoCard({ documento, mostrarUsuario, acciones }: Documento
         <EstadoBadge estado={documento.estado} />
       </div>
 
-      <p style={{ margin: 0, fontSize: 13, color: 'var(--ink-soft)' }}>
+      <p style={{ margin: 0, fontSize: 12.5, color: 'var(--ink-soft)' }}>
         {documento.materia && <>Materia: {documento.materia} · </>}
         {documento.cantidadCopias} copia{documento.cantidadCopias === 1 ? '' : 's'} ·{' '}
         {documento.esDobleFaz ? 'Doble faz' : 'Simple faz'} · {documento.aColor ? 'Color' : 'Blanco y negro'}

@@ -1,0 +1,34 @@
+.track {
+  width: 40px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background: var(--border);
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  flex: none;
+  box-shadow: none;
+}
+
+.track.on {
+  background: oklch(0.72 0.13 155);
+}
+
+.track:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.track.on .thumb {
+  transform: translateX(18px);
+}

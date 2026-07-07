@@ -4,6 +4,7 @@ import { dashboardApi, type DashboardResponse } from '../../api/dashboard'
 import { reportesApi, type ProductoMasVendidoResponse, type ResumenReporteResponse } from '../../api/reportes'
 import { ApiError } from '../../api/client'
 import { RankingBars } from '../../components/RankingBars'
+import { PageHeader } from '../../components/PageHeader'
 
 function hace30Dias(): { desde: string; hasta: string } {
   const hasta = new Date()
@@ -31,10 +32,7 @@ export function AdminDashboardPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Inicio</h1>
-        <p>Resumen del día a día de la papelería</p>
-      </div>
+      <PageHeader title="Inicio" subtitle="Resumen del día a día de la papelería" />
       {error && <p className="error">{error}</p>}
       {dashboard && (
         <>

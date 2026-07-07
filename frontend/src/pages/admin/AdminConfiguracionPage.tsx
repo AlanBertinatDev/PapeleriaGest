@@ -2,20 +2,78 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { configuracionesApi, type ConfiguracionResponse } from '../../api/configuraciones'
 import { ApiError } from '../../api/client'
 import { Modal } from '../../components/Modal'
+import { PageHeader } from '../../components/PageHeader'
+import styles from './AdminConfiguracionPage.module.css'
 
-const CLAVES_CONOCIDAS = [
-  { nombre: 'CorreoEmpresa', descripcion: 'Casilla que envía los avisos de nuevos pedidos y documentos' },
-  { nombre: 'Contraseñamail', descripcion: 'Contraseña de aplicación de esa casilla (SMTP)' },
-  { nombre: 'CorreoAdmin', descripcion: 'A dónde llegan los avisos de nuevos pedidos y documentos' },
-  { nombre: 'CostoEnvio', descripcion: 'Costo fijo que se suma al pedido cuando el cliente pide envío a domicilio' },
+type ParamTipo = 'email' | 'password' | 'currency'
+
+interface ParamDef {
+  nombre: string
+  label: string
+  descripcion: string
+  tipo: ParamTipo
+}
+
+interface Grupo {
+  icono: string
+  titulo: string
+  parametros: ParamDef[]
+}
+
+const GRUPOS: Grupo[] = [
+  {
+    icono: '✉️',
+    titulo: 'Notificaciones por correo',
+    parametros: [
+      {
+        nombre: 'CorreoEmpresa',
+        label: 'Correo remitente',
+        descripcion: 'Casilla de Gmail que envía los avisos (queda como remitente del mail).',
+        tipo: 'email',
+      },
+      {
+        nombre: 'Contraseñamail',
+        label: 'Contraseña de aplicación',
+        descripcion: 'Se genera en myaccount.google.com/apppasswords, no es la contraseña normal de la cuenta.',
+        tipo: 'password',
+      },
+      {
+        nombre: 'CorreoAdmin',
+        label: 'Correo de destino',
+        descripcion:
+          'A dónde llegan los avisos de nuevos pedidos y documentos. Admite varias direcciones separadas por coma.',
+        tipo: 'email',
+      },
+    ],
+  },
+  {
+    icono: '🛒',
+    titulo: 'Comercial',
+    parametros: [
+      {
+        nombre: 'CostoEnvio',
+        label: 'Costo de envío',
+        descripcion: 'Costo fijo que se suma al pedido cuando el cliente pide envío a domicilio.',
+        tipo: 'currency',
+      },
+    ],
+  },
 ]
+
+const NOMBRES_CONOCIDOS = new Set(GRUPOS.flatMap((g) => g.parametros.map((p) => p.nombre)))
+
+interface ModalInfo {
+  titulo: string
+  tipo: ParamTipo | 'custom'
+}
 
 export function AdminConfiguracionPage() {
   const [configuraciones, setConfiguraciones] = useState<ConfiguracionResponse[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [modalInfo, setModalInfo] = useState<ModalInfo | null>(null)
   const [nombre, setNombre] = useState('')
   const [valor, setValor] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [modalAbierto, setModalAbierto] = useState(false)
+  const [mostrarPassword, setMostrarPassword] = useState(false)
 
   function cargar() {
     configuracionesApi
@@ -26,17 +84,28 @@ export function AdminConfiguracionPage() {
 
   useEffect(cargar, [])
 
-  function abrirModal(nombrePrecargado?: string) {
-    setNombre(nombrePrecargado ?? '')
-    setValor('')
+  function abrirModalSistema(def: ParamDef) {
+    const actual = configuraciones.find((c) => c.nombre === def.nombre)
+    setNombre(def.nombre)
+    setValor(def.tipo === 'password' ? '' : (actual?.valor ?? ''))
+    setModalInfo({ titulo: def.label, tipo: def.tipo })
+    setMostrarPassword(false)
     setError(null)
-    setModalAbierto(true)
+  }
+
+  function abrirModalCustom(nombreExistente?: string) {
+    const actual = nombreExistente ? configuraciones.find((c) => c.nombre === nombreExistente) : undefined
+    setNombre(nombreExistente ?? '')
+    setValor(actual?.valor ?? '')
+    setModalInfo({ titulo: nombreExistente ?? 'Nuevo parámetro', tipo: 'custom' })
+    setError(null)
   }
 
   function cerrarModal() {
-    setModalAbierto(false)
+    setModalInfo(null)
     setNombre('')
     setValor('')
+    setMostrarPassword(false)
     setError(null)
   }
 
@@ -52,88 +121,177 @@ export function AdminConfiguracionPage() {
     }
   }
 
-  const configuradas = new Set(configuraciones.map((c) => c.nombre))
+  async function handleEliminar(id: number, nombreParametro: string) {
+    if (!window.confirm(`¿Eliminar el parámetro "${nombreParametro}"?`)) return
+    setError(null)
+    try {
+      await configuracionesApi.eliminar(id)
+      cargar()
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'No se pudo eliminar el parámetro')
+    }
+  }
+
+  const yaExiste = configuraciones.some((c) => c.nombre === nombre)
+  const otros = configuraciones.filter((c) => !NOMBRES_CONOCIDOS.has(c.nombre))
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Configuración</h1>
-        <p>Parámetros generales del sistema</p>
-      </div>
+      <PageHeader title="Configuración" subtitle="Parámetros generales del sistema" />
+      {error && !modalInfo && <p className="error">{error}</p>}
 
-      <div className="card">
-        <h3>Parámetros disponibles</h3>
-        <p style={{ marginBottom: 12, color: 'var(--ink-soft)', fontSize: 14 }}>
-          Estos parámetros ya están conectados a una funcionalidad real. Hacé clic para cargarlos o editarlos.
-        </p>
-        {CLAVES_CONOCIDAS.map((clave) => {
-          const actual = configuraciones.find((c) => c.nombre === clave.nombre)
-          return (
-            <div className="row" key={clave.nombre} style={{ justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-              <div>
-                <strong>{clave.nombre}</strong>
-                <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>{clave.descripcion}</p>
-              </div>
-              <div className="row">
-                {actual && <span className="badge badge-activa">{clave.nombre === 'Contraseñamail' ? '••••••' : actual.valor}</span>}
-                <button className="secondary" onClick={() => abrirModal(clave.nombre)}>
-                  {configuradas.has(clave.nombre) ? 'Editar' : 'Cargar'}
-                </button>
-              </div>
+      {GRUPOS.map((grupo) => (
+        <div key={grupo.titulo}>
+          <div className={styles.groupHeader}>
+            <div className={styles.groupHeaderTitle}>
+              <span className={styles.groupIcon}>{grupo.icono}</span>
+              <span className={styles.groupTitle}>{grupo.titulo}</span>
             </div>
-          )
-        })}
+          </div>
+          <div className={styles.groupCard}>
+            {grupo.parametros.map((def) => {
+              const actual = configuraciones.find((c) => c.nombre === def.nombre)
+              return (
+                <div className={styles.paramRow} key={def.nombre}>
+                  <div>
+                    <div className={styles.paramName}>{def.label}</div>
+                    <div className={styles.paramDesc}>{def.descripcion}</div>
+                  </div>
+                  <div className={styles.paramActions}>
+                    {actual &&
+                      (def.tipo === 'password' ? (
+                        <span className={`${styles.valuePill} ${styles.password}`}>🔒 ••••••••••••</span>
+                      ) : def.tipo === 'email' ? (
+                        <span className={`${styles.valuePill} ${styles.email}`}>📧 {actual.valor}</span>
+                      ) : (
+                        <span className={`${styles.valuePill} ${styles.currency}`}>${actual.valor}</span>
+                      ))}
+                    <button className={styles.editBtn} onClick={() => abrirModalSistema(def)}>
+                      {def.tipo === 'password' ? 'Cambiar' : actual ? 'Editar' : 'Cargar'}
+                    </button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ))}
+
+      <div className={styles.otrosHeader}>
+        <div className={styles.groupHeaderTitle}>
+          <span className={styles.groupIcon}>⚙️</span>
+          <span className={styles.groupTitle}>Otros parámetros</span>
+        </div>
+        <button onClick={() => abrirModalCustom()}>+ Agregar parámetro</button>
       </div>
 
-      <div className="section-header">
-        <h3>Otros parámetros</h3>
-        <button onClick={() => abrirModal()}>Agregar parámetro</button>
-      </div>
-      {error && !modalAbierto && <p className="error">{error}</p>}
-
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          {configuraciones
-            .filter((c) => !CLAVES_CONOCIDAS.some((k) => k.nombre === c.nombre))
-            .map((c) => (
+      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Valor</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {otros.map((c) => (
               <tr key={c.id}>
                 <td>{c.nombre}</td>
                 <td>{c.valor}</td>
+                <td className="row" style={{ justifyContent: 'flex-end' }}>
+                  <button className="secondary" onClick={() => abrirModalCustom(c.nombre)}>
+                    Editar
+                  </button>
+                  <button className="secondary" onClick={() => handleEliminar(c.id, c.nombre)}>
+                    Eliminar
+                  </button>
+                </td>
               </tr>
             ))}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+        {otros.length === 0 && (
+          <div className={styles.emptyOtros}>
+            Todavía no agregaste parámetros personalizados. Usalos para configuraciones puntuales que no están en
+            las categorías de arriba.
+          </div>
+        )}
+      </div>
 
-      {modalAbierto && (
-        <Modal title={nombre ? `Configurar ${nombre}` : 'Nuevo parámetro'} onClose={cerrarModal}>
+      {modalInfo && (
+        <Modal title={modalInfo.titulo} onClose={cerrarModal}>
           <form onSubmit={handleSubmit}>
-            <label>
-              Nombre
-              <input
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                placeholder="CorreoEmpresa"
-                required
-                readOnly={CLAVES_CONOCIDAS.some((k) => k.nombre === nombre)}
-              />
-            </label>
-            <label>
-              Valor
-              <input
-                type={nombre === 'Contraseñamail' ? 'password' : 'text'}
-                value={valor}
-                onChange={(e) => setValor(e.target.value)}
-                required
-              />
-            </label>
+            {modalInfo.tipo === 'email' && (
+              <div>
+                <label className={styles.modalLabel}>Dirección de Gmail</label>
+                <div className={styles.highlightBox}>
+                  <span>📧</span>
+                  <input type="email" value={valor} onChange={(e) => setValor(e.target.value)} required autoFocus />
+                </div>
+                <div className={styles.modalHelp}>Ej: contacto@tupapeleria.com</div>
+              </div>
+            )}
+
+            {modalInfo.tipo === 'password' && (
+              <div>
+                <label className={styles.modalLabel}>Nueva contraseña de aplicación</label>
+                <div className={styles.plainBox}>
+                  <span>🔒</span>
+                  <input
+                    type={mostrarPassword ? 'text' : 'password'}
+                    value={valor}
+                    onChange={(e) => setValor(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className={styles.mostrarToggle}
+                    onClick={() => setMostrarPassword((v) => !v)}
+                  >
+                    {mostrarPassword ? 'Ocultar' : 'Mostrar'}
+                  </button>
+                </div>
+                <div className={styles.modalHelp}>
+                  Se genera en myaccount.google.com/apppasswords con la verificación en 2 pasos activada.
+                </div>
+              </div>
+            )}
+
+            {modalInfo.tipo === 'currency' && (
+              <div>
+                <label className={styles.modalLabel}>Monto fijo</label>
+                <div className={`${styles.highlightBox} ${styles.currencyBox}`}>
+                  <span className={styles.currencyPrefix}>$</span>
+                  <input type="number" value={valor} onChange={(e) => setValor(e.target.value)} required autoFocus />
+                </div>
+              </div>
+            )}
+
+            {modalInfo.tipo === 'custom' && (
+              <>
+                <label>
+                  Nombre
+                  <input
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    placeholder="MiParametro"
+                    required
+                    readOnly={yaExiste}
+                  />
+                </label>
+                <label>
+                  Valor
+                  <input value={valor} onChange={(e) => setValor(e.target.value)} required autoFocus={yaExiste} />
+                </label>
+              </>
+            )}
+
             {error && <p className="error">{error}</p>}
-            <button type="submit">Guardar</button>
+            <button type="submit" className={styles.modalSubmit}>
+              {modalInfo.tipo === 'password' ? 'Guardar contraseña' : 'Guardar'}
+            </button>
           </form>
         </Modal>
       )}

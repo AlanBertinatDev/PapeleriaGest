@@ -8,6 +8,9 @@ import {
 } from '../../api/reportes'
 import { ApiError } from '../../api/client'
 import { RankingBars } from '../../components/RankingBars'
+import { PageHeader } from '../../components/PageHeader'
+import { FilterPills } from '../../components/FilterPills'
+import styles from './AdminReportesPage.module.css'
 
 type Preset = '7d' | '30d' | 'mes' | 'custom'
 
@@ -82,23 +85,19 @@ export function AdminReportesPage() {
 
   return (
     <div>
-      <div className="page-hero">
-        <h1>Reportes</h1>
-        <p>Ventas e impresión en el rango de fechas elegido</p>
-      </div>
+      <PageHeader title="Reportes" subtitle="Ventas e impresión en el rango de fechas elegido" />
 
-      <form className="date-range-form" onSubmit={handleSubmit}>
-        <div className="date-presets">
-          <button type="button" className={preset === '7d' ? 'active' : 'secondary'} onClick={() => aplicarPreset('7d')}>
-            Últimos 7 días
-          </button>
-          <button type="button" className={preset === '30d' ? 'active' : 'secondary'} onClick={() => aplicarPreset('30d')}>
-            Últimos 30 días
-          </button>
-          <button type="button" className={preset === 'mes' ? 'active' : 'secondary'} onClick={() => aplicarPreset('mes')}>
-            Este mes
-          </button>
-        </div>
+      <form className={styles.filtersForm} onSubmit={handleSubmit}>
+        <FilterPills
+          className={styles.noMargin}
+          options={[
+            { key: '7d', label: 'Últimos 7 días' },
+            { key: '30d', label: 'Últimos 30 días' },
+            { key: 'mes', label: 'Este mes' },
+          ]}
+          active={preset}
+          onChange={(key) => aplicarPreset(key as Preset)}
+        />
         <label>
           Desde
           <input type="date" value={desde} onChange={(e) => handleFechaManual('desde', e.target.value)} required />
@@ -107,7 +106,7 @@ export function AdminReportesPage() {
           Hasta
           <input type="date" value={hasta} onChange={(e) => handleFechaManual('hasta', e.target.value)} required />
         </label>
-        <button type="submit" disabled={cargando}>
+        <button type="submit" disabled={cargando} style={{ marginLeft: 'auto' }}>
           {cargando ? 'Actualizando...' : 'Actualizar'}
         </button>
       </form>
@@ -133,6 +132,7 @@ export function AdminReportesPage() {
       <div className="card">
         <h3>Top 5 productos más vendidos</h3>
         <RankingBars
+          color="menta"
           emptyMessage="No hubo ventas de productos en este período."
           items={productos.map((p) => ({
             key: p.productoId,
@@ -146,6 +146,7 @@ export function AdminReportesPage() {
       <div className="card">
         <h3>Top 5 clientes por gasto</h3>
         <RankingBars
+          color="celeste"
           emptyMessage="No hubo compras en este período."
           items={usuariosGasto.map((u) => ({
             key: u.usuarioId,

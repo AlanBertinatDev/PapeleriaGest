@@ -2,18 +2,21 @@ package dev.alanbertinat.papeleriagest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.alanbertinat.papeleriagest.domain.Nivel;
 import dev.alanbertinat.papeleriagest.domain.Usuario;
 import dev.alanbertinat.papeleriagest.repository.NivelRepository;
 import dev.alanbertinat.papeleriagest.repository.UsuarioRepository;
 import dev.alanbertinat.papeleriagest.web.dto.AsignarDocenteRequest;
 import dev.alanbertinat.papeleriagest.web.dto.AsignarEstudianteRequest;
 import dev.alanbertinat.papeleriagest.web.dto.AuthResponse;
+import dev.alanbertinat.papeleriagest.web.dto.CambiarNivelRequest;
 import dev.alanbertinat.papeleriagest.web.dto.CursoEstudianteResponse;
 import dev.alanbertinat.papeleriagest.web.dto.CursoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.CursoResponse;
 import dev.alanbertinat.papeleriagest.web.dto.LoginRequest;
 import dev.alanbertinat.papeleriagest.web.dto.MateriaCursoDocenteResponse;
 import dev.alanbertinat.papeleriagest.web.dto.RegisterRequest;
+import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -70,6 +73,16 @@ class CursoFlowTest extends AbstractIntegrationTest {
                 register("Docente Curso", "docente-curso@example.com", "docente-curso-cedula", "docentepass123");
         docenteToken = docenteRegister.getBody().token();
         docenteId = docenteRegister.getBody().usuario().id();
+
+        Long nivelDocenteId = nivelRepository.findAll().stream()
+                .filter(Nivel::isDocente)
+                .findFirst()
+                .orElseThrow()
+                .getId();
+        restTemplate.exchange(
+                "/api/usuarios/" + docenteId + "/nivel", HttpMethod.PUT,
+                new HttpEntity<>(new CambiarNivelRequest(nivelDocenteId), authHeaders(adminToken)),
+                UsuarioResponse.class);
     }
 
     @Test
@@ -116,6 +129,54 @@ class CursoFlowTest extends AbstractIntegrationTest {
                 "/api/cursos/docentes/" + docenteId + "/materias", HttpMethod.GET,
                 new HttpEntity<>(authHeaders(adminToken)), MateriaCursoDocenteResponse[].class);
         assertThat(materias.getBody()).extracting(MateriaCursoDocenteResponse::materia).contains("Matemática");
+    }
+
+    @Test
+    void noSePuedeAsignarComoDocenteAUnUsuarioSinRolDocente() {
+        ResponseEntity<CursoResponse> curso = restTemplate.exchange(
+                "/api/cursos", HttpMethod.POST,
+                new HttpEntity<>(new CursoRequest("6to", "B"), authHeaders(adminToken)), CursoResponse.class);
+        Long cursoId = curso.getBody().id();
+
+        ResponseEntity<String> rechazado = restTemplate.exchange(
+                "/api/cursos/" + cursoId + "/docentes", HttpMethod.POST,
+                new HttpEntity<>(new AsignarDocenteRequest(estudianteId, "Historia"), authHeaders(adminToken)),
+                String.class);
+        assertThat(rechazado.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void noSePuedeAsignarComoEstudianteAUnUsuarioSinRolEstandar() {
+        ResponseEntity<CursoResponse> curso = restTemplate.exchange(
+                "/api/cursos", HttpMethod.POST,
+                new HttpEntity<>(new CursoRequest("6to", "C"), authHeaders(adminToken)), CursoResponse.class);
+        Long cursoId = curso.getBody().id();
+
+        ResponseEntity<String> rechazado = restTemplate.exchange(
+                "/api/cursos/" + cursoId + "/estudiantes", HttpMethod.POST,
+                new HttpEntity<>(new AsignarEstudianteRequest(docenteId), authHeaders(adminToken)), String.class);
+        assertThat(rechazado.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void noSePuedeAsignarAUnUsuarioDesactivado() {
+        ResponseEntity<AuthResponse> desactivadoRegister = register(
+                "Estudiante Desactivado", "estudiante-desactivado@example.com", "estudiante-desactivado-cedula",
+                "desactivadopass123");
+        Long desactivadoId = desactivadoRegister.getBody().usuario().id();
+        restTemplate.exchange(
+                "/api/usuarios/" + desactivadoId + "/desactivar", HttpMethod.PUT,
+                new HttpEntity<>(authHeaders(adminToken)), UsuarioResponse.class);
+
+        ResponseEntity<CursoResponse> curso = restTemplate.exchange(
+                "/api/cursos", HttpMethod.POST,
+                new HttpEntity<>(new CursoRequest("6to", "D"), authHeaders(adminToken)), CursoResponse.class);
+        Long cursoId = curso.getBody().id();
+
+        ResponseEntity<String> rechazado = restTemplate.exchange(
+                "/api/cursos/" + cursoId + "/estudiantes", HttpMethod.POST,
+                new HttpEntity<>(new AsignarEstudianteRequest(desactivadoId), authHeaders(adminToken)), String.class);
+        assertThat(rechazado.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
 
     private String login(String email, String password) {
