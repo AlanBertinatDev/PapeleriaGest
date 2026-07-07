@@ -24,14 +24,28 @@ export function PedidoCard({ pedido, mostrarCliente, acciones }: PedidoCardProps
 
       <ul className="order-card-items">
         {pedido.items.map((item) => (
-          <li key={item.productoId}>
+          <li key={item.id}>
             <span>
-              {item.productoNombre} x{item.cantidad}
+              {item.nombre}
+              {item.ofertaTipo && ` (${item.ofertaTipo === 'SERVICIO' ? 'Servicio' : 'Oferta'})`} x{item.cantidad}
             </span>
             <span>${item.subtotal}</span>
           </li>
         ))}
       </ul>
+
+      {pedido.documentos.length > 0 && (
+        <ul className="order-card-items">
+          {pedido.documentos.map((doc) => (
+            <li key={doc.id}>
+              <span>
+                {doc.nombre} (Impresión) x{doc.cantidadCopias}
+              </span>
+              <span>${doc.precio}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <div className="order-card-total">
         <span>Total</span>

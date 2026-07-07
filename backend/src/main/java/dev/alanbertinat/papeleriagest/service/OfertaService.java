@@ -59,6 +59,7 @@ public class OfertaService {
                 .fechaHasta(request.fechaHasta())
                 .tipo(request.tipo())
                 .activo(true)
+                .destacarHome(request.destacarHome())
                 .usuario(usuario)
                 .productos(productos)
                 .build();
@@ -82,6 +83,7 @@ public class OfertaService {
         oferta.setFechaDesde(request.fechaDesde());
         oferta.setFechaHasta(request.fechaHasta());
         oferta.setTipo(request.tipo());
+        oferta.setDestacarHome(request.destacarHome());
         oferta.setProductos(productos);
 
         if (request.notificarPorCorreo() && !oferta.isNotificado()) {

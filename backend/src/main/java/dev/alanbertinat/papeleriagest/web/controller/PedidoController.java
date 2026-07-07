@@ -5,6 +5,7 @@ import dev.alanbertinat.papeleriagest.service.PedidoService;
 import dev.alanbertinat.papeleriagest.web.dto.CambiarEstadoPedidoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.CrearPedidoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.PedidoResponse;
+import dev.alanbertinat.papeleriagest.web.dto.TarifasResponse;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -34,6 +35,11 @@ public class PedidoController {
             @AuthenticationPrincipal UsuarioPrincipal principal, @Valid @RequestBody CrearPedidoRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(pedidoService.crear(principal.usuario(), request));
+    }
+
+    @GetMapping("/tarifas")
+    public TarifasResponse tarifas() {
+        return pedidoService.obtenerTarifas();
     }
 
     @GetMapping("/mios")

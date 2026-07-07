@@ -18,6 +18,7 @@ export interface DocumentoResponse {
   nombreArchivoOriginal: string | null
   esImagen: boolean
   estado: 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
+  precio: string
   usuarioId: number
   usuarioNombre: string
   pedidoId: number | null
@@ -63,8 +64,18 @@ function construirFormData(data: DocumentoFormData): FormData {
   return formData
 }
 
+export interface SolicitarImpresionRequest {
+  documentoOrigenId: number
+  pedidoId: number
+  cantidadCopias: number
+  esDobleFaz: boolean
+  aColor: boolean
+}
+
 export const documentosApi = {
   crear: (data: DocumentoFormData) => api.postForm<DocumentoResponse>('/documentos', construirFormData(data)),
+  solicitarImpresion: (data: SolicitarImpresionRequest) =>
+    api.post<DocumentoResponse>('/documentos/solicitar-impresion', data),
   misDocumentos: () => api.get<DocumentoResponse[]>('/documentos/mios'),
   listarTodos: () => api.get<DocumentoResponse[]>('/documentos'),
   listarPorCurso: (cursoId: number) => api.get<DocumentoResponse[]>(`/documentos/por-curso/${cursoId}`),

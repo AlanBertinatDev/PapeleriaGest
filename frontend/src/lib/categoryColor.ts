@@ -21,3 +21,11 @@ export function categoryTintColor(label: string, lightness = 0.97, chroma = 0.01
 export function categoryBorderColor(label: string, lightness = 0.8, chroma = 0.11): string {
   return `oklch(${lightness} ${chroma} ${hueForLabel(label)})`
 }
+
+export function categoryBadgeColor(label: string): string {
+  return `oklch(0.52 0.14 ${hueForLabel(label)})`
+}
+
+export function categoryTextColor(label: string): string {
+  return `oklch(0.42 0.1 ${hueForLabel(label)})`
+}

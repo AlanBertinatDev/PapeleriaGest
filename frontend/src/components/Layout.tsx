@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState, type ReactNode } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { NotificationCenter } from './NotificationCenter'
+import { AuthModal, type AuthTab } from './AuthModal'
+import { Footer } from './Footer'
 import logo from '../assets/logo.jpeg'
 import styles from './Layout.module.css'
 import { iniciales } from '../lib/iniciales'
@@ -17,10 +19,24 @@ function SidebarLink({ to, children }: { to: string; children: ReactNode }) {
 export function Layout({ children }: { children: ReactNode }) {
   const { usuario, isAdmin, isDocente, logout, loading } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const [authTab, setAuthTab] = useState<AuthTab | null>(null)
+
+  useEffect(() => {
+    if (location.pathname === '/login') setAuthTab('login')
+    else if (location.pathname === '/registrarse') setAuthTab('register')
+  }, [location.pathname])
 
   function handleLogout() {
     logout()
     navigate('/login')
+  }
+
+  function closeAuthModal() {
+    setAuthTab(null)
+    if (location.pathname === '/login' || location.pathname === '/registrarse') {
+      navigate('/')
+    }
   }
 
   if (loading) {
@@ -31,12 +47,34 @@ export function Layout({ children }: { children: ReactNode }) {
     return (
       <div className="app-shell" style={{ flexDirection: 'column' }}>
         <header className="guest-header">
-          <Link to="/login" className="sidebar-brand">
+          <Link to="/" className="sidebar-brand">
             <img src={logo} alt="Bertinat Papelería" />
-            <span>Bertinat Papelería</span>
+            <span>
+              Bertinat
+              <small>Papelería</small>
+            </span>
           </Link>
+          <div className="guest-header-actions">
+            <button className="guest-header-login" onClick={() => setAuthTab('login')}>
+              Ingresar
+            </button>
+            <button className="guest-header-register" onClick={() => setAuthTab('register')}>
+              Registrarme
+            </button>
+          </div>
         </header>
         <div className="guest-content">{children}</div>
+        <Footer />
+        {authTab && (
+          <AuthModal
+            initialTab={authTab}
+            onClose={closeAuthModal}
+            onSuccess={() => {
+              setAuthTab(null)
+              navigate('/')
+            }}
+          />
+        )}
       </div>
     )
   }
@@ -61,6 +99,7 @@ export function Layout({ children }: { children: ReactNode }) {
                 <SidebarLink to="/admin/productos">Productos</SidebarLink>
                 <SidebarLink to="/admin/pedidos">Pedidos</SidebarLink>
                 <SidebarLink to="/admin/ofertas">Ofertas</SidebarLink>
+                <SidebarLink to="/admin/fotos-home">Fotos del home</SidebarLink>
                 <SidebarLink to="/admin/documentos">Documentos</SidebarLink>
                 <SidebarLink to="/admin/cursos">Cursos</SidebarLink>
                 <SidebarLink to="/admin/usuarios">Usuarios</SidebarLink>
@@ -70,6 +109,10 @@ export function Layout({ children }: { children: ReactNode }) {
             </div>
           ) : (
             <>
+              <div className={styles.links}>
+                <SidebarLink to="/">Inicio</SidebarLink>
+              </div>
+
               <div>
                 <div className={styles.sectionTitle}>Comprar</div>
                 <div className={styles.links}>

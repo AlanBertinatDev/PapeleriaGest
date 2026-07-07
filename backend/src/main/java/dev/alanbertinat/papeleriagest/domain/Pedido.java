@@ -64,4 +64,8 @@ public class Pedido {
     @Builder.Default
     @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PedidoItem> items = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "pedido")
+    private List<Documento> documentos = new ArrayList<>();
 }

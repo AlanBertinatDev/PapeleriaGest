@@ -18,5 +18,6 @@ public record OfertaRequest(
         @NotNull TipoOferta tipo,
         @NotNull List<Long> productoIds,
         boolean notificarPorCorreo,
-        AudienciaNotificacion audienciaNotificacion) {
+        AudienciaNotificacion audienciaNotificacion,
+        boolean destacarHome) {
 }

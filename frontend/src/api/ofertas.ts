@@ -19,6 +19,7 @@ export interface OfertaResponse {
   notificado: boolean
   notificadoCantidad: number | null
   audienciaNotificacion: AudienciaNotificacion | null
+  destacarHome: boolean
   productos: ProductoResponse[]
 }
 
@@ -32,6 +33,7 @@ export interface OfertaRequest {
   productoIds: number[]
   notificarPorCorreo: boolean
   audienciaNotificacion: AudienciaNotificacion | null
+  destacarHome: boolean
 }
 
 export const ofertasApi = {

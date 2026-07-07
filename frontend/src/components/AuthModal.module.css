@@ -1,0 +1,35 @@
+.tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--surface-alt);
+  border-radius: var(--radius-pill);
+  padding: 4px;
+  margin-bottom: 18px;
+}
+
+.tab,
+.tabActive {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: var(--radius-pill);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 13.5px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+
+.tabActive {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+}
+
+.switchHint {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+}

@@ -53,6 +53,7 @@ export function AdminOfertasPage() {
   const [fechaHasta, setFechaHasta] = useState('')
   const [notificarPorCorreo, setNotificarPorCorreo] = useState(false)
   const [audienciaNotificacion, setAudienciaNotificacion] = useState<AudienciaNotificacion | null>(null)
+  const [destacarHome, setDestacarHome] = useState(false)
 
   function cargar() {
     ofertasApi
@@ -85,6 +86,7 @@ export function AdminOfertasPage() {
     setFechaHasta('')
     setNotificarPorCorreo(false)
     setAudienciaNotificacion(null)
+    setDestacarHome(false)
     setError(null)
     setModalAbierto(true)
   }
@@ -106,6 +108,7 @@ export function AdminOfertasPage() {
     setFechaHasta(oferta.fechaHasta)
     setNotificarPorCorreo(false)
     setAudienciaNotificacion(oferta.audienciaNotificacion)
+    setDestacarHome(oferta.destacarHome)
     setError(null)
     setModalAbierto(true)
   }
@@ -147,6 +150,7 @@ export function AdminOfertasPage() {
         productoIds,
         notificarPorCorreo,
         audienciaNotificacion: notificarPorCorreo ? audienciaNotificacion : null,
+        destacarHome,
       }
       const resultado = editando ? await ofertasApi.actualizar(editando.id, data) : await ofertasApi.crear(data)
       if (imagenFile) {
@@ -355,6 +359,22 @@ export function AdminOfertasPage() {
                         required
                       />
                     </label>
+                  </div>
+                </div>
+
+                <div className={styles.notifyBlock}>
+                  <div className={styles.notifyHeader}>
+                    <div>
+                      <div className={styles.notifyTitle}>Mostrar en el home público</div>
+                      <div className={styles.notifyHint}>
+                        Aparece en el carrusel de ofertas que ven los visitantes sin cuenta
+                      </div>
+                    </div>
+                    <Toggle
+                      checked={destacarHome}
+                      onChange={() => setDestacarHome((v) => !v)}
+                      label="Mostrar en el home público"
+                    />
                   </div>
                 </div>
 

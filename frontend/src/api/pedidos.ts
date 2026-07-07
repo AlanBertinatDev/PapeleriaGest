@@ -1,8 +1,12 @@
 import { api } from './client'
+import type { DocumentoResponse } from './documentos'
 
 export interface PedidoItemResponse {
-  productoId: number
-  productoNombre: string
+  id: number
+  productoId: number | null
+  ofertaId: number | null
+  ofertaTipo: 'PRODUCTO' | 'PACK' | 'SERVICIO' | null
+  nombre: string
   cantidad: number
   precioUnitario: string
   subtotal: string
@@ -21,10 +25,18 @@ export interface PedidoResponse {
   usuarioId: number
   usuarioNombre: string
   items: PedidoItemResponse[]
+  documentos: DocumentoResponse[]
+}
+
+export interface TarifasResponse {
+  costoEnvio: string
+  costoCopiaBn: string
+  costoCopiaColor: string
 }
 
 export interface PedidoItemRequest {
-  productoId: number
+  productoId?: number | null
+  ofertaId?: number | null
   cantidad: number
 }
 
@@ -39,6 +51,7 @@ export interface CrearPedidoRequest {
 
 export const pedidosApi = {
   crear: (data: CrearPedidoRequest) => api.post<PedidoResponse>('/pedidos', data),
+  tarifas: () => api.get<TarifasResponse>('/pedidos/tarifas'),
   misPedidos: () => api.get<PedidoResponse[]>('/pedidos/mios'),
   listarTodos: () => api.get<PedidoResponse[]>('/pedidos'),
   buscar: (id: number) => api.get<PedidoResponse>(`/pedidos/${id}`),

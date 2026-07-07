@@ -6,6 +6,7 @@ import dev.alanbertinat.papeleriagest.service.DocumentoService;
 import dev.alanbertinat.papeleriagest.web.dto.CambiarEstadoDocumentoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoResponse;
+import dev.alanbertinat.papeleriagest.web.dto.SolicitarImpresionRequest;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -45,6 +46,13 @@ public class DocumentoController {
             @RequestPart("archivo") MultipartFile archivo) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(documentoService.crear(principal.usuario(), request, archivo));
+    }
+
+    @PostMapping("/solicitar-impresion")
+    public ResponseEntity<DocumentoResponse> solicitarImpresion(
+            @AuthenticationPrincipal UsuarioPrincipal principal, @Valid @RequestBody SolicitarImpresionRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(documentoService.solicitarImpresion(principal.usuario(), request));
     }
 
     @GetMapping("/mios")

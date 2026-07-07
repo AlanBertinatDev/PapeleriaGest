@@ -1,10 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
-import { AuthProvider } from './auth/AuthContext'
+import { AuthProvider, useAuth } from './auth/AuthContext'
 import { ProtectedRoute, AdminRoute, DocenteRoute } from './auth/ProtectedRoute'
 import { Layout } from './components/Layout'
-import { LoginPage } from './pages/LoginPage'
-import { RegisterPage } from './pages/RegisterPage'
+import { LandingPage } from './pages/LandingPage'
 import { HomePage } from './pages/HomePage'
 import { CatalogoPage } from './pages/CatalogoPage'
 import { MisPedidosPage } from './pages/MisPedidosPage'
@@ -17,11 +16,25 @@ import { AdminProductosPage } from './pages/admin/AdminProductosPage'
 import { AdminProductoDetallePage } from './pages/admin/AdminProductoDetallePage'
 import { AdminPedidosPage } from './pages/admin/AdminPedidosPage'
 import { AdminOfertasPage } from './pages/admin/AdminOfertasPage'
+import { AdminFotosHomePage } from './pages/admin/AdminFotosHomePage'
 import { AdminDocumentosPage } from './pages/admin/AdminDocumentosPage'
 import { AdminCursosPage } from './pages/admin/AdminCursosPage'
 import { AdminUsuariosPage } from './pages/admin/AdminUsuariosPage'
 import { AdminReportesPage } from './pages/admin/AdminReportesPage'
 import { AdminConfiguracionPage } from './pages/admin/AdminConfiguracionPage'
+
+function RootRoute() {
+  const { usuario, loading } = useAuth()
+  if (loading) return null
+  return usuario ? <HomePage /> : <LandingPage />
+}
+
+function GuestOnlyRoute() {
+  const { usuario, loading } = useAuth()
+  if (loading) return null
+  if (usuario) return <Navigate to="/" replace />
+  return <LandingPage />
+}
 
 function App() {
   return (
@@ -29,16 +42,9 @@ function App() {
       <AuthProvider>
         <Layout>
           <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/registrarse" element={<RegisterPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/login" element={<GuestOnlyRoute />} />
+            <Route path="/registrarse" element={<GuestOnlyRoute />} />
+            <Route path="/" element={<RootRoute />} />
             <Route
               path="/catalogo"
               element={
@@ -132,6 +138,14 @@ function App() {
               element={
                 <AdminRoute>
                   <AdminOfertasPage />
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/admin/fotos-home"
+              element={
+                <AdminRoute>
+                  <AdminFotosHomePage />
                 </AdminRoute>
               }
             />

@@ -18,7 +18,8 @@ public record PedidoResponse(
         BigDecimal precio,
         Long usuarioId,
         String usuarioNombre,
-        List<PedidoItemResponse> items) {
+        List<PedidoItemResponse> items,
+        List<DocumentoResponse> documentos) {
 
     public static PedidoResponse from(Pedido pedido) {
         return new PedidoResponse(
@@ -33,6 +34,7 @@ public record PedidoResponse(
                 pedido.getPrecio(),
                 pedido.getUsuario().getId(),
                 pedido.getUsuario().getNombre(),
-                pedido.getItems().stream().map(PedidoItemResponse::from).toList());
+                pedido.getItems().stream().map(PedidoItemResponse::from).toList(),
+                pedido.getDocumentos().stream().map(DocumentoResponse::from).toList());
     }
 }

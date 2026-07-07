@@ -4,13 +4,25 @@ import dev.alanbertinat.papeleriagest.domain.PedidoItem;
 import java.math.BigDecimal;
 
 public record PedidoItemResponse(
-        Long productoId, String productoNombre, int cantidad, BigDecimal precioUnitario, BigDecimal subtotal) {
+        Long id,
+        Long productoId,
+        Long ofertaId,
+        String ofertaTipo,
+        String nombre,
+        int cantidad,
+        BigDecimal precioUnitario,
+        BigDecimal subtotal) {
 
     public static PedidoItemResponse from(PedidoItem item) {
-        BigDecimal precioUnitario = item.getProducto().getPrecioVenta();
+        boolean esOferta = item.getOferta() != null;
+        BigDecimal precioUnitario = esOferta ? item.getOferta().getPrecio() : item.getProducto().getPrecioVenta();
+        String nombre = esOferta ? item.getOferta().getTitulo() : item.getProducto().getNombre();
         return new PedidoItemResponse(
-                item.getProducto().getCodigoProducto(),
-                item.getProducto().getNombre(),
+                item.getId(),
+                esOferta ? null : item.getProducto().getCodigoProducto(),
+                esOferta ? item.getOferta().getId() : null,
+                esOferta ? item.getOferta().getTipo().name() : null,
+                nombre,
                 item.getCantidad(),
                 precioUnitario,
                 precioUnitario.multiply(BigDecimal.valueOf(item.getCantidad())));

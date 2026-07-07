@@ -57,6 +57,8 @@ public class Oferta {
 
     private boolean notificado;
 
+    private boolean destacarHome;
+
     private Integer notificadoCantidad;
 
     @Enumerated(EnumType.STRING)

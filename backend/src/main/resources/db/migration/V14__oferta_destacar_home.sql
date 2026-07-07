@@ -1,0 +1,2 @@
+ALTER TABLE oferta ADD COLUMN destacar_home BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE oferta_aud ADD COLUMN destacar_home BOOLEAN;

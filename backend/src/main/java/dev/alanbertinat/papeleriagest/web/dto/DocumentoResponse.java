@@ -1,6 +1,7 @@
 package dev.alanbertinat.papeleriagest.web.dto;
 
 import dev.alanbertinat.papeleriagest.domain.Documento;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record DocumentoResponse(
@@ -21,6 +22,7 @@ public record DocumentoResponse(
         String nombreArchivoOriginal,
         boolean esImagen,
         String estado,
+        BigDecimal precio,
         Long usuarioId,
         String usuarioNombre,
         Long pedidoId,
@@ -46,6 +48,7 @@ public record DocumentoResponse(
                 documento.getNombreArchivoOriginal(),
                 documento.isEsImagen(),
                 documento.getEstado().name(),
+                documento.getPrecio(),
                 documento.getUsuario().getId(),
                 documento.getUsuario().getNombre(),
                 documento.getPedido() != null ? documento.getPedido().getId() : null,

@@ -56,6 +56,18 @@ const GRUPOS: Grupo[] = [
         descripcion: 'Costo fijo que se suma al pedido cuando el cliente pide envío a domicilio.',
         tipo: 'currency',
       },
+      {
+        nombre: 'CostoCopiaBN',
+        label: 'Costo por copia (blanco y negro)',
+        descripcion: 'Precio de cada copia impresa en blanco y negro que se pide desde el catálogo.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'CostoCopiaColor',
+        label: 'Costo por copia (color)',
+        descripcion: 'Precio de cada copia impresa a color que se pide desde el catálogo.',
+        tipo: 'currency',
+      },
     ],
   },
 ]

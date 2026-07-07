@@ -3,14 +3,19 @@ package dev.alanbertinat.papeleriagest.service;
 import dev.alanbertinat.papeleriagest.domain.Curso;
 import dev.alanbertinat.papeleriagest.domain.Documento;
 import dev.alanbertinat.papeleriagest.domain.EstadoDocumento;
+import dev.alanbertinat.papeleriagest.domain.EstadoPedido;
 import dev.alanbertinat.papeleriagest.domain.Pedido;
 import dev.alanbertinat.papeleriagest.domain.Usuario;
+import dev.alanbertinat.papeleriagest.exception.ConflictException;
 import dev.alanbertinat.papeleriagest.exception.ResourceNotFoundException;
+import dev.alanbertinat.papeleriagest.repository.ConfiguracionRepository;
 import dev.alanbertinat.papeleriagest.repository.CursoRepository;
 import dev.alanbertinat.papeleriagest.repository.DocumentoRepository;
 import dev.alanbertinat.papeleriagest.repository.PedidoRepository;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoResponse;
+import dev.alanbertinat.papeleriagest.web.dto.SolicitarImpresionRequest;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
@@ -27,6 +32,7 @@ public class DocumentoService {
     private final DocumentoRepository documentoRepository;
     private final PedidoRepository pedidoRepository;
     private final CursoRepository cursoRepository;
+    private final ConfiguracionRepository configuracionRepository;
     private final NotificacionService notificacionService;
     private final EmailService emailService;
     private final FileStorageService fileStorageService;
@@ -35,12 +41,14 @@ public class DocumentoService {
             DocumentoRepository documentoRepository,
             PedidoRepository pedidoRepository,
             CursoRepository cursoRepository,
+            ConfiguracionRepository configuracionRepository,
             NotificacionService notificacionService,
             EmailService emailService,
             FileStorageService fileStorageService) {
         this.documentoRepository = documentoRepository;
         this.pedidoRepository = pedidoRepository;
         this.cursoRepository = cursoRepository;
+        this.configuracionRepository = configuracionRepository;
         this.notificacionService = notificacionService;
         this.emailService = emailService;
         this.fileStorageService = fileStorageService;
@@ -80,6 +88,7 @@ public class DocumentoService {
                 .nombreArchivoOriginal(archivo.getOriginalFilename())
                 .esImagen(request.esImagen())
                 .estado(EstadoDocumento.PENDIENTE)
+                .precio(BigDecimal.ZERO)
                 .usuario(usuario)
                 .pedido(pedido)
                 .curso(curso)
@@ -91,6 +100,83 @@ public class DocumentoService {
                 "Nuevo documento cargado: " + guardado.getNombre(),
                 usuario.getNombre() + " cargó el documento \"" + guardado.getNombre() + "\" para imprimir.");
         return DocumentoResponse.from(guardado);
+    }
+
+    @Transactional
+    public DocumentoResponse solicitarImpresion(Usuario usuario, SolicitarImpresionRequest request) {
+        Documento origen = buscarEntidad(request.documentoOrigenId());
+        verificarAccesoLectura(origen, usuario);
+
+        Pedido pedido = pedidoRepository.findById(request.pedidoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado: " + request.pedidoId()));
+        if (!pedido.getUsuario().getId().equals(usuario.getId())) {
+            throw new AccessDeniedException("No tenés acceso a este pedido");
+        }
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
+            throw new ConflictException("Solo se pueden agregar documentos a un pedido pendiente");
+        }
+
+        BigDecimal precioUnitario = request.aColor() ? costoCopiaColor() : costoCopiaBn();
+        BigDecimal precio = precioUnitario.multiply(BigDecimal.valueOf(request.cantidadCopias()));
+
+        Documento copia = Documento.builder()
+                .nombre(origen.getNombre())
+                .formato(origen.getFormato())
+                .esDobleFaz(request.esDobleFaz())
+                .aColor(request.aColor())
+                .descripcion(origen.getDescripcion())
+                .esEnvio(pedido.isEsEnvio())
+                .direccion(pedido.getDireccion())
+                .materia(origen.getMateria())
+                .cantidadCopias(request.cantidadCopias())
+                .esPractico(origen.isEsPractico())
+                .nroPractico(origen.getNroPractico())
+                .fechaIngreso(LocalDate.now())
+                .activo(true)
+                .ruta(origen.getRuta())
+                .nombreArchivoOriginal(origen.getNombreArchivoOriginal())
+                .esImagen(origen.isEsImagen())
+                .estado(EstadoDocumento.PENDIENTE)
+                .precio(precio)
+                .usuario(usuario)
+                .pedido(pedido)
+                .curso(origen.getCurso())
+                .build();
+
+        Documento guardado = documentoRepository.save(copia);
+
+        pedido.setPrecio(pedido.getPrecio().add(precio));
+        pedidoRepository.save(pedido);
+
+        notificacionService.registrarDocumento(
+                usuario, "Pidió imprimir " + guardado.getNombre() + " en el pedido #" + pedido.getId(), guardado.getId());
+        emailService.notificarAdmin(
+                "Nueva impresión pedida: " + guardado.getNombre(),
+                usuario.getNombre() + " pidió " + request.cantidadCopias() + " copia(s) de \"" + guardado.getNombre()
+                        + "\" en el pedido #" + pedido.getId());
+        return DocumentoResponse.from(guardado);
+    }
+
+    private BigDecimal costoCopiaBn() {
+        return costoConfigurado("CostoCopiaBN");
+    }
+
+    private BigDecimal costoCopiaColor() {
+        return costoConfigurado("CostoCopiaColor");
+    }
+
+    private BigDecimal costoConfigurado(String nombre) {
+        return configuracionRepository.findByNombreAndActivoTrue(nombre)
+                .map(dev.alanbertinat.papeleriagest.domain.Configuracion::getValor)
+                .filter(v -> v != null && !v.isBlank())
+                .map(v -> {
+                    try {
+                        return new BigDecimal(v);
+                    } catch (NumberFormatException ex) {
+                        return BigDecimal.ZERO;
+                    }
+                })
+                .orElse(BigDecimal.ZERO);
     }
 
     @Transactional(readOnly = true)

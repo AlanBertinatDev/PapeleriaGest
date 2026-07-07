@@ -23,6 +23,7 @@ public record OfertaResponse(
         boolean notificado,
         Integer notificadoCantidad,
         AudienciaNotificacion audienciaNotificacion,
+        boolean destacarHome,
         List<ProductoResponse> productos) {
 
     public static OfertaResponse from(Oferta oferta) {
@@ -41,6 +42,7 @@ public record OfertaResponse(
                 oferta.isNotificado(),
                 oferta.getNotificadoCantidad(),
                 oferta.getAudienciaNotificacion(),
+                oferta.isDestacarHome(),
                 oferta.getProductos().stream()
                         .map(ProductoResponse::from)
                         .sorted(Comparator.comparing(ProductoResponse::nombre))
