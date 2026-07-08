@@ -21,11 +21,21 @@ export function Layout({ children }: { children: ReactNode }) {
   const navigate = useNavigate()
   const location = useLocation()
   const [authTab, setAuthTab] = useState<AuthTab | null>(null)
+  const [menuAbierto, setMenuAbierto] = useState(false)
 
   useEffect(() => {
     if (location.pathname === '/login') setAuthTab('login')
     else if (location.pathname === '/registrarse') setAuthTab('register')
   }, [location.pathname])
+
+  useEffect(() => {
+    if (!menuAbierto) return
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') setMenuAbierto(false)
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [menuAbierto])
 
   function handleLogout() {
     logout()
@@ -81,7 +91,27 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <aside className={styles.sidebar}>
+      <div className={styles.topbar}>
+        <button
+          type="button"
+          className={styles.hamburger}
+          aria-label="Abrir menú"
+          onClick={() => setMenuAbierto(true)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+        <Link to={isAdmin ? '/admin/dashboard' : '/'} className={styles.topbarBrand}>
+          <img src={logo} alt="Bertinat Papelería" className={styles.brandLogo} />
+          <span className={styles.brandText}>Bertinat</span>
+        </Link>
+        <div className={styles.topbarAvatar}>{iniciales(usuario.nombre)}</div>
+      </div>
+
+      {menuAbierto && <div className={styles.overlay} onClick={() => setMenuAbierto(false)} />}
+
+      <aside className={menuAbierto ? `${styles.sidebar} ${styles.sidebarOpen}` : styles.sidebar}>
         <Link to={isAdmin ? '/admin/dashboard' : '/'} className={styles.brand}>
           <img src={logo} alt="Bertinat Papelería" className={styles.brandLogo} />
           <span className={styles.brandText}>
@@ -90,7 +120,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </span>
         </Link>
 
-        <nav className={styles.nav}>
+        <nav className={styles.nav} onClick={() => setMenuAbierto(false)}>
           {isAdmin ? (
             <div>
               <div className={styles.sectionTitle}>Administración</div>

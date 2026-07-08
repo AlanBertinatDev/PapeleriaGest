@@ -29,7 +29,7 @@ public class DashboardService {
     @Transactional(readOnly = true)
     public DashboardResponse obtener() {
         long pedidosPendientes = pedidoRepository.countByActivoTrueAndEstado(EstadoPedido.PENDIENTE);
-        long documentosPendientes = documentoRepository.countByActivoTrueAndEstado(EstadoDocumento.PENDIENTE);
+        long documentosPendientes = documentoRepository.countByActivoTrueAndEstadoAndPedidoIsNotNull(EstadoDocumento.PENDIENTE);
         var stockBajo = productoRepository.findConStockBajo().stream().map(ProductoResponse::from).toList();
         return new DashboardResponse(pedidosPendientes, documentosPendientes, stockBajo);
     }

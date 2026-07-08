@@ -65,22 +65,24 @@ export function CategoriasMarcasPanel() {
             <h3>Categorías</h3>
             <button onClick={() => setModalCategoriaAbierto(true)}>Agregar</button>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>%</th>
-              </tr>
-            </thead>
-            <tbody>
-              {categorias.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.nombre}</td>
-                  <td>{c.porcentaje}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>%</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {categorias.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.nombre}</td>
+                    <td>{c.porcentaje}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div className="card" style={{ flex: 1, minWidth: 280 }}>
@@ -88,20 +90,22 @@ export function CategoriasMarcasPanel() {
             <h3>Marcas</h3>
             <button onClick={() => setModalMarcaAbierto(true)}>Agregar</button>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th>Nombre</th>
-              </tr>
-            </thead>
-            <tbody>
-              {marcas.map((m) => (
-                <tr key={m.id}>
-                  <td>{m.nombre}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nombre</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {marcas.map((m) => (
+                  <tr key={m.id}>
+                    <td>{m.nombre}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

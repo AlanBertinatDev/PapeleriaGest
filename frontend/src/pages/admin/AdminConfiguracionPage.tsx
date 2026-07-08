@@ -56,16 +56,76 @@ const GRUPOS: Grupo[] = [
         descripcion: 'Costo fijo que se suma al pedido cuando el cliente pide envío a domicilio.',
         tipo: 'currency',
       },
+    ],
+  },
+  {
+    icono: '🖨️',
+    titulo: 'Impresión',
+    parametros: [
       {
-        nombre: 'CostoCopiaBN',
-        label: 'Costo por copia (blanco y negro)',
-        descripcion: 'Precio de cada copia impresa en blanco y negro que se pide desde el catálogo.',
+        nombre: 'ImpresionBN',
+        label: 'Precio por copia — Blanco y negro',
+        descripcion: 'Precio base por cada copia impresa en blanco y negro.',
         tipo: 'currency',
       },
       {
-        nombre: 'CostoCopiaColor',
-        label: 'Costo por copia (color)',
-        descripcion: 'Precio de cada copia impresa a color que se pide desde el catálogo.',
+        nombre: 'ImpresionColorLaser',
+        label: 'Precio por copia — Color láser',
+        descripcion: 'Precio base por cada copia impresa a color láser.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionColorTinta',
+        label: 'Precio por copia — Color tinta',
+        descripcion: 'Precio base por cada copia impresa a color tinta.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionExtraA3',
+        label: 'Extra por tamaño A3',
+        descripcion: 'Monto adicional por copia cuando se elige papel A3 (se suma al precio base de color).',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionExtraA5',
+        label: 'Extra por tamaño A5',
+        descripcion: 'Monto adicional por copia cuando se elige papel A5. Podés dejarlo en 0 si no tiene diferencia.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionExtra160g',
+        label: 'Extra por papel 160g',
+        descripcion: 'Monto adicional por copia cuando se elige papel grueso de 160g.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionExtra200g',
+        label: 'Extra por papel 200g (cartulina)',
+        descripcion: 'Monto adicional por copia cuando se elige cartulina de 200g.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionExtraFoto',
+        label: 'Extra por papel fotográfico',
+        descripcion: 'Monto adicional por copia cuando se elige papel fotográfico.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionEncuadernacion',
+        label: 'Precio — Encuadernación',
+        descripcion: 'Costo fijo por encuadernar el trabajo (se suma una sola vez, sin importar las copias).',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionGrapado',
+        label: 'Precio — Grapado',
+        descripcion: 'Costo fijo por grapar el trabajo.',
+        tipo: 'currency',
+      },
+      {
+        nombre: 'ImpresionAgujeros',
+        label: 'Precio — 2 agujeros',
+        descripcion: 'Costo fijo por perforar el trabajo con 2 agujeros.',
         tipo: 'currency',
       },
     ],
@@ -197,7 +257,7 @@ export function AdminConfiguracionPage() {
         <button onClick={() => abrirModalCustom()}>+ Agregar parámetro</button>
       </div>
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card table-card">
         <table>
           <thead>
             <tr>

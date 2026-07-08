@@ -8,5 +8,11 @@ public record SolicitarImpresionRequest(
         @NotNull Long pedidoId,
         @Positive int cantidadCopias,
         boolean esDobleFaz,
-        boolean aColor) {
+        boolean aColor,
+        String tamanio,
+        String tipoPapel,
+        String modoColor,
+        String paginasPorCara,
+        String orientacion,
+        String terminacion) {
 }

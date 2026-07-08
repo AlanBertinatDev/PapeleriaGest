@@ -1,3 +1,4 @@
+import { documentosApi, type DocumentoResponse } from '../api/documentos'
 import type { PedidoResponse } from '../api/pedidos'
 import { EstadoBadge } from './EstadoBadge'
 
@@ -5,9 +6,27 @@ interface PedidoCardProps {
   pedido: PedidoResponse
   mostrarCliente?: boolean
   acciones?: { label: string; onClick: () => void; destacada?: boolean }[]
+  onDocumentoActualizado?: () => void
 }
 
-export function PedidoCard({ pedido, mostrarCliente, acciones }: PedidoCardProps) {
+const SIGUIENTE_ESTADO: Record<string, string> = {
+  PENDIENTE: 'IMPRESO',
+  IMPRESO: 'ENTREGADO',
+}
+
+const ACCION_SIGUIENTE_ESTADO: Record<string, string> = {
+  PENDIENTE: 'Marcar impreso',
+  IMPRESO: 'Marcar entregado',
+}
+
+export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActualizado }: PedidoCardProps) {
+  async function handleAvanzarEstadoDoc(doc: DocumentoResponse) {
+    const siguiente = SIGUIENTE_ESTADO[doc.estado]
+    if (!siguiente) return
+    await documentosApi.cambiarEstado(doc.id, siguiente)
+    onDocumentoActualizado?.()
+  }
+
   return (
     <div className={`order-card estado-${pedido.estado.toLowerCase()}`}>
       <div className="order-card-header">
@@ -34,13 +53,30 @@ export function PedidoCard({ pedido, mostrarCliente, acciones }: PedidoCardProps
         ))}
       </ul>
 
+      {pedido.descripcion && (
+        <p style={{ margin: 0, fontSize: 12.5, color: 'var(--ink-soft)' }}>
+          <strong>Detalle: </strong>
+          {pedido.descripcion}
+        </p>
+      )}
+
       {pedido.documentos.length > 0 && (
         <ul className="order-card-items">
           {pedido.documentos.map((doc) => (
             <li key={doc.id}>
-              <span>
-                {doc.nombre} (Impresión) x{doc.cantidadCopias}
-              </span>
+              <div>
+                <div>
+                  {doc.nombre} (Impresión) x{doc.cantidadCopias} <EstadoBadge estado={doc.estado} />
+                </div>
+                <div className="order-card-doc-actions">
+                  <button className="secondary" onClick={() => documentosApi.descargar(doc)}>
+                    Descargar
+                  </button>
+                  {mostrarCliente && SIGUIENTE_ESTADO[doc.estado] && (
+                    <button onClick={() => handleAvanzarEstadoDoc(doc)}>{ACCION_SIGUIENTE_ESTADO[doc.estado]}</button>
+                  )}
+                </div>
+              </div>
               <span>${doc.precio}</span>
             </li>
           ))}

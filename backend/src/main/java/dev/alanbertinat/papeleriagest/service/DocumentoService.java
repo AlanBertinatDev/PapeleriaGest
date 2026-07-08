@@ -12,6 +12,7 @@ import dev.alanbertinat.papeleriagest.repository.ConfiguracionRepository;
 import dev.alanbertinat.papeleriagest.repository.CursoRepository;
 import dev.alanbertinat.papeleriagest.repository.DocumentoRepository;
 import dev.alanbertinat.papeleriagest.repository.PedidoRepository;
+import dev.alanbertinat.papeleriagest.web.dto.CotizarImpresionRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoResponse;
 import dev.alanbertinat.papeleriagest.web.dto.SolicitarImpresionRequest;
@@ -92,6 +93,12 @@ public class DocumentoService {
                 .usuario(usuario)
                 .pedido(pedido)
                 .curso(curso)
+                .tamanio(request.tamanio() != null ? request.tamanio() : "A4")
+                .tipoPapel(request.tipoPapel() != null ? request.tipoPapel() : "75g")
+                .modoColor(request.modoColor())
+                .paginasPorCara(request.paginasPorCara() != null ? request.paginasPorCara() : "1")
+                .orientacion(request.orientacion() != null ? request.orientacion() : "VERTICAL")
+                .terminacion(request.terminacion() != null ? request.terminacion() : "NINGUNA")
                 .build();
 
         Documento guardado = documentoRepository.save(documento);
@@ -116,14 +123,19 @@ public class DocumentoService {
             throw new ConflictException("Solo se pueden agregar documentos a un pedido pendiente");
         }
 
-        BigDecimal precioUnitario = request.aColor() ? costoCopiaColor() : costoCopiaBn();
-        BigDecimal precio = precioUnitario.multiply(BigDecimal.valueOf(request.cantidadCopias()));
+        String tamanio = request.tamanio() != null ? request.tamanio() : "A4";
+        String tipoPapel = request.tipoPapel() != null ? request.tipoPapel() : "75g";
+        String modoColor = request.modoColor();
+        String terminacion = request.terminacion() != null ? request.terminacion() : "NINGUNA";
+        boolean aColor = modoColor != null ? !"BN".equals(modoColor) : request.aColor();
+
+        BigDecimal precio = calcularPrecio(modoColor, aColor, tamanio, tipoPapel, terminacion, request.cantidadCopias());
 
         Documento copia = Documento.builder()
                 .nombre(origen.getNombre())
                 .formato(origen.getFormato())
                 .esDobleFaz(request.esDobleFaz())
-                .aColor(request.aColor())
+                .aColor(aColor)
                 .descripcion(origen.getDescripcion())
                 .esEnvio(pedido.isEsEnvio())
                 .direccion(pedido.getDireccion())
@@ -141,6 +153,12 @@ public class DocumentoService {
                 .usuario(usuario)
                 .pedido(pedido)
                 .curso(origen.getCurso())
+                .tamanio(tamanio)
+                .tipoPapel(tipoPapel)
+                .modoColor(modoColor)
+                .paginasPorCara(request.paginasPorCara() != null ? request.paginasPorCara() : "1")
+                .orientacion(request.orientacion() != null ? request.orientacion() : "VERTICAL")
+                .terminacion(terminacion)
                 .build();
 
         Documento guardado = documentoRepository.save(copia);
@@ -157,15 +175,52 @@ public class DocumentoService {
         return DocumentoResponse.from(guardado);
     }
 
-    private BigDecimal costoCopiaBn() {
-        return costoConfigurado("CostoCopiaBN");
+    @Transactional(readOnly = true)
+    public BigDecimal cotizarImpresion(CotizarImpresionRequest request) {
+        boolean aColor = request.modoColor() != null && !"BN".equals(request.modoColor());
+        return calcularPrecio(
+                request.modoColor(), aColor, request.tamanio(), request.tipoPapel(), request.terminacion(),
+                request.cantidadCopias());
     }
 
-    private BigDecimal costoCopiaColor() {
-        return costoConfigurado("CostoCopiaColor");
+    private BigDecimal calcularPrecio(String modoColor, boolean aColor, String tamanio, String tipoPapel, String terminacion, int cantidadCopias) {
+        BigDecimal precioColor;
+        if (modoColor != null) {
+            precioColor = switch (modoColor) {
+                case "COLOR_LASER" -> config("ImpresionColorLaser");
+                case "COLOR_TINTA" -> config("ImpresionColorTinta");
+                default -> config("ImpresionBN");
+            };
+        } else {
+            precioColor = aColor ? config("ImpresionColorLaser") : config("ImpresionBN");
+        }
+
+        BigDecimal extraTamanio = switch (tamanio != null ? tamanio : "A4") {
+            case "A3" -> config("ImpresionExtraA3");
+            case "A5" -> config("ImpresionExtraA5");
+            default -> BigDecimal.ZERO;
+        };
+
+        BigDecimal extraPapel = switch (tipoPapel != null ? tipoPapel : "75g") {
+            case "160g" -> config("ImpresionExtra160g");
+            case "200g" -> config("ImpresionExtra200g");
+            case "FOTO" -> config("ImpresionExtraFoto");
+            default -> BigDecimal.ZERO;
+        };
+
+        BigDecimal extraTerminacion = switch (terminacion != null ? terminacion : "NINGUNA") {
+            case "ENCUADERNACION" -> config("ImpresionEncuadernacion");
+            case "GRAPADO" -> config("ImpresionGrapado");
+            case "AGUJEROS" -> config("ImpresionAgujeros");
+            default -> BigDecimal.ZERO;
+        };
+
+        return precioColor.add(extraTamanio).add(extraPapel)
+                .multiply(BigDecimal.valueOf(cantidadCopias))
+                .add(extraTerminacion);
     }
 
-    private BigDecimal costoConfigurado(String nombre) {
+    private BigDecimal config(String nombre) {
         return configuracionRepository.findByNombreAndActivoTrue(nombre)
                 .map(dev.alanbertinat.papeleriagest.domain.Configuracion::getValor)
                 .filter(v -> v != null && !v.isBlank())
@@ -203,7 +258,8 @@ public class DocumentoService {
 
     @Transactional(readOnly = true)
     public List<DocumentoResponse> listarPropios(Usuario usuario) {
-        return documentoRepository.findByActivoTrueAndUsuarioIdOrderByFechaIngresoDesc(usuario.getId()).stream()
+        return documentoRepository
+                .findByActivoTrueAndUsuarioIdAndPedidoIsNullOrderByFechaIngresoDesc(usuario.getId()).stream()
                 .map(DocumentoResponse::from)
                 .toList();
     }
@@ -217,7 +273,7 @@ public class DocumentoService {
 
     @Transactional(readOnly = true)
     public List<DocumentoResponse> listarTodos() {
-        return documentoRepository.findByActivoTrueOrderByFechaIngresoDesc().stream()
+        return documentoRepository.findByActivoTrueAndPedidoIsNullOrderByFechaIngresoDesc().stream()
                 .map(DocumentoResponse::from)
                 .toList();
     }

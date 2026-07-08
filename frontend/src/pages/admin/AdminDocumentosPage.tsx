@@ -1,17 +1,13 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { documentosApi, type DocumentoResponse } from '../../api/documentos'
 import { ApiError } from '../../api/client'
 import { DocumentoCard } from '../../components/DocumentoCard'
-import { FilterPills } from '../../components/FilterPills'
 import { Modal } from '../../components/Modal'
 import { PageHeader } from '../../components/PageHeader'
-
-type Filtro = 'TODOS' | 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
 
 export function AdminDocumentosPage() {
   const [documentos, setDocumentos] = useState<DocumentoResponse[]>([])
   const [error, setError] = useState<string | null>(null)
-  const [filtro, setFiltro] = useState<Filtro>('PENDIENTE')
   const [modalAbierto, setModalAbierto] = useState(false)
   const [nombre, setNombre] = useState('')
   const [archivo, setArchivo] = useState<File | null>(null)
@@ -26,13 +22,13 @@ export function AdminDocumentosPage() {
 
   useEffect(cargar, [])
 
-  async function handleCambiarEstado(id: number, estado: string) {
+  async function handleEliminar(id: number) {
     setError(null)
     try {
-      await documentosApi.cambiarEstado(id, estado)
+      await documentosApi.eliminar(id)
       cargar()
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No se pudo cambiar el estado')
+      setError(err instanceof ApiError ? err.message : 'No se pudo eliminar el documento')
     }
   }
 
@@ -72,57 +68,26 @@ export function AdminDocumentosPage() {
     }
   }
 
-  const opciones = useMemo(
-    () => [
-      { key: 'TODOS', label: 'Todos', count: documentos.length },
-      { key: 'PENDIENTE', label: 'Pendientes', count: documentos.filter((d) => d.estado === 'PENDIENTE').length },
-      { key: 'IMPRESO', label: 'Impresos', count: documentos.filter((d) => d.estado === 'IMPRESO').length },
-      { key: 'ENTREGADO', label: 'Entregados', count: documentos.filter((d) => d.estado === 'ENTREGADO').length },
-    ],
-    [documentos],
-  )
-
-  const visibles = filtro === 'TODOS' ? documentos : documentos.filter((d) => d.estado === filtro)
-
   return (
     <div>
       <PageHeader
         title="Documentos"
-        subtitle="Cola de impresión: materiales de docentes y documentos personales"
+        subtitle="Materiales de docentes y archivos propios de la papelería. Las impresiones pedidas se gestionan desde Pedidos."
         action={<button onClick={() => setModalAbierto(true)}>Subir archivo propio</button>}
       />
       {error && !modalAbierto && <p className="error">{error}</p>}
 
-      <FilterPills options={opciones} active={filtro} onChange={(k) => setFiltro(k as Filtro)} />
-
-      {visibles.length === 0 && (
-        <p className="empty-state">
-          {documentos.length === 0 ? 'No hay documentos cargados.' : 'No hay documentos en este estado.'}
-        </p>
-      )}
+      {documentos.length === 0 && <p className="empty-state">No hay documentos cargados.</p>}
 
       <div className="order-grid">
-        {visibles.map((doc) => {
-          const acciones = []
-          if (doc.estado === 'PENDIENTE') {
-            acciones.push({
-              label: 'Marcar impreso',
-              destacada: true,
-              onClick: () => handleCambiarEstado(doc.id, 'IMPRESO'),
-            })
-          } else if (doc.estado === 'IMPRESO') {
-            acciones.push({
-              label: 'Marcar entregado',
-              destacada: true,
-              onClick: () => handleCambiarEstado(doc.id, 'ENTREGADO'),
-            })
-            acciones.push({
-              label: 'Volver a pendiente',
-              onClick: () => handleCambiarEstado(doc.id, 'PENDIENTE'),
-            })
-          }
-          return <DocumentoCard key={doc.id} documento={doc} mostrarUsuario acciones={acciones} />
-        })}
+        {documentos.map((doc) => (
+          <DocumentoCard
+            key={doc.id}
+            documento={doc}
+            mostrarUsuario
+            acciones={[{ label: 'Eliminar', onClick: () => handleEliminar(doc.id) }]}
+          />
+        ))}
       </div>
 
       {modalAbierto && (

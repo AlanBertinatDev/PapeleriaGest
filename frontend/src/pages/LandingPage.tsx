@@ -1,9 +1,6 @@
-import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { ofertasApi, type OfertaResponse } from '../api/ofertas'
 import { fotosHomeApi, type FotoHomeResponse } from '../api/fotosHome'
 import { AuthImage } from '../components/AuthImage'
-import { categoryBadgeColor, categoryTextColor, categoryTintColor } from '../lib/categoryColor'
 import styles from './LandingPage.module.css'
 
 const ROTACION_MS = 4000
@@ -25,55 +22,6 @@ const SERVICIOS = [
     descripcion: 'Creá tu cuenta para armar pedidos, hacer seguimiento y recibir tus ofertas favoritas.',
   },
 ]
-
-function tagLabel(oferta: OfertaResponse): string {
-  if (oferta.tipo === 'SERVICIO') return 'Servicio'
-  const categoria = oferta.productos[0]?.categoria.nombre ?? 'Producto'
-  return oferta.tipo === 'PACK' ? `Pack · ${categoria}` : categoria
-}
-
-function precioOriginal(oferta: OfertaResponse): number {
-  return oferta.productos.reduce((sum, p) => sum + Number(p.precioVenta), 0)
-}
-
-function OfertaCard({ oferta }: { oferta: OfertaResponse }) {
-  const tag = tagLabel(oferta)
-  const original = oferta.tipo !== 'SERVICIO' ? precioOriginal(oferta) : 0
-  const promo = Number(oferta.precio)
-  const tieneDescuento = original > 0 && promo > 0 && original > promo
-  const porcentaje = tieneDescuento ? Math.round(100 - (promo / original) * 100) : 0
-
-  return (
-    <Link to="/login" className={styles.card}>
-      <div className={styles.cardImage} style={{ background: categoryTintColor(tag, 0.94, 0.05) }}>
-        {oferta.tieneImagen ? (
-          <AuthImage src={`/ofertas/${oferta.id}/imagen`} alt={oferta.titulo} />
-        ) : (
-          <div className={styles.cardImageStripe} />
-        )}
-        {(oferta.tipo === 'SERVICIO' || tieneDescuento) && (
-          <span className={styles.cardBadge} style={{ background: categoryBadgeColor(tag) }}>
-            {oferta.tipo === 'SERVICIO' ? 'Servicio' : `-${porcentaje}%`}
-          </span>
-        )}
-      </div>
-      <div className={styles.cardBody}>
-        <div className={styles.cardTag} style={{ color: categoryTextColor(tag) }}>
-          {tag}
-        </div>
-        <div className={styles.cardTitle}>{oferta.titulo}</div>
-        {oferta.tipo === 'SERVICIO' ? (
-          <div className={styles.cardPromo}>${oferta.precio}</div>
-        ) : (
-          <div className={styles.cardPriceRow}>
-            {tieneDescuento && <span className={styles.cardOriginal}>${original}</span>}
-            <span className={styles.cardPromo}>${oferta.precio}</span>
-          </div>
-        )}
-      </div>
-    </Link>
-  )
-}
 
 function HeroImage({ fotos }: { fotos: FotoHomeResponse[] }) {
   const [index, setIndex] = useState(0)
@@ -101,21 +49,14 @@ function HeroImage({ fotos }: { fotos: FotoHomeResponse[] }) {
 }
 
 export function LandingPage() {
-  const [ofertas, setOfertas] = useState<OfertaResponse[]>([])
   const [fotos, setFotos] = useState<FotoHomeResponse[]>([])
 
   useEffect(() => {
-    ofertasApi
-      .listarVigentes()
-      .then(setOfertas)
-      .catch(() => {})
     fotosHomeApi
       .listar()
       .then(setFotos)
       .catch(() => {})
   }, [])
-
-  const destacadas = ofertas.filter((o) => o.destacarHome && o.tipo !== 'SERVICIO')
 
   return (
     <div className={styles.page}>
@@ -125,16 +66,6 @@ export function LandingPage() {
         </div>
         <HeroImage fotos={fotos} />
       </section>
-
-      {destacadas.length > 0 && (
-        <section className={styles.section}>
-          <div className={styles.carrusel}>
-            {destacadas.map((oferta) => (
-              <OfertaCard oferta={oferta} key={oferta.id} />
-            ))}
-          </div>
-        </section>
-      )}
 
       <section className={styles.section}>
         <div className={styles.serviciosGrid}>

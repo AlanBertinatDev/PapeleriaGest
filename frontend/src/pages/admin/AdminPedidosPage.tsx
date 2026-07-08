@@ -75,7 +75,15 @@ export function AdminPedidosPage() {
               onClick: () => handleCambiarEstado(pedido.id, 'PENDIENTE'),
             })
           }
-          return <PedidoCard key={pedido.id} pedido={pedido} mostrarCliente acciones={acciones} />
+          return (
+            <PedidoCard
+              key={pedido.id}
+              pedido={pedido}
+              mostrarCliente
+              acciones={acciones}
+              onDocumentoActualizado={cargar}
+            />
+          )
         })}
       </div>
     </div>

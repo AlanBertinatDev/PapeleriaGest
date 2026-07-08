@@ -7,6 +7,7 @@ import java.time.LocalDate;
 public record ProductoResponse(
         Long codigoProducto,
         String nombre,
+        String descripcion,
         BigDecimal precioVenta,
         BigDecimal precioCompra,
         boolean activo,
@@ -24,6 +25,7 @@ public record ProductoResponse(
         return new ProductoResponse(
                 producto.getCodigoProducto(),
                 producto.getNombre(),
+                producto.getDescripcion(),
                 producto.getPrecioVenta(),
                 producto.getPrecioCompra(),
                 producto.isActivo(),

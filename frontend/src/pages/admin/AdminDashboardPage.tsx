@@ -78,6 +78,7 @@ export function AdminDashboardPage() {
             {dashboard.productosConStockBajo.length === 0 ? (
               <p className="empty-state">No hay productos con stock bajo.</p>
             ) : (
+              <div className="table-scroll">
               <table>
                 <thead>
                   <tr>
@@ -98,6 +99,7 @@ export function AdminDashboardPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
             )}
           </div>
         </>

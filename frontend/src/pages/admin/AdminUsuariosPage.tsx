@@ -53,7 +53,7 @@ export function AdminUsuariosPage() {
     <div>
       <PageHeader title="Usuarios" subtitle="Gestioná roles y acceso de clientes, docentes y administradores" />
       {error && <p className="error">{error}</p>}
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card table-card">
         <table>
           <thead>
             <tr>

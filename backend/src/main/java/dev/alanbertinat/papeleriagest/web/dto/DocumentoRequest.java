@@ -17,5 +17,11 @@ public record DocumentoRequest(
         int nroPractico,
         boolean esImagen,
         Long pedidoId,
-        Long cursoId) {
+        Long cursoId,
+        String tamanio,
+        String tipoPapel,
+        String modoColor,
+        String paginasPorCara,
+        String orientacion,
+        String terminacion) {
 }

@@ -100,7 +100,7 @@ export function AdminCursosPage() {
       />
       {error && !modalCursoAbierto && !cursoSeleccionado && <p className="error">{error}</p>}
 
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card table-card">
         <table>
           <thead>
             <tr>

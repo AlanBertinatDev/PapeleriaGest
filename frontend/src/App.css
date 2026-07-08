@@ -8,8 +8,25 @@
 .app-content {
   flex: 1;
   min-width: 0;
-  padding: 28px 36px 36px;
-  max-width: 1100px;
+  padding: 28px 40px 40px;
+  max-width: 1800px;
+}
+
+@media (max-width: 1279px) {
+  .app-shell {
+    flex-direction: column;
+  }
+
+  .app-content {
+    max-width: none;
+    padding: 24px 24px 32px;
+  }
+}
+
+@media (max-width: 767px) {
+  .app-content {
+    padding: 18px 16px 24px;
+  }
 }
 
 .guest-header {
@@ -242,6 +259,15 @@ th {
 
 .card h3 {
   margin-bottom: 14px;
+}
+
+.table-card {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.table-scroll {
+  overflow-x: auto;
 }
 
 .error {
@@ -583,6 +609,17 @@ th {
   padding: 9px 10px;
 }
 
+.order-card-doc-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.order-card-doc-actions button {
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
 /* ---------- Notifications ---------- */
 
 .admin-topbar {
@@ -637,7 +674,7 @@ th {
   position: absolute;
   top: 48px;
   right: 0;
-  width: 340px;
+  width: min(340px, calc(100vw - 32px));
   max-height: 420px;
   overflow-y: auto;
   background: var(--surface);
@@ -713,7 +750,7 @@ th {
   flex-direction: column;
   gap: 10px;
   z-index: 100;
-  width: 300px;
+  width: min(300px, calc(100vw - 32px));
 }
 
 .toast {

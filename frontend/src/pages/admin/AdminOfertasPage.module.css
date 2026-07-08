@@ -112,6 +112,12 @@
   gap: 24px;
 }
 
+@media (max-width: 640px) {
+  .modalGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .leftCol,
 .rightCol {
   display: flex;
@@ -123,6 +129,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+}
+
+@media (max-width: 640px) {
+  .formRow2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .readonlyValue {

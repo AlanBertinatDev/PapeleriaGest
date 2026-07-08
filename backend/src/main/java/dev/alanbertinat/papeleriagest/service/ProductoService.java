@@ -67,6 +67,7 @@ public class ProductoService {
         Producto producto = Producto.builder()
                 .codigoProducto(request.codigoProducto())
                 .nombre(request.nombre())
+                .descripcion(request.descripcion())
                 .precioVenta(request.precioVenta())
                 .precioCompra(request.precioCompra())
                 .activo(true)
@@ -86,6 +87,7 @@ public class ProductoService {
     public ProductoResponse actualizar(Long codigoProducto, ProductoRequest request) {
         Producto producto = buscar(codigoProducto);
         producto.setNombre(request.nombre());
+        producto.setDescripcion(request.descripcion());
         producto.setPrecioVenta(request.precioVenta());
         producto.setPrecioCompra(request.precioCompra());
         producto.setCategoria(buscarCategoria(request.categoriaId()));

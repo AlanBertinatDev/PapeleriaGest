@@ -30,8 +30,6 @@ export interface PedidoResponse {
 
 export interface TarifasResponse {
   costoEnvio: string
-  costoCopiaBn: string
-  costoCopiaColor: string
 }
 
 export interface PedidoItemRequest {

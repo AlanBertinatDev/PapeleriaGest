@@ -5,6 +5,12 @@
   align-items: start;
 }
 
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .imageCol {
   display: flex;
   flex-direction: column;
@@ -80,6 +86,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .formRow2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .formHint {

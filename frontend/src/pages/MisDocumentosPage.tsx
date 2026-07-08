@@ -1,24 +1,17 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { documentosApi, type DocumentoResponse } from '../api/documentos'
 import { ApiError } from '../api/client'
 import { Modal } from '../components/Modal'
 import { DocumentoCard } from '../components/DocumentoCard'
-import { FilterPills } from '../components/FilterPills'
 import { PageHeader } from '../components/PageHeader'
-
-type Filtro = 'TODOS' | 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
 
 export function MisDocumentosPage() {
   const [documentos, setDocumentos] = useState<DocumentoResponse[]>([])
   const [nombre, setNombre] = useState('')
   const [archivo, setArchivo] = useState<File | null>(null)
-  const [esDobleFaz, setEsDobleFaz] = useState(false)
-  const [aColor, setAColor] = useState(false)
-  const [cantidadCopias, setCantidadCopias] = useState(1)
   const [error, setError] = useState<string | null>(null)
   const [creando, setCreando] = useState(false)
   const [modalAbierto, setModalAbierto] = useState(false)
-  const [filtro, setFiltro] = useState<Filtro>('TODOS')
 
   function cargar() {
     documentosApi
@@ -33,9 +26,6 @@ export function MisDocumentosPage() {
     setModalAbierto(false)
     setNombre('')
     setArchivo(null)
-    setEsDobleFaz(false)
-    setAColor(false)
-    setCantidadCopias(1)
     setError(null)
   }
 
@@ -51,9 +41,9 @@ export function MisDocumentosPage() {
       await documentosApi.crear({
         nombre,
         archivo,
-        esDobleFaz,
-        aColor,
-        cantidadCopias,
+        esDobleFaz: false,
+        aColor: false,
+        cantidadCopias: 1,
         esEnvio: false,
         esPractico: false,
         nroPractico: 0,
@@ -77,21 +67,9 @@ export function MisDocumentosPage() {
     }
   }
 
-  const opciones = useMemo(
-    () => [
-      { key: 'TODOS', label: 'Todos', count: documentos.length },
-      { key: 'PENDIENTE', label: 'Pendientes', count: documentos.filter((d) => d.estado === 'PENDIENTE').length },
-      { key: 'IMPRESO', label: 'Impresos', count: documentos.filter((d) => d.estado === 'IMPRESO').length },
-      { key: 'ENTREGADO', label: 'Entregados', count: documentos.filter((d) => d.estado === 'ENTREGADO').length },
-    ],
-    [documentos],
-  )
-
-  const visibles = filtro === 'TODOS' ? documentos : documentos.filter((d) => d.estado === filtro)
-
   return (
     <div>
-      <PageHeader title="Mis documentos" subtitle="Documentos personales que cargaste para imprimir" />
+      <PageHeader title="Mis documentos" subtitle="Tu biblioteca de archivos personales para imprimir" />
 
       <div className="section-header">
         <h3>Listado</h3>
@@ -99,16 +77,10 @@ export function MisDocumentosPage() {
       </div>
       {error && !modalAbierto && <p className="error">{error}</p>}
 
-      <FilterPills options={opciones} active={filtro} onChange={(k) => setFiltro(k as Filtro)} />
-
-      {visibles.length === 0 && (
-        <p className="empty-state">
-          {documentos.length === 0 ? 'Todavía no cargaste ningún documento.' : 'No hay documentos en este estado.'}
-        </p>
-      )}
+      {documentos.length === 0 && <p className="empty-state">Todavía no cargaste ningún documento.</p>}
 
       <div className="order-grid">
-        {visibles.map((doc) => (
+        {documentos.map((doc) => (
           <DocumentoCard
             key={doc.id}
             documento={doc}
@@ -118,7 +90,7 @@ export function MisDocumentosPage() {
       </div>
 
       {modalAbierto && (
-        <Modal title="Cargar documento propio" onClose={cerrarModal}>
+        <Modal title="Cargar documento para imprimir" onClose={cerrarModal}>
           <form onSubmit={handleSubmit}>
             <label>
               Nombre
@@ -126,29 +98,13 @@ export function MisDocumentosPage() {
             </label>
             <label>
               Archivo
-              <input
-                type="file"
-                onChange={(e) => setArchivo(e.target.files?.[0] ?? null)}
-                required
-              />
+              <input type="file" onChange={(e) => setArchivo(e.target.files?.[0] ?? null)} required />
             </label>
-            <label>
-              Cantidad de copias
-              <input
-                type="number"
-                min={1}
-                value={cantidadCopias}
-                onChange={(e) => setCantidadCopias(Number(e.target.value))}
-                required
-              />
-            </label>
-            <label className="checkbox-row">
-              <input type="checkbox" checked={esDobleFaz} onChange={(e) => setEsDobleFaz(e.target.checked)} />
-              Doble faz
-            </label>
-            <label className="checkbox-row">
-              <input type="checkbox" checked={aColor} onChange={(e) => setAColor(e.target.checked)} />A color
-            </label>
+
+            <p style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>
+              Elegís cantidad de copias, color, papel y terminación cuando pidas imprimirlo desde el catálogo.
+            </p>
+
             {error && <p className="error">{error}</p>}
             <button type="submit" disabled={creando}>
               {creando ? 'Cargando...' : 'Cargar documento'}

@@ -27,7 +27,13 @@ public record DocumentoResponse(
         String usuarioNombre,
         Long pedidoId,
         Long cursoId,
-        String cursoNombre) {
+        String cursoNombre,
+        String tamanio,
+        String tipoPapel,
+        String modoColor,
+        String paginasPorCara,
+        String orientacion,
+        String terminacion) {
 
     public static DocumentoResponse from(Documento documento) {
         return new DocumentoResponse(
@@ -53,6 +59,12 @@ public record DocumentoResponse(
                 documento.getUsuario().getNombre(),
                 documento.getPedido() != null ? documento.getPedido().getId() : null,
                 documento.getCurso() != null ? documento.getCurso().getId() : null,
-                documento.getCurso() != null ? documento.getCurso().getGrado() + " " + documento.getCurso().getGrupo() : null);
+                documento.getCurso() != null ? documento.getCurso().getGrado() + " " + documento.getCurso().getGrupo() : null,
+                documento.getTamanio(),
+                documento.getTipoPapel(),
+                documento.getModoColor(),
+                documento.getPaginasPorCara(),
+                documento.getOrientacion(),
+                documento.getTerminacion());
     }
 }

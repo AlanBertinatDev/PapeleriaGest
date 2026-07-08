@@ -14,6 +14,7 @@ export interface MarcaResponse {
 export interface ProductoResponse {
   codigoProducto: number
   nombre: string
+  descripcion: string | null
   precioVenta: string
   precioCompra: string
   activo: boolean
@@ -31,6 +32,7 @@ export interface ProductoResponse {
 export interface ProductoRequest {
   codigoProducto: number
   nombre: string
+  descripcion: string | null
   precioVenta: string
   precioCompra: string
   categoriaId: number

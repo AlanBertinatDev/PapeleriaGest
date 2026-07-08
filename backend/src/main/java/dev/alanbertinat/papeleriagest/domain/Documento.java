@@ -42,6 +42,18 @@ public class Documento {
 
     private boolean aColor;
 
+    private String tamanio;
+
+    private String tipoPapel;
+
+    private String modoColor;
+
+    private String paginasPorCara;
+
+    private String orientacion;
+
+    private String terminacion;
+
     private String descripcion;
 
     private boolean esEnvio;

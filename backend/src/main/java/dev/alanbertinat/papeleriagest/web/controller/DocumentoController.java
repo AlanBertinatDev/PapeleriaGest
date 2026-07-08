@@ -4,6 +4,8 @@ import dev.alanbertinat.papeleriagest.security.UsuarioPrincipal;
 import dev.alanbertinat.papeleriagest.service.ArchivoDescarga;
 import dev.alanbertinat.papeleriagest.service.DocumentoService;
 import dev.alanbertinat.papeleriagest.web.dto.CambiarEstadoDocumentoRequest;
+import dev.alanbertinat.papeleriagest.web.dto.CotizacionImpresionResponse;
+import dev.alanbertinat.papeleriagest.web.dto.CotizarImpresionRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoResponse;
 import dev.alanbertinat.papeleriagest.web.dto.SolicitarImpresionRequest;
@@ -53,6 +55,11 @@ public class DocumentoController {
             @AuthenticationPrincipal UsuarioPrincipal principal, @Valid @RequestBody SolicitarImpresionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(documentoService.solicitarImpresion(principal.usuario(), request));
+    }
+
+    @PostMapping("/cotizar")
+    public CotizacionImpresionResponse cotizar(@Valid @RequestBody CotizarImpresionRequest request) {
+        return new CotizacionImpresionResponse(documentoService.cotizarImpresion(request));
     }
 
     @GetMapping("/mios")

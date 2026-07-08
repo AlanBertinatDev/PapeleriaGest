@@ -145,7 +145,7 @@ public class PedidoService {
 
     @Transactional(readOnly = true)
     public TarifasResponse obtenerTarifas() {
-        return new TarifasResponse(costoEnvio(), costoConfigurado("CostoCopiaBN"), costoConfigurado("CostoCopiaColor"));
+        return new TarifasResponse(costoEnvio());
     }
 
     private BigDecimal costoConfigurado(String nombre) {

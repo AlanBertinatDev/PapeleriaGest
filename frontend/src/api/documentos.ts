@@ -1,5 +1,12 @@
 import { api, descargarArchivo } from './client'
 
+export type ModoColor = 'BN' | 'COLOR_LASER' | 'COLOR_TINTA'
+export type Tamanio = 'A4' | 'A3' | 'A5'
+export type TipoPapel = '75g' | '160g' | '200g' | 'FOTO'
+export type PaginasPorCara = '1' | '2' | '4'
+export type Orientacion = 'VERTICAL' | 'HORIZONTAL'
+export type Terminacion = 'NINGUNA' | 'ENCUADERNACION' | 'GRAPADO' | 'AGUJEROS'
+
 export interface DocumentoResponse {
   id: number
   nombre: string
@@ -24,6 +31,12 @@ export interface DocumentoResponse {
   pedidoId: number | null
   cursoId: number | null
   cursoNombre: string | null
+  tamanio: string | null
+  tipoPapel: string | null
+  modoColor: string | null
+  paginasPorCara: string | null
+  orientacion: string | null
+  terminacion: string | null
 }
 
 export interface DocumentoFormData {
@@ -42,6 +55,12 @@ export interface DocumentoFormData {
   pedidoId?: number | null
   cursoId?: number | null
   archivo: File
+  tamanio?: string
+  tipoPapel?: string
+  modoColor?: string
+  paginasPorCara?: string
+  orientacion?: string
+  terminacion?: string
 }
 
 function construirFormData(data: DocumentoFormData): FormData {
@@ -60,6 +79,12 @@ function construirFormData(data: DocumentoFormData): FormData {
   formData.append('esImagen', String(data.esImagen))
   if (data.pedidoId != null) formData.append('pedidoId', String(data.pedidoId))
   if (data.cursoId != null) formData.append('cursoId', String(data.cursoId))
+  if (data.tamanio) formData.append('tamanio', data.tamanio)
+  if (data.tipoPapel) formData.append('tipoPapel', data.tipoPapel)
+  if (data.modoColor) formData.append('modoColor', data.modoColor)
+  if (data.paginasPorCara) formData.append('paginasPorCara', data.paginasPorCara)
+  if (data.orientacion) formData.append('orientacion', data.orientacion)
+  if (data.terminacion) formData.append('terminacion', data.terminacion)
   formData.append('archivo', data.archivo)
   return formData
 }
@@ -70,12 +95,28 @@ export interface SolicitarImpresionRequest {
   cantidadCopias: number
   esDobleFaz: boolean
   aColor: boolean
+  tamanio?: string
+  tipoPapel?: string
+  modoColor?: string
+  paginasPorCara?: string
+  orientacion?: string
+  terminacion?: string
+}
+
+export interface CotizarImpresionRequest {
+  cantidadCopias: number
+  modoColor: string
+  tamanio: string
+  tipoPapel: string
+  terminacion: string
 }
 
 export const documentosApi = {
   crear: (data: DocumentoFormData) => api.postForm<DocumentoResponse>('/documentos', construirFormData(data)),
   solicitarImpresion: (data: SolicitarImpresionRequest) =>
     api.post<DocumentoResponse>('/documentos/solicitar-impresion', data),
+  cotizar: (data: CotizarImpresionRequest) =>
+    api.post<{ precio: string }>('/documentos/cotizar', data),
   misDocumentos: () => api.get<DocumentoResponse[]>('/documentos/mios'),
   listarTodos: () => api.get<DocumentoResponse[]>('/documentos'),
   listarPorCurso: (cursoId: number) => api.get<DocumentoResponse[]>(`/documentos/por-curso/${cursoId}`),

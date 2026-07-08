@@ -1,0 +1,13 @@
+ALTER TABLE documento ADD COLUMN tamanio VARCHAR(10) NOT NULL DEFAULT 'A4';
+ALTER TABLE documento ADD COLUMN tipo_papel VARCHAR(20) NOT NULL DEFAULT '75g';
+ALTER TABLE documento ADD COLUMN modo_color VARCHAR(20);
+ALTER TABLE documento ADD COLUMN paginas_por_cara VARCHAR(5) NOT NULL DEFAULT '1';
+ALTER TABLE documento ADD COLUMN orientacion VARCHAR(20) NOT NULL DEFAULT 'VERTICAL';
+ALTER TABLE documento ADD COLUMN terminacion VARCHAR(20) NOT NULL DEFAULT 'NINGUNA';
+
+ALTER TABLE documento_aud ADD COLUMN tamanio VARCHAR(10);
+ALTER TABLE documento_aud ADD COLUMN tipo_papel VARCHAR(20);
+ALTER TABLE documento_aud ADD COLUMN modo_color VARCHAR(20);
+ALTER TABLE documento_aud ADD COLUMN paginas_por_cara VARCHAR(5);
+ALTER TABLE documento_aud ADD COLUMN orientacion VARCHAR(20);
+ALTER TABLE documento_aud ADD COLUMN terminacion VARCHAR(20);

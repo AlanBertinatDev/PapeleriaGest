@@ -19,6 +19,7 @@ import styles from './AdminProductoDetallePage.module.css'
 const emptyForm = {
   codigoProducto: '',
   nombre: '',
+  descripcion: '',
   precioVenta: '',
   precioCompra: '',
   categoriaId: '',
@@ -54,6 +55,7 @@ export function AdminProductoDetallePage() {
         setForm({
           codigoProducto: String(p.codigoProducto),
           nombre: p.nombre,
+          descripcion: p.descripcion ?? '',
           precioVenta: p.precioVenta,
           precioCompra: p.precioCompra,
           categoriaId: String(p.categoria.id),
@@ -105,6 +107,7 @@ export function AdminProductoDetallePage() {
     const data = {
       codigoProducto: Number(form.codigoProducto),
       nombre: form.nombre,
+      descripcion: form.descripcion || null,
       precioVenta: form.precioVenta,
       precioCompra: form.precioCompra,
       categoriaId: Number(form.categoriaId),
@@ -240,6 +243,15 @@ export function AdminProductoDetallePage() {
           <label>
             Nombre
             <input value={form.nombre} onChange={(e) => updateForm('nombre', e.target.value)} required />
+          </label>
+          <label>
+            Descripción (opcional)
+            <textarea
+              value={form.descripcion}
+              onChange={(e) => updateForm('descripcion', e.target.value)}
+              rows={3}
+              maxLength={500}
+            />
           </label>
           <div className={styles.formRow2}>
             <label>
