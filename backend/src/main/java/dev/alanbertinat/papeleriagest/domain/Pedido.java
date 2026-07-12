@@ -55,6 +55,8 @@ public class Pedido {
     @Enumerated(EnumType.STRING)
     private EstadoPedido estado;
 
+    private String motivoRevision;
+
     private BigDecimal precio;
 
     @ManyToOne(fetch = FetchType.LAZY)

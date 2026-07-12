@@ -81,6 +81,9 @@ public class Documento {
     @Enumerated(EnumType.STRING)
     private EstadoDocumento estado;
 
+    @Enumerated(EnumType.STRING)
+    private OrigenDocumento origen;
+
     private BigDecimal precio;
 
     @ManyToOne(fetch = FetchType.EAGER)

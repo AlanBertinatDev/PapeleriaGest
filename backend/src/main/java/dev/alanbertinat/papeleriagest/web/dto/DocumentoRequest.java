@@ -16,6 +16,7 @@ public record DocumentoRequest(
         boolean esPractico,
         int nroPractico,
         boolean esImagen,
+        boolean esPropio,
         Long pedidoId,
         Long cursoId,
         String tamanio,

@@ -1,13 +1,17 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { documentosApi, type DocumentoResponse } from '../../api/documentos'
 import { ApiError } from '../../api/client'
 import { DocumentoCard } from '../../components/DocumentoCard'
+import { FilterPills } from '../../components/FilterPills'
 import { Modal } from '../../components/Modal'
 import { PageHeader } from '../../components/PageHeader'
+
+type Filtro = 'TODOS' | 'CLIENTE' | 'PROPIO'
 
 export function AdminDocumentosPage() {
   const [documentos, setDocumentos] = useState<DocumentoResponse[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [filtro, setFiltro] = useState<Filtro>('TODOS')
   const [modalAbierto, setModalAbierto] = useState(false)
   const [nombre, setNombre] = useState('')
   const [archivo, setArchivo] = useState<File | null>(null)
@@ -58,6 +62,7 @@ export function AdminDocumentosPage() {
         esPractico: false,
         nroPractico: 0,
         esImagen: false,
+        esPropio: true,
       })
       cerrarModal()
       cargar()
@@ -68,6 +73,17 @@ export function AdminDocumentosPage() {
     }
   }
 
+  const opciones = useMemo(
+    () => [
+      { key: 'TODOS', label: 'Todos', count: documentos.length },
+      { key: 'CLIENTE', label: 'De clientes', count: documentos.filter((d) => d.origen === 'CLIENTE').length },
+      { key: 'PROPIO', label: 'Propios', count: documentos.filter((d) => d.origen === 'PROPIO').length },
+    ],
+    [documentos],
+  )
+
+  const visibles = filtro === 'TODOS' ? documentos : documentos.filter((d) => d.origen === filtro)
+
   return (
     <div>
       <PageHeader
@@ -77,10 +93,16 @@ export function AdminDocumentosPage() {
       />
       {error && !modalAbierto && <p className="error">{error}</p>}
 
-      {documentos.length === 0 && <p className="empty-state">No hay documentos cargados.</p>}
+      <FilterPills options={opciones} active={filtro} onChange={(k) => setFiltro(k as Filtro)} />
+
+      {visibles.length === 0 && (
+        <p className="empty-state">
+          {documentos.length === 0 ? 'No hay documentos cargados.' : 'No hay documentos de este tipo.'}
+        </p>
+      )}
 
       <div className="order-grid">
-        {documentos.map((doc) => (
+        {visibles.map((doc) => (
           <DocumentoCard
             key={doc.id}
             documento={doc}

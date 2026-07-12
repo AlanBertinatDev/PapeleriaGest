@@ -15,9 +15,12 @@ public record PedidoResponse(
         String direccion,
         String descripcion,
         String estado,
+        String motivoRevision,
         BigDecimal precio,
         Long usuarioId,
         String usuarioNombre,
+        String usuarioEmail,
+        String usuarioTelefono,
         List<PedidoItemResponse> items,
         List<DocumentoResponse> documentos) {
 
@@ -31,9 +34,12 @@ public record PedidoResponse(
                 pedido.getDireccion(),
                 pedido.getDescripcion(),
                 pedido.getEstado().name(),
+                pedido.getMotivoRevision(),
                 pedido.getPrecio(),
                 pedido.getUsuario().getId(),
                 pedido.getUsuario().getNombre(),
+                pedido.getUsuario().getEmail(),
+                pedido.getUsuario().getTelefono(),
                 pedido.getItems().stream().map(PedidoItemResponse::from).toList(),
                 pedido.getDocumentos().stream().map(DocumentoResponse::from).toList());
     }

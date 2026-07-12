@@ -315,6 +315,11 @@ th {
   color: var(--neutral);
 }
 
+.badge-en_revision {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
 .row {
   display: flex;
   gap: 10px;
@@ -536,6 +541,11 @@ th {
   border-left-color: var(--warn);
 }
 
+.order-card.estado-en_revision {
+  border-left-color: var(--danger);
+  box-shadow: 0 0 0 1px var(--danger-bg), var(--shadow-md);
+}
+
 .order-card.estado-entregado {
   border-left-color: var(--ok);
 }
@@ -618,6 +628,76 @@ th {
 .order-card-doc-actions button {
   font-size: 12px;
   padding: 4px 8px;
+}
+
+.order-card-contacto {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.order-card-contacto a.secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-soft);
+  font-weight: 600;
+  font-size: 12.5px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.order-card-contacto a.secondary:hover {
+  color: var(--ink);
+}
+
+.documento-propio {
+  background: var(--surface-alt);
+  border-style: dashed;
+}
+
+.documento-tag-cliente {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.documento-tag-propio {
+  background: var(--neutral-bg);
+  color: var(--neutral);
+}
+
+.order-card-alerta {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--danger);
+  background: var(--danger-bg);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+
+.order-card-item-context {
+  display: block;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.order-card-revision-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--danger-bg);
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+}
+
+.order-card-revision-picker input[type='text'],
+.order-card-revision-picker input:not([type]) {
+  width: 100%;
 }
 
 /* ---------- Notifications ---------- */

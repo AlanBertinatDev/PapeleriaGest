@@ -5,7 +5,7 @@ import { PedidoCard } from '../components/PedidoCard'
 import { FilterPills } from '../components/FilterPills'
 import { PageHeader } from '../components/PageHeader'
 
-type Filtro = 'TODOS' | 'PENDIENTE' | 'ENTREGADO' | 'CANCELADO'
+type Filtro = 'TODOS' | 'PENDIENTE' | 'EN_REVISION' | 'ENTREGADO' | 'CANCELADO'
 
 export function MisPedidosPage() {
   const [pedidos, setPedidos] = useState<PedidoResponse[]>([])
@@ -35,6 +35,11 @@ export function MisPedidosPage() {
     () => [
       { key: 'TODOS', label: 'Todos', count: pedidos.length },
       { key: 'PENDIENTE', label: 'Pendientes', count: pedidos.filter((p) => p.estado === 'PENDIENTE').length },
+      {
+        key: 'EN_REVISION',
+        label: 'En revisión',
+        count: pedidos.filter((p) => p.estado === 'EN_REVISION').length,
+      },
       { key: 'ENTREGADO', label: 'Entregados', count: pedidos.filter((p) => p.estado === 'ENTREGADO').length },
       { key: 'CANCELADO', label: 'Cancelados', count: pedidos.filter((p) => p.estado === 'CANCELADO').length },
     ],
@@ -62,7 +67,7 @@ export function MisPedidosPage() {
             key={pedido.id}
             pedido={pedido}
             acciones={
-              pedido.estado === 'PENDIENTE'
+              pedido.estado === 'PENDIENTE' || pedido.estado === 'EN_REVISION'
                 ? [{ label: 'Cancelar pedido', onClick: () => handleCancelar(pedido.id) }]
                 : undefined
             }

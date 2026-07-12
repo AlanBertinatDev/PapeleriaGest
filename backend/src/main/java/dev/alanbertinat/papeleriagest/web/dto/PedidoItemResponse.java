@@ -11,12 +11,15 @@ public record PedidoItemResponse(
         String nombre,
         int cantidad,
         BigDecimal precioUnitario,
-        BigDecimal subtotal) {
+        BigDecimal subtotal,
+        Integer stockActual,
+        BigDecimal precioActual) {
 
     public static PedidoItemResponse from(PedidoItem item) {
         boolean esOferta = item.getOferta() != null;
-        BigDecimal precioUnitario = esOferta ? item.getOferta().getPrecio() : item.getProducto().getPrecioVenta();
         String nombre = esOferta ? item.getOferta().getTitulo() : item.getProducto().getNombre();
+        BigDecimal precioActual = esOferta ? item.getOferta().getPrecio() : item.getProducto().getPrecioVenta();
+        Integer stockActual = esOferta ? null : item.getProducto().getCantidad();
         return new PedidoItemResponse(
                 item.getId(),
                 esOferta ? null : item.getProducto().getCodigoProducto(),
@@ -24,7 +27,9 @@ public record PedidoItemResponse(
                 esOferta ? item.getOferta().getTipo().name() : null,
                 nombre,
                 item.getCantidad(),
-                precioUnitario,
-                precioUnitario.multiply(BigDecimal.valueOf(item.getCantidad())));
+                item.getPrecioUnitario(),
+                item.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad())),
+                stockActual,
+                precioActual);
     }
 }

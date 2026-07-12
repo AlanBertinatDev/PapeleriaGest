@@ -23,9 +23,6 @@
   --hue-menta: 155;
   --hue-celeste: 230;
 
-  --pill-bg: oklch(0.93 0.05 var(--h));
-  --pill-text: oklch(0.45 0.1 var(--h));
-
   /* Semantic states (reuse the pastel system) */
   --ok: oklch(0.4 0.1 155);
   --ok-bg: oklch(0.92 0.05 155);

@@ -77,6 +77,41 @@ public class EmailService {
     }
 
     @Transactional(readOnly = true)
+    public void notificarCliente(String destinatario, String asunto, String cuerpo) {
+        String correoEmpresa = valorConfiguracion("CorreoEmpresa");
+        String contrasenia = valorConfiguracion("Contraseñamail");
+
+        if (correoEmpresa == null || contrasenia == null || destinatario == null || destinatario.isBlank()) {
+            log.debug("Notificación al cliente omitida: falta configurar CorreoEmpresa/Contraseñamail o destinatario");
+            return;
+        }
+
+        try {
+            JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+            mailSender.setHost(host);
+            mailSender.setPort(port);
+            mailSender.setUsername(correoEmpresa);
+            mailSender.setPassword(contrasenia);
+
+            Properties props = mailSender.getJavaMailProperties();
+            props.put("mail.transport.protocol", "smtp");
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.starttls.enable", "true");
+
+            MimeMessage mensaje = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mensaje);
+            helper.setFrom(correoEmpresa);
+            helper.setTo(InternetAddress.parse(destinatario));
+            helper.setSubject(asunto);
+            helper.setText(cuerpo);
+
+            mailSender.send(mensaje);
+        } catch (Exception ex) {
+            log.warn("No se pudo enviar el email al cliente: {}", ex.getMessage());
+        }
+    }
+
+    @Transactional(readOnly = true)
     public void notificarClientesOferta(String tituloOferta, String cuerpo, List<String> destinatariosBcc) {
         if (destinatariosBcc.isEmpty()) {
             return;

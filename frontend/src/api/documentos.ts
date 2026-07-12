@@ -25,6 +25,7 @@ export interface DocumentoResponse {
   nombreArchivoOriginal: string | null
   esImagen: boolean
   estado: 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
+  origen: 'CLIENTE' | 'PROPIO'
   precio: string
   usuarioId: number
   usuarioNombre: string
@@ -52,6 +53,7 @@ export interface DocumentoFormData {
   esPractico: boolean
   nroPractico: number
   esImagen: boolean
+  esPropio?: boolean
   pedidoId?: number | null
   cursoId?: number | null
   archivo: File
@@ -77,6 +79,7 @@ function construirFormData(data: DocumentoFormData): FormData {
   formData.append('esPractico', String(data.esPractico))
   formData.append('nroPractico', String(data.nroPractico))
   formData.append('esImagen', String(data.esImagen))
+  formData.append('esPropio', String(data.esPropio ?? false))
   if (data.pedidoId != null) formData.append('pedidoId', String(data.pedidoId))
   if (data.cursoId != null) formData.append('cursoId', String(data.cursoId))
   if (data.tamanio) formData.append('tamanio', data.tamanio)

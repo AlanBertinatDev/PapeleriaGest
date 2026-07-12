@@ -101,6 +101,7 @@ public class PedidoService {
                 .pedido(pedido)
                 .producto(producto)
                 .cantidad(itemRequest.cantidad())
+                .precioUnitario(producto.getPrecioVenta())
                 .build();
         pedido.getItems().add(item);
         return producto.getPrecioVenta().multiply(BigDecimal.valueOf(itemRequest.cantidad()));
@@ -120,6 +121,7 @@ public class PedidoService {
                 .pedido(pedido)
                 .oferta(oferta)
                 .cantidad(itemRequest.cantidad())
+                .precioUnitario(oferta.getPrecio())
                 .build();
         pedido.getItems().add(item);
         return oferta.getPrecio().multiply(BigDecimal.valueOf(itemRequest.cantidad()));
@@ -210,6 +212,9 @@ public class PedidoService {
 
     @Transactional
     public PedidoResponse cambiarEstado(Long id, EstadoPedido nuevoEstado) {
+        if (nuevoEstado == EstadoPedido.EN_REVISION) {
+            throw new ConflictException("Para poner un pedido en revisión hay que indicar un motivo");
+        }
         Pedido pedido = buscarEntidad(id);
         if (pedido.getEstado() == EstadoPedido.CANCELADO) {
             if (nuevoEstado != EstadoPedido.PENDIENTE) {
@@ -220,6 +225,66 @@ public class PedidoService {
         }
         pedido.setEstado(nuevoEstado);
         return PedidoResponse.from(pedidoRepository.save(pedido));
+    }
+
+    @Transactional
+    public PedidoResponse marcarEnRevision(Long id, String motivo) {
+        Pedido pedido = buscarEntidad(id);
+        if (pedido.getEstado() == EstadoPedido.CANCELADO || pedido.getEstado() == EstadoPedido.ENTREGADO) {
+            throw new ConflictException(
+                    "No se puede poner en revisión un pedido " + pedido.getEstado().name().toLowerCase());
+        }
+        pedido.setEstado(EstadoPedido.EN_REVISION);
+        pedido.setMotivoRevision(motivo);
+        return PedidoResponse.from(pedidoRepository.save(pedido));
+    }
+
+    @Transactional
+    public PedidoResponse actualizarItems(Long id, List<PedidoItemRequest> nuevosItems) {
+        Pedido pedido = buscarEntidad(id);
+        if (pedido.getEstado() != EstadoPedido.PENDIENTE && pedido.getEstado() != EstadoPedido.EN_REVISION) {
+            throw new ConflictException("Solo se pueden editar los ítems de un pedido pendiente o en revisión");
+        }
+
+        for (PedidoItem item : pedido.getItems()) {
+            reponerStock(item);
+        }
+        pedido.getItems().clear();
+
+        BigDecimal total = BigDecimal.ZERO;
+        for (PedidoItemRequest itemRequest : nuevosItems) {
+            if (itemRequest.productoId() != null && itemRequest.ofertaId() != null) {
+                throw new ConflictException("Un ítem del pedido no puede ser producto y oferta a la vez");
+            }
+            if (itemRequest.productoId() != null) {
+                total = total.add(agregarItemProducto(pedido, itemRequest));
+            } else if (itemRequest.ofertaId() != null) {
+                total = total.add(agregarItemOferta(pedido, itemRequest));
+            } else {
+                throw new ConflictException("Cada ítem del pedido debe indicar un producto o una oferta");
+            }
+        }
+        if (pedido.isEsEnvio()) {
+            total = total.add(costoEnvio());
+        }
+        pedido.setPrecio(total);
+
+        Pedido guardado = pedidoRepository.save(pedido);
+        emailService.notificarCliente(
+                guardado.getUsuario().getEmail(),
+                "Actualizamos tu pedido #" + guardado.getId(),
+                resumenItems(guardado) + "\n\nNuevo total: $" + guardado.getPrecio()
+                        + "\n\nSi tenés dudas, respondé este correo o escribinos.");
+        return PedidoResponse.from(guardado);
+    }
+
+    private String resumenItems(Pedido pedido) {
+        StringBuilder sb = new StringBuilder("Así quedó tu pedido #" + pedido.getId() + ":\n");
+        for (PedidoItem item : pedido.getItems()) {
+            String nombre = item.getOferta() != null ? item.getOferta().getTitulo() : item.getProducto().getNombre();
+            sb.append("- ").append(nombre).append(" x").append(item.getCantidad()).append('\n');
+        }
+        return sb.toString();
     }
 
     private void reabrir(Pedido pedido) {

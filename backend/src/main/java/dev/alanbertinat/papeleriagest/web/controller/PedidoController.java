@@ -2,8 +2,10 @@ package dev.alanbertinat.papeleriagest.web.controller;
 
 import dev.alanbertinat.papeleriagest.security.UsuarioPrincipal;
 import dev.alanbertinat.papeleriagest.service.PedidoService;
+import dev.alanbertinat.papeleriagest.web.dto.ActualizarItemsPedidoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.CambiarEstadoPedidoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.CrearPedidoRequest;
+import dev.alanbertinat.papeleriagest.web.dto.MarcarEnRevisionRequest;
 import dev.alanbertinat.papeleriagest.web.dto.PedidoResponse;
 import dev.alanbertinat.papeleriagest.web.dto.TarifasResponse;
 import jakarta.validation.Valid;
@@ -68,5 +70,18 @@ public class PedidoController {
     public PedidoResponse cambiarEstado(
             @PathVariable Long id, @Valid @RequestBody CambiarEstadoPedidoRequest request) {
         return pedidoService.cambiarEstado(id, request.estado());
+    }
+
+    @PutMapping("/{id}/en-revision")
+    @PreAuthorize("hasRole('ADMIN')")
+    public PedidoResponse marcarEnRevision(@PathVariable Long id, @Valid @RequestBody MarcarEnRevisionRequest request) {
+        return pedidoService.marcarEnRevision(id, request.motivo());
+    }
+
+    @PutMapping("/{id}/items")
+    @PreAuthorize("hasRole('ADMIN')")
+    public PedidoResponse actualizarItems(
+            @PathVariable Long id, @Valid @RequestBody ActualizarItemsPedidoRequest request) {
+        return pedidoService.actualizarItems(id, request.items());
     }
 }

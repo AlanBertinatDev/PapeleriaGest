@@ -212,6 +212,7 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
         partes.add("esPractico", "false");
         partes.add("nroPractico", "0");
         partes.add("esImagen", "false");
+        partes.add("esPropio", "false");
         if (cursoId != null) {
             partes.add("cursoId", cursoId.toString());
         }

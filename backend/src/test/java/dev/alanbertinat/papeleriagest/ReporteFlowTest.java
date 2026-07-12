@@ -96,7 +96,7 @@ class ReporteFlowTest extends AbstractIntegrationTest {
 
         for (int i = 0; i < 3; i++) {
             CrearPedidoRequest crearRequest = new CrearPedidoRequest(
-                    null, null, false, null, "Pedido reporte " + i, List.of(new PedidoItemRequest(productoId, 2)));
+                    null, null, false, null, "Pedido reporte " + i, List.of(new PedidoItemRequest(productoId, null, 2)));
             ResponseEntity<PedidoResponse> created = restTemplate.exchange(
                     "/api/pedidos", HttpMethod.POST,
                     new HttpEntity<>(crearRequest, authHeaders(clienteToken)), PedidoResponse.class);

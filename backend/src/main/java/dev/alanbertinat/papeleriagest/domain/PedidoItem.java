@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import org.hibernate.envers.Audited;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,4 +43,6 @@ public class PedidoItem {
     private Oferta oferta;
 
     private int cantidad;
+
+    private BigDecimal precioUnitario;
 }

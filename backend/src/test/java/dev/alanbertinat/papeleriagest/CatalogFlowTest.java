@@ -90,7 +90,7 @@ class CatalogFlowTest extends AbstractIntegrationTest {
     @Test
     void adminCanManageProductsAndEstandarCannot() {
         ProductoRequest createRequest = new ProductoRequest(
-                1001L, "Cuaderno A4", new BigDecimal("250.00"), new BigDecimal("150.00"),
+                1001L, "Cuaderno A4", null, new BigDecimal("250.00"), new BigDecimal("150.00"),
                 categoriaId, marcaId, 5, "unidad", "22%", 10);
 
         ResponseEntity<String> forbidden = restTemplate.exchange(
@@ -134,7 +134,7 @@ class CatalogFlowTest extends AbstractIntegrationTest {
         assertThat(listAsEstandar.getBody()).extracting(ProductoResponse::codigoProducto).contains(1001L);
 
         ProductoRequest updateRequest = new ProductoRequest(
-                1001L, "Cuaderno A4 Tapa Dura", new BigDecimal("300.00"), new BigDecimal("180.00"),
+                1001L, "Cuaderno A4 Tapa Dura", null, new BigDecimal("300.00"), new BigDecimal("180.00"),
                 categoriaId, marcaId, 20, "unidad", "22%", 10);
         ResponseEntity<ProductoResponse> updated = restTemplate.exchange(
                 "/api/productos/1001", HttpMethod.PUT,

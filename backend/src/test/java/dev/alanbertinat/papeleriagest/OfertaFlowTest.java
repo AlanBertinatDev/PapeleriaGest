@@ -115,11 +115,11 @@ class OfertaFlowTest extends AbstractIntegrationTest {
         OfertaRequest vigente = new OfertaRequest(
                 "Descuento cuadernos", "20% en cuadernos", new BigDecimal("100.00"),
                 LocalDate.now().minusDays(1), LocalDate.now().plusDays(5), TipoOferta.PRODUCTO,
-                List.of(productoId), false, null);
+                List.of(productoId), false, null, false);
         OfertaRequest vencida = new OfertaRequest(
                 "Oferta vieja", "ya vencida", new BigDecimal("50.00"),
                 LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), TipoOferta.PRODUCTO,
-                List.of(productoId), false, null);
+                List.of(productoId), false, null, false);
 
         ResponseEntity<String> forbidden = restTemplate.exchange(
                 "/api/ofertas", HttpMethod.POST,
@@ -206,7 +206,7 @@ class OfertaFlowTest extends AbstractIntegrationTest {
         OfertaRequest edicion = new OfertaRequest(
                 "Título editado", "descripción editada", new BigDecimal("77.00"),
                 LocalDate.now(), LocalDate.now().plusDays(3), TipoOferta.PACK,
-                List.of(productoId, producto2Id), false, null);
+                List.of(productoId, producto2Id), false, null, false);
 
         ResponseEntity<OfertaResponse> actualizada = restTemplate.exchange(
                 "/api/ofertas/" + id, HttpMethod.PUT,
@@ -259,7 +259,7 @@ class OfertaFlowTest extends AbstractIntegrationTest {
         OfertaRequest request = new OfertaRequest(
                 "Oferta notificada", null, new BigDecimal("10.00"),
                 LocalDate.now(), LocalDate.now().plusDays(5), TipoOferta.PRODUCTO,
-                List.of(productoId), true, AudienciaNotificacion.TODOS);
+                List.of(productoId), true, AudienciaNotificacion.TODOS, false);
 
         ResponseEntity<OfertaResponse> response = crear(request);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -292,7 +292,7 @@ class OfertaFlowTest extends AbstractIntegrationTest {
 
         CrearPedidoRequest pedidoRequest = new CrearPedidoRequest(
                 null, null, false, null, "Compra categoría exclusiva",
-                List.of(new PedidoItemRequest(productoExclusivo.getCodigoProducto(), 1)));
+                List.of(new PedidoItemRequest(productoExclusivo.getCodigoProducto(), null, 1)));
         ResponseEntity<Void> pedido = restTemplate.exchange(
                 "/api/pedidos", HttpMethod.POST,
                 new HttpEntity<>(pedidoRequest, authHeaders(compradorToken)), Void.class);
@@ -301,7 +301,7 @@ class OfertaFlowTest extends AbstractIntegrationTest {
         OfertaRequest request = new OfertaRequest(
                 "Oferta categoría exclusiva", null, new BigDecimal("15.00"),
                 LocalDate.now(), LocalDate.now().plusDays(5), TipoOferta.PRODUCTO,
-                List.of(productoExclusivo.getCodigoProducto()), true, AudienciaNotificacion.CATEGORIA);
+                List.of(productoExclusivo.getCodigoProducto()), true, AudienciaNotificacion.CATEGORIA, false);
 
         ResponseEntity<OfertaResponse> response = crear(request);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
@@ -314,7 +314,7 @@ class OfertaFlowTest extends AbstractIntegrationTest {
         OfertaRequest request = new OfertaRequest(
                 "Servicio con audiencia inválida", null, new BigDecimal("15.00"),
                 LocalDate.now(), LocalDate.now().plusDays(5), TipoOferta.SERVICIO,
-                List.of(), true, AudienciaNotificacion.CATEGORIA);
+                List.of(), true, AudienciaNotificacion.CATEGORIA, false);
 
         assertThat(crearEsperandoError(request).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
     }
@@ -322,7 +322,7 @@ class OfertaFlowTest extends AbstractIntegrationTest {
     private OfertaRequest ofertaRequest(TipoOferta tipo, List<Long> productoIds) {
         return new OfertaRequest(
                 "Oferta de prueba " + tipo, null, new BigDecimal("10.00"),
-                LocalDate.now(), LocalDate.now().plusDays(5), tipo, productoIds, false, null);
+                LocalDate.now(), LocalDate.now().plusDays(5), tipo, productoIds, false, null, false);
     }
 
     private ResponseEntity<OfertaResponse> crear(OfertaRequest request) {

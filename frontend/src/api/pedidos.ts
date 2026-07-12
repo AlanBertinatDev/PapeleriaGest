@@ -10,6 +10,8 @@ export interface PedidoItemResponse {
   cantidad: number
   precioUnitario: string
   subtotal: string
+  stockActual: number | null
+  precioActual: string
 }
 
 export interface PedidoResponse {
@@ -20,10 +22,13 @@ export interface PedidoResponse {
   esEnvio: boolean
   direccion: string | null
   descripcion: string | null
-  estado: 'PENDIENTE' | 'ENTREGADO' | 'CANCELADO'
+  estado: 'PENDIENTE' | 'EN_REVISION' | 'ENTREGADO' | 'CANCELADO'
+  motivoRevision: string | null
   precio: string
   usuarioId: number
   usuarioNombre: string
+  usuarioEmail: string
+  usuarioTelefono: string | null
   items: PedidoItemResponse[]
   documentos: DocumentoResponse[]
 }
@@ -55,4 +60,8 @@ export const pedidosApi = {
   buscar: (id: number) => api.get<PedidoResponse>(`/pedidos/${id}`),
   cancelar: (id: number) => api.put<PedidoResponse>(`/pedidos/${id}/cancelar`, undefined),
   cambiarEstado: (id: number, estado: string) => api.put<PedidoResponse>(`/pedidos/${id}/estado`, { estado }),
+  marcarEnRevision: (id: number, motivo: string) =>
+    api.put<PedidoResponse>(`/pedidos/${id}/en-revision`, { motivo }),
+  actualizarItems: (id: number, items: PedidoItemRequest[]) =>
+    api.put<PedidoResponse>(`/pedidos/${id}/items`, { items }),
 }

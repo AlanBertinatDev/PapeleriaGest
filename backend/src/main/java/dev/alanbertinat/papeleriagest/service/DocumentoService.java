@@ -4,6 +4,7 @@ import dev.alanbertinat.papeleriagest.domain.Curso;
 import dev.alanbertinat.papeleriagest.domain.Documento;
 import dev.alanbertinat.papeleriagest.domain.EstadoDocumento;
 import dev.alanbertinat.papeleriagest.domain.EstadoPedido;
+import dev.alanbertinat.papeleriagest.domain.OrigenDocumento;
 import dev.alanbertinat.papeleriagest.domain.Pedido;
 import dev.alanbertinat.papeleriagest.domain.Usuario;
 import dev.alanbertinat.papeleriagest.exception.ConflictException;
@@ -89,6 +90,7 @@ public class DocumentoService {
                 .nombreArchivoOriginal(archivo.getOriginalFilename())
                 .esImagen(request.esImagen())
                 .estado(EstadoDocumento.PENDIENTE)
+                .origen(request.esPropio() && usuario.getNivel().isAdmin() ? OrigenDocumento.PROPIO : OrigenDocumento.CLIENTE)
                 .precio(BigDecimal.ZERO)
                 .usuario(usuario)
                 .pedido(pedido)
@@ -149,6 +151,7 @@ public class DocumentoService {
                 .nombreArchivoOriginal(origen.getNombreArchivoOriginal())
                 .esImagen(origen.isEsImagen())
                 .estado(EstadoDocumento.PENDIENTE)
+                .origen(OrigenDocumento.CLIENTE)
                 .precio(precio)
                 .usuario(usuario)
                 .pedido(pedido)

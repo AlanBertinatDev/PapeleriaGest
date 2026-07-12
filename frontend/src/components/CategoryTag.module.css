@@ -6,7 +6,7 @@
   font-size: 10.5px;
   font-weight: 600;
   line-height: 1.4;
-  background: var(--pill-bg);
-  color: var(--pill-text);
+  background: oklch(0.93 0.05 var(--h));
+  color: oklch(0.45 0.1 var(--h));
   white-space: nowrap;
 }

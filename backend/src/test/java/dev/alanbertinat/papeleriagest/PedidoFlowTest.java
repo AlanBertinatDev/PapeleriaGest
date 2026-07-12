@@ -103,7 +103,7 @@ class PedidoFlowTest extends AbstractIntegrationTest {
     @Test
     void ownerCanCreateAndCancelPedidoOthersCannotAccess() {
         CrearPedidoRequest crearRequest = new CrearPedidoRequest(
-                null, null, false, null, "Pedido de prueba", List.of(new PedidoItemRequest(productoId, 3)));
+                null, null, false, null, "Pedido de prueba", List.of(new PedidoItemRequest(productoId, null, 3)));
 
         ResponseEntity<PedidoResponse> created = restTemplate.exchange(
                 "/api/pedidos", HttpMethod.POST,
@@ -148,7 +148,7 @@ class PedidoFlowTest extends AbstractIntegrationTest {
     @Test
     void deliveredPedidoCannotBeCancelled() {
         CrearPedidoRequest crearRequest = new CrearPedidoRequest(
-                null, null, false, null, "Pedido a entregar", List.of(new PedidoItemRequest(productoId, 1)));
+                null, null, false, null, "Pedido a entregar", List.of(new PedidoItemRequest(productoId, null, 1)));
         ResponseEntity<PedidoResponse> created = restTemplate.exchange(
                 "/api/pedidos", HttpMethod.POST,
                 new HttpEntity<>(crearRequest, authHeaders(ownerToken)), PedidoResponse.class);
@@ -191,7 +191,7 @@ class PedidoFlowTest extends AbstractIntegrationTest {
 
         CrearPedidoRequest crearRequest = new CrearPedidoRequest(
                 null, null, false, null, "Pedido con descuento de stock",
-                List.of(new PedidoItemRequest(producto.getCodigoProducto(), 4)));
+                List.of(new PedidoItemRequest(producto.getCodigoProducto(), null, 4)));
         ResponseEntity<PedidoResponse> created = restTemplate.exchange(
                 "/api/pedidos", HttpMethod.POST,
                 new HttpEntity<>(crearRequest, authHeaders(ownerToken)), PedidoResponse.class);
@@ -259,7 +259,7 @@ class PedidoFlowTest extends AbstractIntegrationTest {
 
         CrearPedidoRequest crearRequest = new CrearPedidoRequest(
                 null, null, false, null, "Pedido sin stock",
-                List.of(new PedidoItemRequest(producto.getCodigoProducto(), 5)));
+                List.of(new PedidoItemRequest(producto.getCodigoProducto(), null, 5)));
         ResponseEntity<String> rechazado = restTemplate.exchange(
                 "/api/pedidos", HttpMethod.POST,
                 new HttpEntity<>(crearRequest, authHeaders(ownerToken)), String.class);
@@ -271,7 +271,7 @@ class PedidoFlowTest extends AbstractIntegrationTest {
         configuracionRepository.save(Configuracion.builder().nombre("CostoEnvio").valor("150.00").activo(true).build());
 
         CrearPedidoRequest crearRequest = new CrearPedidoRequest(
-                null, null, true, "Calle Falsa 123", "Pedido con envío", List.of(new PedidoItemRequest(productoId, 2)));
+                null, null, true, "Calle Falsa 123", "Pedido con envío", List.of(new PedidoItemRequest(productoId, null, 2)));
 
         ResponseEntity<PedidoResponse> created = restTemplate.exchange(
                 "/api/pedidos", HttpMethod.POST,
