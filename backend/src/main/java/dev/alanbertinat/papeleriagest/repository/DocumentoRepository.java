@@ -20,6 +20,12 @@ public interface DocumentoRepository extends JpaRepository<Documento, Long> {
 
     List<Documento> findByActivoTrueAndCursoIdOrderByFechaIngresoDesc(Long cursoId);
 
+    List<Documento> findByActivoTrueAndCursoIdAndPedidoIsNullOrderByFechaIngresoDesc(Long cursoId);
+
+    long countByCursoIdAndPedidoIsNull(Long cursoId);
+
+    boolean existsByCursoIdAndPedidoIsNullAndCodigoIgnoreCase(Long cursoId, String codigo);
+
     long countByActivoTrueAndEstadoAndPedidoIsNotNull(dev.alanbertinat.papeleriagest.domain.EstadoDocumento estado);
 
     long countByFechaIngresoBetween(LocalDate desde, LocalDate hasta);

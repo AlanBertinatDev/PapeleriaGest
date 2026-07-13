@@ -17,6 +17,7 @@ export interface DocumentoResponse {
   esEnvio: boolean
   direccion: string | null
   materia: string | null
+  codigo: string | null
   cantidadCopias: number
   esPractico: boolean
   nroPractico: number
@@ -25,7 +26,7 @@ export interface DocumentoResponse {
   nombreArchivoOriginal: string | null
   esImagen: boolean
   estado: 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
-  origen: 'CLIENTE' | 'PROPIO'
+  origen: 'CLIENTE' | 'PROPIO' | 'DOCENTE'
   precio: string
   usuarioId: number
   usuarioNombre: string
@@ -49,6 +50,7 @@ export interface DocumentoFormData {
   esEnvio: boolean
   direccion?: string | null
   materia?: string | null
+  codigo?: string | null
   cantidadCopias: number
   esPractico: boolean
   nroPractico: number
@@ -75,6 +77,7 @@ function construirFormData(data: DocumentoFormData): FormData {
   formData.append('esEnvio', String(data.esEnvio))
   if (data.direccion) formData.append('direccion', data.direccion)
   if (data.materia) formData.append('materia', data.materia)
+  if (data.codigo) formData.append('codigo', data.codigo)
   formData.append('cantidadCopias', String(data.cantidadCopias))
   formData.append('esPractico', String(data.esPractico))
   formData.append('nroPractico', String(data.nroPractico))

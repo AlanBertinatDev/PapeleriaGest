@@ -41,6 +41,9 @@ public class CursoService {
 
     @Transactional
     public CursoResponse crear(CursoRequest request) {
+        if (cursoRepository.existsByGradoAndGrupo(request.grado(), request.grupo())) {
+            throw new ConflictException("Ya existe un curso con ese grado y grupo");
+        }
         Curso curso = Curso.builder().grado(request.grado()).grupo(request.grupo()).build();
         return CursoResponse.from(cursoRepository.save(curso));
     }
@@ -48,6 +51,15 @@ public class CursoService {
     @Transactional(readOnly = true)
     public List<CursoResponse> listar() {
         return cursoRepository.findAll().stream().map(CursoResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<CursoResponse> misCursos(Long estudianteId) {
+        return cursoEstudianteRepository.findByEstudianteId(estudianteId)
+                .map(CursoEstudiante::getCurso)
+                .map(CursoResponse::from)
+                .map(List::of)
+                .orElseGet(List::of);
     }
 
     @Transactional

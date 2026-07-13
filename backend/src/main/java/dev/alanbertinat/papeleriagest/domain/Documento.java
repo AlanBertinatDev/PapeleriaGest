@@ -62,6 +62,8 @@ public class Documento {
 
     private String materia;
 
+    private String codigo;
+
     private int cantidadCopias;
 
     private boolean esPractico;

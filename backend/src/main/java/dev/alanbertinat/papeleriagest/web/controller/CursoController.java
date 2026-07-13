@@ -1,5 +1,6 @@
 package dev.alanbertinat.papeleriagest.web.controller;
 
+import dev.alanbertinat.papeleriagest.security.UsuarioPrincipal;
 import dev.alanbertinat.papeleriagest.service.CursoService;
 import dev.alanbertinat.papeleriagest.web.dto.AsignarDocenteRequest;
 import dev.alanbertinat.papeleriagest.web.dto.AsignarEstudianteRequest;
@@ -12,6 +13,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,8 +38,14 @@ public class CursoController {
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public List<CursoResponse> listar() {
         return cursoService.listar();
+    }
+
+    @GetMapping("/mios")
+    public List<CursoResponse> misCursos(@AuthenticationPrincipal UsuarioPrincipal principal) {
+        return cursoService.misCursos(principal.usuario().getId());
     }
 
     @PostMapping("/{cursoId}/estudiantes")
@@ -62,7 +70,14 @@ public class CursoController {
     }
 
     @GetMapping("/docentes/{docenteId}/materias")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<MateriaCursoDocenteResponse> listarMateriasPorDocente(@PathVariable Long docenteId) {
         return cursoService.listarMateriasPorDocente(docenteId);
+    }
+
+    @GetMapping("/mis-asignaciones")
+    @PreAuthorize("hasRole('DOCENTE')")
+    public List<MateriaCursoDocenteResponse> misAsignaciones(@AuthenticationPrincipal UsuarioPrincipal principal) {
+        return cursoService.listarMateriasPorDocente(principal.usuario().getId());
     }
 }

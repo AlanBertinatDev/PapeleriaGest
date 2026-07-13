@@ -231,7 +231,13 @@ function DocumentoPickerModal({
 
   useEffect(() => {
     documentosApi.misDocumentos().then(setMisDocumentos).catch(() => {})
-    cursosApi.listar().then(setCursos).catch(() => {})
+    cursosApi.misCursos().then((lista) => {
+      setCursos(lista)
+      if (lista.length === 1) {
+        handleBuscarCurso(String(lista[0].id))
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -395,7 +401,11 @@ function DocumentoPickerModal({
         </button>
       </div>
 
-      {tab === 'curso' && (
+      {tab === 'curso' && cursos.length === 0 && (
+        <p className="empty-state">Todavía no estás inscripto en ningún curso.</p>
+      )}
+
+      {tab === 'curso' && cursos.length > 1 && (
         <label>
           Curso
           <select value={cursoId} onChange={(e) => handleBuscarCurso(e.target.value)}>
@@ -409,11 +419,16 @@ function DocumentoPickerModal({
         </label>
       )}
 
-      {lista.length === 0 ? (
+      {lista.length === 0 && (tab === 'mios' || cursos.length > 0) ? (
         <p className="empty-state">
-          {tab === 'mios' ? 'Todavía no cargaste ningún documento propio.' : 'Elegí un curso para ver sus materiales.'}
+          {tab === 'mios'
+            ? 'Todavía no cargaste ningún documento propio.'
+            : cursoId
+              ? 'No hay materiales cargados para tu curso todavía.'
+              : 'Elegí un curso para ver sus materiales.'}
         </p>
-      ) : (
+      ) : null}
+      {lista.length > 0 && (
         <div className={styles.pickerList}>
           {lista.map((doc) => (
             <button
@@ -435,6 +450,7 @@ function DocumentoPickerModal({
             >
               {doc.nombre}
               {doc.materia && <span className={styles.pickerListMeta}> · {doc.materia}</span>}
+              {doc.codigo && <span className={styles.pickerListMeta}> · código {doc.codigo}</span>}
             </button>
           ))}
         </div>

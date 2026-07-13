@@ -20,6 +20,8 @@ import lombok.Setter;
 @Builder
 public class Curso {
 
+    public static final java.util.Set<String> GRADOS_VALIDOS = java.util.Set.of("1", "2", "3", "4", "5", "6");
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

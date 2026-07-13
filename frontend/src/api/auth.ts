@@ -28,10 +28,17 @@ export interface LoginRequest {
   password: string
 }
 
+export interface UpdatePerfilRequest {
+  nombre: string
+  email: string
+  telefono?: string | null
+}
+
 export const authApi = {
   register: (data: RegisterRequest) => api.post<AuthResponse>('/auth/register', data),
   login: (data: LoginRequest) => api.post<AuthResponse>('/auth/login', data),
   me: () => api.get<UsuarioResponse>('/auth/me'),
+  actualizarPerfil: (data: UpdatePerfilRequest) => api.put<UsuarioResponse>('/auth/me', data),
   changePassword: (currentPassword: string, newPassword: string) =>
     api.put<void>('/auth/password', { currentPassword, newPassword }),
 }

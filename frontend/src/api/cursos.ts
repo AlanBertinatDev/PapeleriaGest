@@ -16,6 +16,7 @@ export interface CursoEstudianteResponse {
 export interface MateriaCursoDocenteResponse {
   id: number
   cursoId: number
+  cursoNombre: string
   docenteId: number
   docenteNombre: string
   materia: string
@@ -23,6 +24,7 @@ export interface MateriaCursoDocenteResponse {
 
 export const cursosApi = {
   listar: () => api.get<CursoResponse[]>('/cursos'),
+  misCursos: () => api.get<CursoResponse[]>('/cursos/mios'),
   crear: (grado: string, grupo: string) => api.post<CursoResponse>('/cursos', { grado, grupo }),
   asignarEstudiante: (cursoId: number, estudianteId: number) =>
     api.post<CursoEstudianteResponse>(`/cursos/${cursoId}/estudiantes`, { estudianteId }),
@@ -30,4 +32,5 @@ export const cursosApi = {
     api.get<CursoEstudianteResponse[]>(`/cursos/${cursoId}/estudiantes`),
   asignarDocente: (cursoId: number, docenteId: number, materia: string) =>
     api.post<MateriaCursoDocenteResponse>(`/cursos/${cursoId}/docentes`, { docenteId, materia }),
+  misAsignaciones: () => api.get<MateriaCursoDocenteResponse[]>('/cursos/mis-asignaciones'),
 }

@@ -191,7 +191,18 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 6px;
+  padding: 4px 6px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+}
+
+.userRow:hover {
+  background: var(--surface-alt);
 }
 
 .avatar {

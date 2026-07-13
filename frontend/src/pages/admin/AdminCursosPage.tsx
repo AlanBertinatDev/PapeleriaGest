@@ -130,7 +130,14 @@ export function AdminCursosPage() {
           <form onSubmit={handleCrearCurso}>
             <label>
               Grado
-              <input value={grado} onChange={(e) => setGrado(e.target.value)} required />
+              <select value={grado} onChange={(e) => setGrado(e.target.value)} required>
+                <option value="">Seleccionar grado</option>
+                {['1', '2', '3', '4', '5', '6'].map((g) => (
+                  <option key={g} value={g}>
+                    {g}°
+                  </option>
+                ))}
+              </select>
             </label>
             <label>
               Grupo

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { cursosApi, type CursoResponse } from '../api/cursos'
 import { documentosApi, type DocumentoResponse } from '../api/documentos'
 import { ApiError } from '../api/client'
@@ -6,6 +7,7 @@ import { DocumentoCard } from '../components/DocumentoCard'
 import { PageHeader } from '../components/PageHeader'
 
 export function BuscarMaterialesPage() {
+  const navigate = useNavigate()
   const [cursos, setCursos] = useState<CursoResponse[]>([])
   const [cursoId, setCursoId] = useState('')
   const [materiales, setMateriales] = useState<DocumentoResponse[]>([])
@@ -13,7 +15,13 @@ export function BuscarMaterialesPage() {
   const [buscando, setBuscando] = useState(false)
 
   useEffect(() => {
-    cursosApi.listar().then(setCursos).catch(() => {})
+    cursosApi.misCursos().then((lista) => {
+      setCursos(lista)
+      if (lista.length === 1) {
+        handleBuscar(String(lista[0].id))
+      }
+    }).catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function handleBuscar(id: string) {
@@ -38,23 +46,31 @@ export function BuscarMaterialesPage() {
     <div>
       <PageHeader
         title="Buscar materiales"
-        subtitle="Encontrá lo que dejó tu docente para tu curso y pedilo en el mostrador"
+        subtitle="Encontrá lo que dejó tu docente para tu curso y pedilo a imprimir desde el catálogo"
       />
       {error && <p className="error">{error}</p>}
 
-      <div className="card">
-        <label>
-          Curso
-          <select value={cursoId} onChange={(e) => handleBuscar(e.target.value)}>
-            <option value="">Seleccioná un curso</option>
-            {cursos.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.grado} {c.grupo}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
+      {cursos.length === 0 && (
+        <p className="empty-state">
+          Todavía no estás inscripto en ningún curso. Pedile al administrador que te inscriba.
+        </p>
+      )}
+
+      {cursos.length > 1 && (
+        <div className="card">
+          <label>
+            Curso
+            <select value={cursoId} onChange={(e) => handleBuscar(e.target.value)}>
+              <option value="">Seleccioná un curso</option>
+              {cursos.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.grado} {c.grupo}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
 
       {buscando && <p className="empty-state">Buscando...</p>}
       {!buscando && cursoId && materiales.length === 0 && (
@@ -63,7 +79,19 @@ export function BuscarMaterialesPage() {
 
       <div className="order-grid">
         {materiales.map((doc) => (
-          <DocumentoCard key={doc.id} documento={doc} mostrarUsuario />
+          <DocumentoCard
+            key={doc.id}
+            documento={doc}
+            mostrarUsuario
+            permitirDescarga={false}
+            acciones={[
+              {
+                label: 'Pedir impresión',
+                destacada: true,
+                onClick: () => navigate('/catalogo'),
+              },
+            ]}
+          />
         ))}
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { NotificationCenter } from './NotificationCenter'
 import { AuthModal, type AuthTab } from './AuthModal'
+import { MiCuentaModal } from './MiCuentaModal'
 import { Footer } from './Footer'
 import logo from '../assets/logo.jpeg'
 import styles from './Layout.module.css'
@@ -22,6 +23,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const location = useLocation()
   const [authTab, setAuthTab] = useState<AuthTab | null>(null)
   const [menuAbierto, setMenuAbierto] = useState(false)
+  const [cuentaAbierta, setCuentaAbierta] = useState(false)
 
   useEffect(() => {
     if (location.pathname === '/login') setAuthTab('login')
@@ -173,13 +175,20 @@ export function Layout({ children }: { children: ReactNode }) {
         </nav>
 
         <div className={styles.userFooter}>
-          <div className={styles.userRow}>
+          <button
+            type="button"
+            className={styles.userRow}
+            onClick={() => {
+              setMenuAbierto(false)
+              setCuentaAbierta(true)
+            }}
+          >
             <div className={styles.avatar}>{iniciales(usuario.nombre)}</div>
             <div className={styles.userInfo}>
               <span className={styles.userName}>{usuario.nombre}</span>
               <span className={styles.userRole}>{usuario.nivel}</span>
             </div>
-          </div>
+          </button>
           <button className={styles.logoutButton} onClick={handleLogout}>
             Salir
           </button>
@@ -193,6 +202,7 @@ export function Layout({ children }: { children: ReactNode }) {
         )}
         {children}
       </main>
+      {cuentaAbierta && <MiCuentaModal onClose={() => setCuentaAbierta(false)} />}
     </div>
   )
 }
