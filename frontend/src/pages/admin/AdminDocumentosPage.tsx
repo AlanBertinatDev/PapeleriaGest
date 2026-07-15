@@ -12,6 +12,7 @@ export function AdminDocumentosPage() {
   const [documentos, setDocumentos] = useState<DocumentoResponse[]>([])
   const [error, setError] = useState<string | null>(null)
   const [filtro, setFiltro] = useState<Filtro>('TODOS')
+  const [busquedaUsuario, setBusquedaUsuario] = useState('')
   const [modalAbierto, setModalAbierto] = useState(false)
   const [nombre, setNombre] = useState('')
   const [archivo, setArchivo] = useState<File | null>(null)
@@ -82,7 +83,9 @@ export function AdminDocumentosPage() {
     [documentos],
   )
 
-  const visibles = filtro === 'TODOS' ? documentos : documentos.filter((d) => d.origen === filtro)
+  const porOrigen = filtro === 'TODOS' ? documentos : documentos.filter((d) => d.origen === filtro)
+  const usuario = busquedaUsuario.trim().toLowerCase()
+  const visibles = usuario ? porOrigen.filter((d) => d.usuarioNombre.toLowerCase().includes(usuario)) : porOrigen
 
   return (
     <div>
@@ -95,9 +98,20 @@ export function AdminDocumentosPage() {
 
       <FilterPills options={opciones} active={filtro} onChange={(k) => setFiltro(k as Filtro)} />
 
+      <input
+        value={busquedaUsuario}
+        onChange={(e) => setBusquedaUsuario(e.target.value)}
+        placeholder="Buscar por usuario…"
+        style={{ marginBottom: 16, maxWidth: 320 }}
+      />
+
       {visibles.length === 0 && (
         <p className="empty-state">
-          {documentos.length === 0 ? 'No hay documentos cargados.' : 'No hay documentos de este tipo.'}
+          {documentos.length === 0
+            ? 'No hay documentos cargados.'
+            : usuario
+              ? 'No hay documentos de ese usuario en este filtro.'
+              : 'No hay documentos de este tipo.'}
         </p>
       )}
 

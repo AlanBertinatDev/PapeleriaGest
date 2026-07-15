@@ -37,8 +37,8 @@
 }
 
 .count {
-  background: var(--neutral-bg);
-  color: var(--neutral);
+  background: oklch(0.88 0.006 75);
+  color: oklch(0.35 0.01 75);
   font: 600 10.5px 'Inter', sans-serif;
   padding: 1px 6px;
   border-radius: var(--radius-pill);

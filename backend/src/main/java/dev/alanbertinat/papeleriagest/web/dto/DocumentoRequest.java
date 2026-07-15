@@ -12,6 +12,7 @@ public record DocumentoRequest(
         boolean esEnvio,
         String direccion,
         String materia,
+        String codigo,
         @Positive int cantidadCopias,
         boolean esPractico,
         int nroPractico,

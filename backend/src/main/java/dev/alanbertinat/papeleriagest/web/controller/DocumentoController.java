@@ -74,8 +74,9 @@ public class DocumentoController {
     }
 
     @GetMapping("/por-curso/{cursoId}")
-    public List<DocumentoResponse> listarPorCurso(@PathVariable Long cursoId) {
-        return documentoService.listarPorCurso(cursoId);
+    public List<DocumentoResponse> listarPorCurso(
+            @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Long cursoId) {
+        return documentoService.listarPorCurso(cursoId, principal.usuario());
     }
 
     @GetMapping("/{id}")

@@ -11,6 +11,7 @@ import dev.alanbertinat.papeleriagest.web.dto.AuthResponse;
 import dev.alanbertinat.papeleriagest.web.dto.ChangePasswordRequest;
 import dev.alanbertinat.papeleriagest.web.dto.LoginRequest;
 import dev.alanbertinat.papeleriagest.web.dto.RegisterRequest;
+import dev.alanbertinat.papeleriagest.web.dto.UpdatePerfilRequest;
 import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -89,6 +90,19 @@ public class AuthService {
         loginRateLimiter.registrarExito(request.email());
         UsuarioPrincipal principal = new UsuarioPrincipal(usuario);
         return new AuthResponse(jwtService.generateToken(principal), UsuarioResponse.from(usuario));
+    }
+
+    @Transactional
+    public UsuarioResponse actualizarPerfil(Usuario usuario, UpdatePerfilRequest request) {
+        if (!usuario.getEmail().equalsIgnoreCase(request.email())
+                && usuarioRepository.existsByEmail(request.email())) {
+            throw new ConflictException("Ya existe un usuario registrado con ese email");
+        }
+        usuario.setNombre(request.nombre());
+        usuario.setEmail(request.email());
+        usuario.setTelefono(request.telefono());
+        usuarioRepository.save(usuario);
+        return UsuarioResponse.from(usuario);
     }
 
     @Transactional

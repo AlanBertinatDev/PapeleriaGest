@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { cursosApi, type CursoResponse } from '../../api/cursos'
+import { cursosApi, type MateriaCursoDocenteResponse } from '../../api/cursos'
 import { documentosApi, type DocumentoResponse } from '../../api/documentos'
 import { useAuth } from '../../auth/AuthContext'
 import { ApiError } from '../../api/client'
@@ -9,18 +9,18 @@ import { PageHeader } from '../../components/PageHeader'
 
 export function CargarMaterialPage() {
   const { usuario } = useAuth()
-  const [cursos, setCursos] = useState<CursoResponse[]>([])
+  const [asignaciones, setAsignaciones] = useState<MateriaCursoDocenteResponse[]>([])
   const [misMateriales, setMisMateriales] = useState<DocumentoResponse[]>([])
   const [nombre, setNombre] = useState('')
-  const [materia, setMateria] = useState('')
-  const [cursoId, setCursoId] = useState('')
+  const [asignacionId, setAsignacionId] = useState('')
+  const [codigo, setCodigo] = useState('')
   const [archivo, setArchivo] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [creando, setCreando] = useState(false)
   const [modalAbierto, setModalAbierto] = useState(false)
 
   function cargar() {
-    cursosApi.listar().then(setCursos).catch(() => {})
+    cursosApi.misAsignaciones().then(setAsignaciones).catch(() => {})
     documentosApi
       .misDocumentos()
       .then((docs) => setMisMateriales(docs.filter((d) => d.cursoId !== null)))
@@ -42,8 +42,8 @@ export function CargarMaterialPage() {
   function cerrarModal() {
     setModalAbierto(false)
     setNombre('')
-    setMateria('')
-    setCursoId('')
+    setAsignacionId('')
+    setCodigo('')
     setArchivo(null)
     setError(null)
   }
@@ -54,13 +54,19 @@ export function CargarMaterialPage() {
       setError('Adjuntá un archivo')
       return
     }
+    const asignacion = asignaciones.find((a) => String(a.id) === asignacionId)
+    if (!asignacion) {
+      setError('Elegí el curso y materia')
+      return
+    }
     setError(null)
     setCreando(true)
     try {
       await documentosApi.crear({
         nombre,
-        materia: materia || null,
-        cursoId: cursoId ? Number(cursoId) : null,
+        materia: asignacion.materia,
+        cursoId: asignacion.cursoId,
+        codigo: codigo || null,
         cantidadCopias: 1,
         esDobleFaz: false,
         aColor: false,
@@ -86,13 +92,23 @@ export function CargarMaterialPage() {
         subtitle={`Hola ${usuario?.nombre}: subí el material del curso para que los alumnos lo pidan a imprimir`}
       />
 
-      <div className="section-header">
-        <h3>Materiales que cargaste</h3>
-        <button onClick={() => setModalAbierto(true)}>Cargar material</button>
-      </div>
+      {asignaciones.length === 0 && (
+        <p className="empty-state">
+          Todavía no tenés cursos y materias asignados. Pedile al administrador que te asigne alguno.
+        </p>
+      )}
+
+      {asignaciones.length > 0 && (
+        <div className="section-header">
+          <h3>Materiales que cargaste</h3>
+          <button onClick={() => setModalAbierto(true)}>Cargar material</button>
+        </div>
+      )}
       {error && !modalAbierto && <p className="error">{error}</p>}
 
-      {misMateriales.length === 0 && <p className="empty-state">Todavía no cargaste materiales de curso.</p>}
+      {asignaciones.length > 0 && misMateriales.length === 0 && (
+        <p className="empty-state">Todavía no cargaste materiales de curso.</p>
+      )}
 
       {materialesPorCurso.map(([curso, docs]) => (
         <div key={curso} style={{ marginBottom: 24 }}>
@@ -113,19 +129,23 @@ export function CargarMaterialPage() {
               <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Guía de ejercicios 4" required />
             </label>
             <label>
-              Materia (opcional)
-              <input value={materia} onChange={(e) => setMateria(e.target.value)} placeholder="Matemática" />
-            </label>
-            <label>
-              Curso destinatario
-              <select value={cursoId} onChange={(e) => setCursoId(e.target.value)}>
-                <option value="">Sin curso específico</option>
-                {cursos.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.grado} {c.grupo}
+              Curso y materia
+              <select value={asignacionId} onChange={(e) => setAsignacionId(e.target.value)} required>
+                <option value="">Seleccionar curso y materia</option>
+                {asignaciones.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.cursoNombre} — {a.materia}
                   </option>
                 ))}
               </select>
+            </label>
+            <label>
+              Código (opcional)
+              <input
+                value={codigo}
+                onChange={(e) => setCodigo(e.target.value)}
+                placeholder="Ej: PARCIAL1 — si lo dejás vacío se genera uno"
+              />
             </label>
             <label>
               Archivo

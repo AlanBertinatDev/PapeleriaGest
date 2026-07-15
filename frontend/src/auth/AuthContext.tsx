@@ -10,6 +10,7 @@ interface AuthContextValue {
   login: (data: LoginRequest) => Promise<void>
   register: (data: RegisterRequest) => Promise<void>
   logout: () => void
+  actualizarUsuario: (usuario: UsuarioResponse) => void
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -47,11 +48,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUsuario(null)
   }, [])
 
+  const actualizarUsuario = useCallback((nuevo: UsuarioResponse) => {
+    setUsuario(nuevo)
+  }, [])
+
   const isAdmin = usuario?.nivel === 'Administrador'
   const isDocente = usuario?.nivel === 'Docente'
 
   return (
-    <AuthContext.Provider value={{ usuario, loading, isAdmin, isDocente, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ usuario, loading, isAdmin, isDocente, login, register, logout, actualizarUsuario }}
+    >
       {children}
     </AuthContext.Provider>
   )

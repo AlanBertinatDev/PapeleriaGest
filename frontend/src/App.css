@@ -545,8 +545,8 @@ th {
 
 .order-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, 360px);
+  gap: 18px;
 }
 
 .order-card {
@@ -555,18 +555,18 @@ th {
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-md);
   padding: 18px 20px;
-  border-left: 5px solid var(--border);
+  border-left: 4px solid var(--border);
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
 .order-card.estado-pendiente {
-  border-left-color: var(--warn);
+  border-left-color: oklch(0.68 0.14 70);
 }
 
 .order-card.estado-en_revision {
-  border-left-color: var(--danger);
+  border-left-color: oklch(0.62 0.16 20);
   box-shadow: 0 0 0 1px var(--danger-bg), var(--shadow-md);
 }
 
@@ -575,7 +575,7 @@ th {
 }
 
 .order-card.estado-entregado {
-  border-left-color: var(--ok);
+  border-left-color: oklch(0.62 0.13 155);
 }
 
 .order-card.estado-impreso {
@@ -583,7 +583,64 @@ th {
 }
 
 .order-card.estado-cancelado {
-  border-left-color: var(--neutral);
+  border-left-color: oklch(0.62 0.01 75);
+}
+
+/* Pedido-level status badge: filled pill, top-right of the card */
+.order-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.order-status-badge-pendiente {
+  background: oklch(0.6 0.14 70);
+}
+
+.order-status-badge-en_revision {
+  background: oklch(0.55 0.16 20);
+}
+
+.order-status-badge-entregado {
+  background: oklch(0.55 0.13 155);
+}
+
+.order-status-badge-cancelado {
+  background: oklch(0.55 0.01 75);
+}
+
+/* Item-level status tag (e.g. a document inside the order): outline, subordinate to the badge above */
+.order-item-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-size: 9.5px;
+  font-weight: 600;
+  text-transform: lowercase;
+  background: transparent;
+  border: 1px solid;
+}
+
+.order-item-tag-pendiente {
+  color: oklch(0.48 0.14 70);
+  border-color: oklch(0.8 0.1 70);
+}
+
+.order-item-tag-impreso {
+  color: oklch(0.42 0.12 230);
+  border-color: oklch(0.78 0.08 230);
+}
+
+.order-item-tag-entregado {
+  color: oklch(0.45 0.13 155);
+  border-color: oklch(0.75 0.1 155);
 }
 
 .order-card-header {
@@ -658,6 +715,97 @@ th {
   padding: 4px 8px;
 }
 
+.order-download-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---------- Admin toolbar: search-by-user/client + date filter (Pedidos / Documentos) ---------- */
+
+.order-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+.order-search-bar {
+  flex: 1;
+  max-width: 340px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.order-search-bar svg {
+  flex: none;
+  color: var(--ink-soft);
+}
+
+.order-search-bar input {
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  font-size: 13px;
+  background: transparent;
+}
+
+.order-search-bar input:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.order-date-filter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 14px;
+}
+
+.order-date-filter svg {
+  flex: none;
+  color: var(--ink-soft);
+}
+
+.order-date-filter input[type='date'] {
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  font-size: 12.5px;
+  background: transparent;
+  color: var(--ink-soft);
+  width: 118px;
+}
+
+.order-date-filter input[type='date']:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.order-date-filter span {
+  color: var(--ink-faint);
+  font-size: 12px;
+}
+
+.order-date-filter-clear {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  color: var(--ink-faint);
+  font-size: 15px;
+  line-height: 1;
+  padding: 0 0 0 2px;
+  cursor: pointer;
+}
+
 .order-card-contacto {
   display: flex;
   gap: 8px;
@@ -695,6 +843,11 @@ th {
 .documento-tag-propio {
   background: var(--neutral-bg);
   color: var(--neutral);
+}
+
+.documento-tag-docente {
+  background: var(--ok-bg);
+  color: var(--ok);
 }
 
 .order-card-alerta {

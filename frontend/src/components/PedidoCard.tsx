@@ -94,7 +94,7 @@ export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActual
               Editado
             </span>
           )}
-          <EstadoBadge estado={pedido.estado} />
+          <EstadoBadge estado={pedido.estado} variant="filled" />
         </div>
       </div>
 
@@ -133,9 +133,9 @@ export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActual
         </p>
       )}
 
-      {mostrarCliente && (
+      {mostrarCliente && (pedido.estado === 'PENDIENTE' || pedido.estado === 'EN_REVISION') && (
         <div className="order-card-contacto">
-          {pedido.usuarioTelefono && (
+          {pedido.estado === 'PENDIENTE' && pedido.usuarioTelefono && (
             <a
               className="secondary"
               href={linkWhatsapp(pedido.usuarioTelefono, mensajeContacto)}
@@ -145,9 +145,11 @@ export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActual
               Escribir por WhatsApp
             </a>
           )}
-          <a className="secondary" href={linkEmail(pedido.usuarioEmail, `Pedido #${pedido.id}`)}>
-            Enviar email
-          </a>
+          {pedido.estado === 'PENDIENTE' && (
+            <a className="secondary" href={linkEmail(pedido.usuarioEmail, `Pedido #${pedido.id}`)}>
+              Enviar email
+            </a>
+          )}
           {(pedido.estado === 'PENDIENTE' || pedido.estado === 'EN_REVISION') && (
             <button className="secondary" onClick={() => setEditando(true)}>
               Editar pedido
@@ -198,10 +200,25 @@ export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActual
             <li key={doc.id}>
               <div>
                 <div>
-                  {doc.nombre} (Impresión) x{doc.cantidadCopias} <EstadoBadge estado={doc.estado} />
+                  {doc.nombre} (Impresión) x{doc.cantidadCopias}{' '}
+                  {doc.estado !== pedido.estado && <EstadoBadge estado={doc.estado} variant="outline" />}
                 </div>
                 <div className="order-card-doc-actions">
-                  <button className="secondary" onClick={() => documentosApi.descargar(doc)}>
+                  <button className="secondary order-download-btn" onClick={() => documentosApi.descargar(doc)}>
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="7 10 12 15 17 10" />
+                      <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
                     Descargar
                   </button>
                   {mostrarCliente && SIGUIENTE_ESTADO[doc.estado] && (

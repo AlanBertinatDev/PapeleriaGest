@@ -6,6 +6,7 @@ import dev.alanbertinat.papeleriagest.web.dto.AuthResponse;
 import dev.alanbertinat.papeleriagest.web.dto.ChangePasswordRequest;
 import dev.alanbertinat.papeleriagest.web.dto.LoginRequest;
 import dev.alanbertinat.papeleriagest.web.dto.RegisterRequest;
+import dev.alanbertinat.papeleriagest.web.dto.UpdatePerfilRequest;
 import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -41,6 +42,13 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UsuarioResponse> me(@AuthenticationPrincipal UsuarioPrincipal principal) {
         return ResponseEntity.ok(UsuarioResponse.from(principal.usuario()));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<UsuarioResponse> actualizarPerfil(
+            @AuthenticationPrincipal UsuarioPrincipal principal,
+            @Valid @RequestBody UpdatePerfilRequest request) {
+        return ResponseEntity.ok(authService.actualizarPerfil(principal.usuario(), request));
     }
 
     @PutMapping("/password")

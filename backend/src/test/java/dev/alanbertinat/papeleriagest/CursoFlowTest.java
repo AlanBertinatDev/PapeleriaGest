@@ -89,12 +89,12 @@ class CursoFlowTest extends AbstractIntegrationTest {
     void adminManagesCursoAndAssignments() {
         ResponseEntity<String> forbidden = restTemplate.exchange(
                 "/api/cursos", HttpMethod.POST,
-                new HttpEntity<>(new CursoRequest("5to", "A"), authHeaders(estudianteToken)), String.class);
+                new HttpEntity<>(new CursoRequest("5", "A"), authHeaders(estudianteToken)), String.class);
         assertThat(forbidden.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
 
         ResponseEntity<CursoResponse> created = restTemplate.exchange(
                 "/api/cursos", HttpMethod.POST,
-                new HttpEntity<>(new CursoRequest("5to", "A"), authHeaders(adminToken)), CursoResponse.class);
+                new HttpEntity<>(new CursoRequest("5", "A"), authHeaders(adminToken)), CursoResponse.class);
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         Long cursoId = created.getBody().id();
 
@@ -135,7 +135,7 @@ class CursoFlowTest extends AbstractIntegrationTest {
     void noSePuedeAsignarComoDocenteAUnUsuarioSinRolDocente() {
         ResponseEntity<CursoResponse> curso = restTemplate.exchange(
                 "/api/cursos", HttpMethod.POST,
-                new HttpEntity<>(new CursoRequest("6to", "B"), authHeaders(adminToken)), CursoResponse.class);
+                new HttpEntity<>(new CursoRequest("6", "B"), authHeaders(adminToken)), CursoResponse.class);
         Long cursoId = curso.getBody().id();
 
         ResponseEntity<String> rechazado = restTemplate.exchange(
@@ -149,7 +149,7 @@ class CursoFlowTest extends AbstractIntegrationTest {
     void noSePuedeAsignarComoEstudianteAUnUsuarioSinRolEstandar() {
         ResponseEntity<CursoResponse> curso = restTemplate.exchange(
                 "/api/cursos", HttpMethod.POST,
-                new HttpEntity<>(new CursoRequest("6to", "C"), authHeaders(adminToken)), CursoResponse.class);
+                new HttpEntity<>(new CursoRequest("6", "C"), authHeaders(adminToken)), CursoResponse.class);
         Long cursoId = curso.getBody().id();
 
         ResponseEntity<String> rechazado = restTemplate.exchange(
@@ -170,7 +170,7 @@ class CursoFlowTest extends AbstractIntegrationTest {
 
         ResponseEntity<CursoResponse> curso = restTemplate.exchange(
                 "/api/cursos", HttpMethod.POST,
-                new HttpEntity<>(new CursoRequest("6to", "D"), authHeaders(adminToken)), CursoResponse.class);
+                new HttpEntity<>(new CursoRequest("6", "D"), authHeaders(adminToken)), CursoResponse.class);
         Long cursoId = curso.getBody().id();
 
         ResponseEntity<String> rechazado = restTemplate.exchange(

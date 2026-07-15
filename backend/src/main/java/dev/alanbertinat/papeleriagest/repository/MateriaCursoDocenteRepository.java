@@ -8,6 +8,8 @@ public interface MateriaCursoDocenteRepository extends JpaRepository<MateriaCurs
 
     boolean existsByCursoIdAndDocenteIdAndMateria(Long cursoId, Long docenteId, String materia);
 
+    boolean existsByCursoIdAndDocenteId(Long cursoId, Long docenteId);
+
     List<MateriaCursoDocente> findByDocenteId(Long docenteId);
 
     List<MateriaCursoDocente> findByCursoId(Long cursoId);
