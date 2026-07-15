@@ -48,6 +48,7 @@ public class OfertaService {
 
     @Transactional
     public OfertaResponse crear(Usuario usuario, OfertaRequest request) {
+        validarFechas(request);
         Set<Producto> productos = resolverProductos(request.productoIds());
         validarTipoYProductos(request.tipo(), productos, request.audienciaNotificacion());
 
@@ -73,6 +74,7 @@ public class OfertaService {
 
     @Transactional
     public OfertaResponse actualizar(Long id, OfertaRequest request) {
+        validarFechas(request);
         Oferta oferta = buscar(id);
         Set<Producto> productos = resolverProductos(request.productoIds());
         validarTipoYProductos(request.tipo(), productos, request.audienciaNotificacion());
@@ -121,7 +123,7 @@ public class OfertaService {
     @Transactional
     public OfertaResponse actualizarImagen(Long id, MultipartFile archivo) {
         Oferta oferta = buscar(id);
-        oferta.setImagenArchivo(fileStorageService.guardar(archivo));
+        oferta.setImagenArchivo(fileStorageService.guardar(archivo, FileStorageService.EXTENSIONES_IMAGEN));
         return OfertaResponse.from(ofertaRepository.save(oferta));
     }
 
@@ -151,6 +153,12 @@ public class OfertaService {
                     .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado: " + productoId)));
         }
         return productos;
+    }
+
+    private void validarFechas(OfertaRequest request) {
+        if (request.fechaHasta().isBefore(request.fechaDesde())) {
+            throw new ConflictException("La fecha de fin no puede ser anterior a la fecha de inicio");
+        }
     }
 
     private void validarTipoYProductos(TipoOferta tipo, Set<Producto> productos, AudienciaNotificacion audiencia) {

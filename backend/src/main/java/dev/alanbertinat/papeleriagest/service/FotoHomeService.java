@@ -28,7 +28,7 @@ public class FotoHomeService {
     @Transactional
     public FotoHomeResponse crear(Usuario usuario, MultipartFile archivo) {
         FotoHome foto = FotoHome.builder()
-                .archivoImagen(fileStorageService.guardar(archivo))
+                .archivoImagen(fileStorageService.guardar(archivo, FileStorageService.EXTENSIONES_IMAGEN))
                 .fechaCarga(LocalDate.now())
                 .usuario(usuario)
                 .build();

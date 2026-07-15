@@ -9,7 +9,6 @@ import { CatalogoPage } from './pages/CatalogoPage'
 import { MisPedidosPage } from './pages/MisPedidosPage'
 import { OfertasPage } from './pages/OfertasPage'
 import { MisDocumentosPage } from './pages/MisDocumentosPage'
-import { BuscarMaterialesPage } from './pages/BuscarMaterialesPage'
 import { CargarMaterialPage } from './pages/docente/CargarMaterialPage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminProductosPage } from './pages/admin/AdminProductosPage'
@@ -66,14 +65,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <OfertasPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/buscar-materiales"
-              element={
-                <ProtectedRoute>
-                  <BuscarMaterialesPage />
                 </ProtectedRoute>
               }
             />

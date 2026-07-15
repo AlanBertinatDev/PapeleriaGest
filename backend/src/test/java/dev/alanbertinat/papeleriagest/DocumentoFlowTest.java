@@ -202,6 +202,27 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
         assertThat(listado.getBody()).extracting(ConfiguracionResponse::nombre).contains("CorreoEmpresa");
     }
 
+    @Test
+    void parametroNumericoRechazaValoresNoNumericosONegativos() {
+        ResponseEntity<String> noNumerico = restTemplate.exchange(
+                "/api/configuraciones", HttpMethod.PUT,
+                new HttpEntity<>(new ConfiguracionRequest("ImpresionGrapado", "12,50"), authHeaders(adminToken)),
+                String.class);
+        assertThat(noNumerico.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        ResponseEntity<String> negativo = restTemplate.exchange(
+                "/api/configuraciones", HttpMethod.PUT,
+                new HttpEntity<>(new ConfiguracionRequest("ImpresionGrapado", "-50"), authHeaders(adminToken)),
+                String.class);
+        assertThat(negativo.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+
+        ResponseEntity<ConfiguracionResponse> valido = restTemplate.exchange(
+                "/api/configuraciones", HttpMethod.PUT,
+                new HttpEntity<>(new ConfiguracionRequest("ImpresionGrapado", "20.00"), authHeaders(adminToken)),
+                ConfiguracionResponse.class);
+        assertThat(valido.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
     private ResponseEntity<DocumentoResponse> subirDocumento(String token, String nombre, Long cursoId) {
         MultiValueMap<String, Object> partes = new LinkedMultiValueMap<>();
         partes.add("nombre", nombre);

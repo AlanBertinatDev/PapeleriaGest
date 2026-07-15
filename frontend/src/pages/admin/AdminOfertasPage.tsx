@@ -138,13 +138,18 @@ export function AdminOfertasPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
+    const desde = publicarAhora ? today() : fechaDesde
+    if (fechaHasta < desde) {
+      setError('La fecha de fin no puede ser anterior a la fecha de inicio')
+      return
+    }
     setGuardando(true)
     try {
       const data = {
         titulo,
         descripcion: descripcion || null,
         precio,
-        fechaDesde: publicarAhora ? today() : fechaDesde,
+        fechaDesde: desde,
         fechaHasta,
         tipo,
         productoIds,
@@ -320,6 +325,9 @@ export function AdminOfertasPage() {
                     Precio promocional
                     <input
                       className={styles.precioPromocionalInput}
+                      type="number"
+                      min="0"
+                      step="0.01"
                       value={precio}
                       onChange={(e) => setPrecio(e.target.value)}
                       required

@@ -57,6 +57,8 @@ public class Pedido {
 
     private String motivoRevision;
 
+    private LocalDateTime actualizadoEn;
+
     private BigDecimal precio;
 
     @ManyToOne(fetch = FetchType.LAZY)

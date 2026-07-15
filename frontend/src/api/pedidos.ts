@@ -22,8 +22,9 @@ export interface PedidoResponse {
   esEnvio: boolean
   direccion: string | null
   descripcion: string | null
-  estado: 'PENDIENTE' | 'EN_REVISION' | 'ENTREGADO' | 'CANCELADO'
+  estado: 'PENDIENTE' | 'EN_REVISION' | 'LISTO' | 'ENTREGADO' | 'CANCELADO'
   motivoRevision: string | null
+  actualizadoEn: string | null
   precio: string
   usuarioId: number
   usuarioNombre: string

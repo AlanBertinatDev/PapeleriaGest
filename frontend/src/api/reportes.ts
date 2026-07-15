@@ -31,6 +31,8 @@ export const reportesApi = {
     api.get<ProductoMasVendidoResponse[]>(`/reportes/productos-mas-vendidos?desde=${desde}&hasta=${hasta}`),
   usuariosConMasGasto: (desde: string, hasta: string) =>
     api.get<UsuarioGastoResponse[]>(`/reportes/usuarios-mas-gasto?desde=${desde}&hasta=${hasta}`),
+  usuariosConMasPedidos: (desde: string, hasta: string) =>
+    api.get<UsuarioConteoResponse[]>(`/reportes/usuarios-mas-pedidos?desde=${desde}&hasta=${hasta}`),
   usuariosConMasDocumentos: (desde: string, hasta: string) =>
     api.get<UsuarioConteoResponse[]>(`/reportes/usuarios-mas-documentos?desde=${desde}&hasta=${hasta}`),
 }

@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 
-    List<Pedido> findByActivoTrueOrderByFechaPedidoDesc();
+    List<Pedido> findByActivoTrueOrderByFechaPedidoDesc(Pageable pageable);
 
     List<Pedido> findByActivoTrueAndUsuarioIdAndEstadoNotOrderByFechaPedidoDesc(
             Long usuarioId, EstadoPedido estadoExcluido);

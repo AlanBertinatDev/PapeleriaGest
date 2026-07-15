@@ -157,9 +157,17 @@ class PedidoFlowTest extends AbstractIntegrationTest {
         ResponseEntity<String> entregaForbidden = restTemplate.exchange(
                 "/api/pedidos/" + pedidoId + "/estado", HttpMethod.PUT,
                 new HttpEntity<>(new CambiarEstadoPedidoRequest(
-                        dev.alanbertinat.papeleriagest.domain.EstadoPedido.ENTREGADO), authHeaders(ownerToken)),
+                        dev.alanbertinat.papeleriagest.domain.EstadoPedido.LISTO), authHeaders(ownerToken)),
                 String.class);
         assertThat(entregaForbidden.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
+
+        ResponseEntity<PedidoResponse> listo = restTemplate.exchange(
+                "/api/pedidos/" + pedidoId + "/estado", HttpMethod.PUT,
+                new HttpEntity<>(new CambiarEstadoPedidoRequest(
+                        dev.alanbertinat.papeleriagest.domain.EstadoPedido.LISTO), authHeaders(adminToken)),
+                PedidoResponse.class);
+        assertThat(listo.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(listo.getBody().estado()).isEqualTo("LISTO");
 
         ResponseEntity<PedidoResponse> entregado = restTemplate.exchange(
                 "/api/pedidos/" + pedidoId + "/estado", HttpMethod.PUT,
@@ -267,6 +275,56 @@ class PedidoFlowTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void cancelarPedidoViaEstadoRestituyeElStock() {
+        Producto producto = productoRepository.save(Producto.builder()
+                .codigoProducto(2004L)
+                .nombre("Cuaderno")
+                .precioVenta(new BigDecimal("200.00"))
+                .precioCompra(new BigDecimal("100.00"))
+                .fechaCarga(java.time.LocalDate.now())
+                .activo(true)
+                .categoria(categoriaProductoRepository.findAll().get(0))
+                .cantidad(10)
+                .stockMinimo(2)
+                .build());
+
+        CrearPedidoRequest crearRequest = new CrearPedidoRequest(
+                null, null, false, null, "Pedido a cancelar por admin",
+                List.of(new PedidoItemRequest(producto.getCodigoProducto(), null, 3)));
+        ResponseEntity<PedidoResponse> created = restTemplate.exchange(
+                "/api/pedidos", HttpMethod.POST,
+                new HttpEntity<>(crearRequest, authHeaders(ownerToken)), PedidoResponse.class);
+
+        ResponseEntity<PedidoResponse> cancelado = restTemplate.exchange(
+                "/api/pedidos/" + created.getBody().id() + "/estado", HttpMethod.PUT,
+                new HttpEntity<>(new CambiarEstadoPedidoRequest(EstadoPedido.CANCELADO), authHeaders(adminToken)),
+                PedidoResponse.class);
+        assertThat(cancelado.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(cancelado.getBody().estado()).isEqualTo("CANCELADO");
+
+        ResponseEntity<dev.alanbertinat.papeleriagest.web.dto.ProductoResponse> despuesDeCancelar = restTemplate.exchange(
+                "/api/productos/" + producto.getCodigoProducto(), HttpMethod.GET,
+                new HttpEntity<>(authHeaders(ownerToken)), dev.alanbertinat.papeleriagest.web.dto.ProductoResponse.class);
+        assertThat(despuesDeCancelar.getBody().cantidad()).isEqualTo(10);
+    }
+
+    @Test
+    void noSePuedeSaltarDePendienteAEntregado() {
+        CrearPedidoRequest crearRequest = new CrearPedidoRequest(
+                null, null, false, null, "Pedido sin pasar por listo",
+                List.of(new PedidoItemRequest(productoId, null, 1)));
+        ResponseEntity<PedidoResponse> created = restTemplate.exchange(
+                "/api/pedidos", HttpMethod.POST,
+                new HttpEntity<>(crearRequest, authHeaders(ownerToken)), PedidoResponse.class);
+
+        ResponseEntity<String> rechazado = restTemplate.exchange(
+                "/api/pedidos/" + created.getBody().id() + "/estado", HttpMethod.PUT,
+                new HttpEntity<>(new CambiarEstadoPedidoRequest(EstadoPedido.ENTREGADO), authHeaders(adminToken)),
+                String.class);
+        assertThat(rechazado.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
     void costoEnvioSeSumaAlTotalCuandoEsEnvio() {
         configuracionRepository.save(Configuracion.builder().nombre("CostoEnvio").valor("150.00").activo(true).build());
 
@@ -278,6 +336,27 @@ class PedidoFlowTest extends AbstractIntegrationTest {
                 new HttpEntity<>(crearRequest, authHeaders(ownerToken)), PedidoResponse.class);
         assertThat(created.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(created.getBody().precio()).isEqualByComparingTo("1150.00");
+    }
+
+    @Test
+    void editarItemsRegistraFechaDeActualizacion() {
+        CrearPedidoRequest crearRequest = new CrearPedidoRequest(
+                null, null, false, null, "Pedido a editar", List.of(new PedidoItemRequest(productoId, null, 1)));
+        ResponseEntity<PedidoResponse> created = restTemplate.exchange(
+                "/api/pedidos", HttpMethod.POST,
+                new HttpEntity<>(crearRequest, authHeaders(ownerToken)), PedidoResponse.class);
+        assertThat(created.getBody().actualizadoEn()).isNull();
+        Long pedidoId = created.getBody().id();
+
+        ResponseEntity<PedidoResponse> editado = restTemplate.exchange(
+                "/api/pedidos/" + pedidoId + "/items", HttpMethod.PUT,
+                new HttpEntity<>(
+                        new dev.alanbertinat.papeleriagest.web.dto.ActualizarItemsPedidoRequest(
+                                List.of(new PedidoItemRequest(productoId, null, 2))),
+                        authHeaders(adminToken)),
+                PedidoResponse.class);
+        assertThat(editado.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(editado.getBody().actualizadoEn()).isNotNull();
     }
 
     private String login(String email, String password) {

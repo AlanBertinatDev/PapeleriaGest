@@ -155,7 +155,6 @@ export function Layout({ children }: { children: ReactNode }) {
               <div>
                 <div className={styles.sectionTitle}>Imprimir</div>
                 <div className={styles.links}>
-                  <SidebarLink to="/buscar-materiales">Buscar materiales</SidebarLink>
                   <SidebarLink to="/mis-documentos">Mis documentos</SidebarLink>
                 </div>
               </div>

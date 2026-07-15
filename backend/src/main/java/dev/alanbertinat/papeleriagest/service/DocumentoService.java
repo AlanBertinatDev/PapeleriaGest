@@ -25,11 +25,15 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class DocumentoService {
+
+    private static final Logger log = LoggerFactory.getLogger(DocumentoService.class);
 
     private final DocumentoRepository documentoRepository;
     private final PedidoRepository pedidoRepository;
@@ -70,7 +74,7 @@ public class DocumentoService {
                     .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado: " + request.cursoId()));
         }
 
-        String nombreGuardado = fileStorageService.guardar(archivo);
+        String nombreGuardado = fileStorageService.guardar(archivo, FileStorageService.EXTENSIONES_DOCUMENTO);
 
         Documento documento = Documento.builder()
                 .nombre(request.nombre())
@@ -231,6 +235,7 @@ public class DocumentoService {
                     try {
                         return new BigDecimal(v);
                     } catch (NumberFormatException ex) {
+                        log.warn("Configuración \"{}\" tiene un valor no numérico (\"{}\"), usando $0", nombre, v);
                         return BigDecimal.ZERO;
                     }
                 })

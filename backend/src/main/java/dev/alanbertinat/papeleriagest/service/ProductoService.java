@@ -133,7 +133,7 @@ public class ProductoService {
     @Transactional
     public ProductoResponse actualizarImagen(Long codigoProducto, MultipartFile archivo) {
         Producto producto = buscar(codigoProducto);
-        producto.setImagenArchivo(fileStorageService.guardar(archivo));
+        producto.setImagenArchivo(fileStorageService.guardar(archivo, FileStorageService.EXTENSIONES_IMAGEN));
         return ProductoResponse.from(productoRepository.save(producto));
     }
 

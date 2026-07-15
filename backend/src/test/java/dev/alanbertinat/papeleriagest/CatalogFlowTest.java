@@ -83,7 +83,7 @@ class CatalogFlowTest extends AbstractIntegrationTest {
                 CategoriaProducto.builder().nombre("Papelería").porcentaje(22).activo(true).build());
         categoriaId = categoria.getId();
 
-        Marca marca = marcaRepository.save(Marca.builder().nombre("Genérica").build());
+        Marca marca = marcaRepository.save(Marca.builder().nombre("Genérica").activo(true).build());
         marcaId = marca.getId();
     }
 

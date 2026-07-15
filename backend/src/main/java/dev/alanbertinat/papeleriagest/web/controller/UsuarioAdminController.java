@@ -4,9 +4,11 @@ import dev.alanbertinat.papeleriagest.security.UsuarioPrincipal;
 import dev.alanbertinat.papeleriagest.service.UsuarioAdminService;
 import dev.alanbertinat.papeleriagest.web.dto.CambiarNivelRequest;
 import dev.alanbertinat.papeleriagest.web.dto.NivelResponse;
+import dev.alanbertinat.papeleriagest.web.dto.ResetPasswordRequest;
 import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,5 +55,12 @@ public class UsuarioAdminController {
     @PutMapping("/{id}/desactivar")
     public UsuarioResponse desactivar(@AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Long id) {
         return usuarioAdminService.cambiarActivo(principal.usuario(), id, false);
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> resetearPassword(
+            @PathVariable Long id, @Valid @RequestBody ResetPasswordRequest request) {
+        usuarioAdminService.resetearPassword(id, request.newPassword());
+        return ResponseEntity.noContent().build();
     }
 }

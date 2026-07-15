@@ -34,7 +34,12 @@ export function HomePage() {
     if (isAdmin) return
     pedidosApi
       .misPedidos()
-      .then((pedidos) => setPedidosEnCurso(pedidos.filter((p) => p.estado === 'PENDIENTE').length))
+      .then((pedidos) =>
+        setPedidosEnCurso(
+          pedidos.filter((p) => p.estado === 'PENDIENTE' || p.estado === 'EN_REVISION' || p.estado === 'LISTO')
+            .length,
+        ),
+      )
       .catch(() => {})
     ofertasApi
       .listarVigentes()
@@ -105,17 +110,6 @@ export function HomePage() {
           </div>
         </Link>
 
-        <Link to="/buscar-materiales" className={styles.card}>
-          <div className={styles.cardTop}>
-            <div className={styles.cardIcon} style={hueStyle(HUE_CELESTE)}>
-              🔍
-            </div>
-          </div>
-          <div>
-            <div className={styles.cardTitle}>Buscar material de un curso</div>
-            <div className={styles.cardDesc}>Ingresá el nombre del curso y armamos la lista</div>
-          </div>
-        </Link>
       </div>
     </div>
   )

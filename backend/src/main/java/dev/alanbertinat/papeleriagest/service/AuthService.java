@@ -27,18 +27,21 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final LoginRateLimiter loginRateLimiter;
 
     public AuthService(
             UsuarioRepository usuarioRepository,
             NivelRepository nivelRepository,
             PasswordEncoder passwordEncoder,
             AuthenticationManager authenticationManager,
-            JwtService jwtService) {
+            JwtService jwtService,
+            LoginRateLimiter loginRateLimiter) {
         this.usuarioRepository = usuarioRepository;
         this.nivelRepository = nivelRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.loginRateLimiter = loginRateLimiter;
     }
 
     @Transactional
@@ -71,16 +74,19 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        loginRateLimiter.verificarNoBloqueado(request.email());
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(request.email(), request.password()));
         } catch (org.springframework.security.core.AuthenticationException ex) {
+            loginRateLimiter.registrarFallo(request.email());
             throw new BadCredentialsException("Credenciales inválidas");
         }
 
         Usuario usuario = usuarioRepository.findByEmailAndActivoTrue(request.email())
                 .orElseThrow(() -> new BadCredentialsException("Credenciales inválidas"));
 
+        loginRateLimiter.registrarExito(request.email());
         UsuarioPrincipal principal = new UsuarioPrincipal(usuario);
         return new AuthResponse(jwtService.generateToken(principal), UsuarioResponse.from(usuario));
     }

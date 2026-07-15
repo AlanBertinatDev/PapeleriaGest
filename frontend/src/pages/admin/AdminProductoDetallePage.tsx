@@ -234,6 +234,9 @@ export function AdminProductoDetallePage() {
           <label>
             Código
             <input
+              type="number"
+              min="1"
+              step="1"
               value={form.codigoProducto}
               onChange={(e) => updateForm('codigoProducto', e.target.value)}
               required
@@ -285,12 +288,22 @@ export function AdminProductoDetallePage() {
           <div className={styles.formRow2}>
             <label>
               Precio de compra
-              <input value={form.precioCompra} onChange={(e) => handlePrecioCompraChange(e.target.value)} required />
+              <input
+                type="number"
+                min="0"
+                step="0.01"
+                value={form.precioCompra}
+                onChange={(e) => handlePrecioCompraChange(e.target.value)}
+                required
+              />
             </label>
             <label>
               Precio de venta
               <input
                 className={styles.priceInput}
+                type="number"
+                min="0"
+                step="0.01"
                 value={form.precioVenta}
                 onChange={(e) => {
                   setVentaTocada(true)
@@ -300,13 +313,24 @@ export function AdminProductoDetallePage() {
               />
             </label>
           </div>
+          {Number(form.precioVenta) > 0 && Number(form.precioVenta) < Number(form.precioCompra) && (
+            <p className="error" style={{ marginTop: -8 }}>
+              El precio de venta es menor al precio de compra — vas a perder plata con este producto.
+            </p>
+          )}
           <p className={styles.formHint}>
             El precio de venta se sugiere solo a partir del precio de compra y el % de la categoría — podés cambiarlo
             cuando quieras.
           </p>
           <label>
             Cantidad en stock
-            <input value={form.cantidad} onChange={(e) => updateForm('cantidad', e.target.value)} />
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={form.cantidad}
+              onChange={(e) => updateForm('cantidad', e.target.value)}
+            />
           </label>
           {editando && (
             <p className={styles.formHint}>
@@ -315,7 +339,13 @@ export function AdminProductoDetallePage() {
           )}
           <label>
             Stock mínimo
-            <input value={form.stockMinimo} onChange={(e) => updateForm('stockMinimo', e.target.value)} />
+            <input
+              type="number"
+              min="0"
+              step="1"
+              value={form.stockMinimo}
+              onChange={(e) => updateForm('stockMinimo', e.target.value)}
+            />
           </label>
         </form>
       </div>

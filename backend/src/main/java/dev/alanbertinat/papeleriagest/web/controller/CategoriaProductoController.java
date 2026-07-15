@@ -1,6 +1,7 @@
 package dev.alanbertinat.papeleriagest.web.controller;
 
 import dev.alanbertinat.papeleriagest.domain.CategoriaProducto;
+import dev.alanbertinat.papeleriagest.exception.ResourceNotFoundException;
 import dev.alanbertinat.papeleriagest.repository.CategoriaProductoRepository;
 import dev.alanbertinat.papeleriagest.web.dto.CategoriaProductoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.CategoriaProductoResponse;
@@ -10,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,5 +45,28 @@ public class CategoriaProductoController {
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(CategoriaProductoResponse.from(categoriaProductoRepository.save(categoria)));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CategoriaProductoResponse actualizar(
+            @PathVariable Long id, @Valid @RequestBody CategoriaProductoRequest request) {
+        CategoriaProducto categoria = buscar(id);
+        categoria.setNombre(request.nombre());
+        categoria.setPorcentaje(request.porcentaje());
+        return CategoriaProductoResponse.from(categoriaProductoRepository.save(categoria));
+    }
+
+    @PutMapping("/{id}/desactivar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public CategoriaProductoResponse desactivar(@PathVariable Long id) {
+        CategoriaProducto categoria = buscar(id);
+        categoria.setActivo(false);
+        return CategoriaProductoResponse.from(categoriaProductoRepository.save(categoria));
+    }
+
+    private CategoriaProducto buscar(Long id) {
+        return categoriaProductoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada: " + id));
     }
 }

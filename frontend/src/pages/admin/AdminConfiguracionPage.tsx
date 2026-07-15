@@ -336,7 +336,15 @@ export function AdminConfiguracionPage() {
                 <label className={styles.modalLabel}>Monto fijo</label>
                 <div className={`${styles.highlightBox} ${styles.currencyBox}`}>
                   <span className={styles.currencyPrefix}>$</span>
-                  <input type="number" value={valor} onChange={(e) => setValor(e.target.value)} required autoFocus />
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={valor}
+                    onChange={(e) => setValor(e.target.value)}
+                    required
+                    autoFocus
+                  />
                 </div>
               </div>
             )}

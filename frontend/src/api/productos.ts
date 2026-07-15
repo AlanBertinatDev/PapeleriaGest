@@ -65,9 +65,14 @@ export const categoriasApi = {
   listar: () => api.get<CategoriaProductoResponse[]>('/categorias'),
   crear: (nombre: string, porcentaje: number) =>
     api.post<CategoriaProductoResponse>('/categorias', { nombre, porcentaje }),
+  actualizar: (id: number, nombre: string, porcentaje: number) =>
+    api.put<CategoriaProductoResponse>(`/categorias/${id}`, { nombre, porcentaje }),
+  desactivar: (id: number) => api.put<CategoriaProductoResponse>(`/categorias/${id}/desactivar`, undefined),
 }
 
 export const marcasApi = {
   listar: () => api.get<MarcaResponse[]>('/marcas'),
   crear: (nombre: string) => api.post<MarcaResponse>('/marcas', { nombre }),
+  actualizar: (id: number, nombre: string) => api.put<MarcaResponse>(`/marcas/${id}`, { nombre }),
+  desactivar: (id: number) => api.put<MarcaResponse>(`/marcas/${id}/desactivar`, undefined),
 }

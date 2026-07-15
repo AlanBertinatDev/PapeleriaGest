@@ -60,7 +60,11 @@ class OfertaFlowTest extends AbstractIntegrationTest {
     @Autowired
     private ProductoRepository productoRepository;
 
+    @Autowired
+    private org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
+
     private String adminToken;
+    private Long adminId;
     private String estandarToken;
     private Long productoId;
     private Long producto2Id;
@@ -77,6 +81,7 @@ class OfertaFlowTest extends AbstractIntegrationTest {
                 .nivel(nivelRepository.findAll().stream().filter(n -> n.isAdmin()).findFirst().orElseThrow())
                 .build();
         usuarioRepository.save(admin);
+        adminId = admin.getId();
         adminToken = login("admin-oferta@example.com", "adminpass123");
 
         estandarToken = register("Cliente Oferta", "cliente-oferta@example.com", "cliente-oferta-cedula", "clientepass123");
@@ -317,6 +322,30 @@ class OfertaFlowTest extends AbstractIntegrationTest {
                 List.of(), true, AudienciaNotificacion.CATEGORIA, false);
 
         assertThat(crearEsperandoError(request).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void fechaHastaAnteriorAFechaDesdeFalla() {
+        OfertaRequest request = new OfertaRequest(
+                "Oferta con fechas invertidas", null, new BigDecimal("10.00"),
+                LocalDate.now(), LocalDate.now().minusDays(1), TipoOferta.SERVICIO,
+                List.of(), false, null, false);
+
+        assertThat(crearEsperandoError(request).getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
+    @Test
+    void revisionDeEnversRegistraElAdminQueCreoLaOferta() {
+        OfertaRequest request = ofertaRequest(TipoOferta.SERVICIO, List.of());
+        ResponseEntity<OfertaResponse> response = crear(request);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        Long ofertaId = response.getBody().id();
+
+        Long usuarioIdDeLaRevision = jdbcTemplate.queryForObject(
+                "SELECT r.usuario_id FROM revinfo r JOIN oferta_aud o ON o.rev = r.rev WHERE o.id = ? "
+                        + "ORDER BY r.rev DESC LIMIT 1",
+                Long.class, ofertaId);
+        assertThat(usuarioIdDeLaRevision).isEqualTo(adminId);
     }
 
     private OfertaRequest ofertaRequest(TipoOferta tipo, List<Long> productoIds) {

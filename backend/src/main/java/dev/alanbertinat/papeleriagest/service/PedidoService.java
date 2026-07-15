@@ -20,12 +20,25 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PedidoService {
+
+    private static final Logger log = LoggerFactory.getLogger(PedidoService.class);
+
+    private static final Map<EstadoPedido, Set<EstadoPedido>> TRANSICIONES_VALIDAS = Map.of(
+            EstadoPedido.PENDIENTE, Set.of(EstadoPedido.LISTO, EstadoPedido.CANCELADO),
+            EstadoPedido.EN_REVISION, Set.of(EstadoPedido.PENDIENTE, EstadoPedido.CANCELADO),
+            EstadoPedido.LISTO, Set.of(EstadoPedido.ENTREGADO, EstadoPedido.CANCELADO),
+            EstadoPedido.ENTREGADO, Set.of(),
+            EstadoPedido.CANCELADO, Set.of(EstadoPedido.PENDIENTE));
 
     private final PedidoRepository pedidoRepository;
     private final ProductoRepository productoRepository;
@@ -158,6 +171,7 @@ public class PedidoService {
                     try {
                         return new BigDecimal(v);
                     } catch (NumberFormatException ex) {
+                        log.warn("Configuración \"{}\" tiene un valor no numérico (\"{}\"), usando $0", nombre, v);
                         return BigDecimal.ZERO;
                     }
                 })
@@ -171,9 +185,14 @@ public class PedidoService {
         return PedidoResponse.from(pedido);
     }
 
+    private static final int LIMITE_LISTADO_ADMIN = 500;
+
     @Transactional(readOnly = true)
     public List<PedidoResponse> listarTodos() {
-        return pedidoRepository.findByActivoTrueOrderByFechaPedidoDesc().stream()
+        return pedidoRepository
+                .findByActivoTrueOrderByFechaPedidoDesc(
+                        org.springframework.data.domain.PageRequest.of(0, LIMITE_LISTADO_ADMIN))
+                .stream()
                 .map(PedidoResponse::from)
                 .toList();
     }
@@ -216,15 +235,36 @@ public class PedidoService {
             throw new ConflictException("Para poner un pedido en revisión hay que indicar un motivo");
         }
         Pedido pedido = buscarEntidad(id);
-        if (pedido.getEstado() == EstadoPedido.CANCELADO) {
-            if (nuevoEstado != EstadoPedido.PENDIENTE) {
-                throw new ConflictException("Un pedido cancelado solo se puede reabrir como pendiente");
-            }
+        EstadoPedido estadoActual = pedido.getEstado();
+        if (!TRANSICIONES_VALIDAS.getOrDefault(estadoActual, Set.of()).contains(nuevoEstado)) {
+            throw new ConflictException(
+                    "No se puede pasar un pedido de " + estadoActual + " a " + nuevoEstado);
+        }
+        if (estadoActual == EstadoPedido.CANCELADO) {
             reabrir(pedido);
             return PedidoResponse.from(pedidoRepository.save(pedido));
         }
+        if (nuevoEstado == EstadoPedido.CANCELADO) {
+            for (PedidoItem item : pedido.getItems()) {
+                reponerStock(item);
+            }
+        }
         pedido.setEstado(nuevoEstado);
-        return PedidoResponse.from(pedidoRepository.save(pedido));
+        Pedido guardado = pedidoRepository.save(pedido);
+        if (nuevoEstado == EstadoPedido.LISTO) {
+            emailService.notificarCliente(
+                    guardado.getUsuario().getEmail(),
+                    "Tu pedido #" + guardado.getId() + " está listo",
+                    guardado.isEsEnvio()
+                            ? "Ya preparamos tu pedido y en breve coordinamos la entrega a domicilio."
+                            : "Ya podés pasar a retirar tu pedido por el local.");
+        } else if (nuevoEstado == EstadoPedido.CANCELADO) {
+            emailService.notificarCliente(
+                    guardado.getUsuario().getEmail(),
+                    "Tu pedido #" + guardado.getId() + " fue cancelado",
+                    "Tu pedido fue cancelado. Si tenés dudas, respondé este correo o escribinos.");
+        }
+        return PedidoResponse.from(guardado);
     }
 
     @Transactional
@@ -268,6 +308,7 @@ public class PedidoService {
             total = total.add(costoEnvio());
         }
         pedido.setPrecio(total);
+        pedido.setActualizadoEn(LocalDateTime.now());
 
         Pedido guardado = pedidoRepository.save(pedido);
         emailService.notificarCliente(

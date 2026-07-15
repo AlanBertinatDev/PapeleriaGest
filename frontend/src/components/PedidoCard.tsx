@@ -75,7 +75,27 @@ export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActual
             {pedido.esEnvio && ' · Envío a domicilio'}
           </div>
         </div>
-        <EstadoBadge estado={pedido.estado} />
+        <div className="row" style={{ gap: 6 }}>
+          {pedido.actualizadoEn && (
+            <span
+              className="edited-badge"
+              title={`Última edición: ${new Date(pedido.actualizadoEn).toLocaleString('es-UY', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              })}`}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+              Editado
+            </span>
+          )}
+          <EstadoBadge estado={pedido.estado} />
+        </div>
       </div>
 
       {pedido.motivoRevision && pedido.estado === 'EN_REVISION' && (

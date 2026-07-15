@@ -1,6 +1,7 @@
 package dev.alanbertinat.papeleriagest.web.controller;
 
 import dev.alanbertinat.papeleriagest.domain.Marca;
+import dev.alanbertinat.papeleriagest.exception.ResourceNotFoundException;
 import dev.alanbertinat.papeleriagest.repository.MarcaRepository;
 import dev.alanbertinat.papeleriagest.web.dto.MarcaRequest;
 import dev.alanbertinat.papeleriagest.web.dto.MarcaResponse;
@@ -10,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,13 +30,34 @@ public class MarcaController {
 
     @GetMapping
     public List<MarcaResponse> listar() {
-        return marcaRepository.findAll().stream().map(MarcaResponse::from).toList();
+        return marcaRepository.findByActivoTrue().stream().map(MarcaResponse::from).toList();
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MarcaResponse> crear(@Valid @RequestBody MarcaRequest request) {
-        Marca marca = Marca.builder().nombre(request.nombre()).build();
+        Marca marca = Marca.builder().nombre(request.nombre()).activo(true).build();
         return ResponseEntity.status(HttpStatus.CREATED).body(MarcaResponse.from(marcaRepository.save(marca)));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public MarcaResponse actualizar(@PathVariable Long id, @Valid @RequestBody MarcaRequest request) {
+        Marca marca = buscar(id);
+        marca.setNombre(request.nombre());
+        return MarcaResponse.from(marcaRepository.save(marca));
+    }
+
+    @PutMapping("/{id}/desactivar")
+    @PreAuthorize("hasRole('ADMIN')")
+    public MarcaResponse desactivar(@PathVariable Long id) {
+        Marca marca = buscar(id);
+        marca.setActivo(false);
+        return MarcaResponse.from(marcaRepository.save(marca));
+    }
+
+    private Marca buscar(Long id) {
+        return marcaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Marca no encontrada: " + id));
     }
 }

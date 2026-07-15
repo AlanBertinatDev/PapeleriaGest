@@ -9,23 +9,32 @@ import dev.alanbertinat.papeleriagest.repository.UsuarioRepository;
 import dev.alanbertinat.papeleriagest.web.dto.NivelResponse;
 import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
 import java.util.List;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UsuarioAdminService {
 
+    private static final int LIMITE_LISTADO = 1000;
+
     private final UsuarioRepository usuarioRepository;
     private final NivelRepository nivelRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UsuarioAdminService(UsuarioRepository usuarioRepository, NivelRepository nivelRepository) {
+    public UsuarioAdminService(
+            UsuarioRepository usuarioRepository, NivelRepository nivelRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.nivelRepository = nivelRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
-        return usuarioRepository.findAll().stream().map(UsuarioResponse::from).toList();
+        return usuarioRepository.findAll(PageRequest.of(0, LIMITE_LISTADO)).stream()
+                .map(UsuarioResponse::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -59,6 +68,13 @@ public class UsuarioAdminService {
         }
         usuario.setActivo(activo);
         return UsuarioResponse.from(usuarioRepository.save(usuario));
+    }
+
+    @Transactional
+    public void resetearPassword(Long usuarioId, String nuevaPassword) {
+        Usuario usuario = buscarUsuario(usuarioId);
+        usuario.setPasswordHash(passwordEncoder.encode(nuevaPassword));
+        usuarioRepository.save(usuario);
     }
 
     private Usuario buscarUsuario(Long id) {

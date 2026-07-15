@@ -3,6 +3,7 @@ import type { UsuarioResponse } from '../../api/auth'
 import { usuariosApi, type NivelResponse } from '../../api/usuarios'
 import { ApiError } from '../../api/client'
 import { EstadoBadge } from '../../components/EstadoBadge'
+import { Modal } from '../../components/Modal'
 import { useAuth } from '../../auth/AuthContext'
 import { PageHeader } from '../../components/PageHeader'
 import { iniciales } from '../../lib/iniciales'
@@ -14,6 +15,11 @@ export function AdminUsuariosPage() {
   const [usuarios, setUsuarios] = useState<UsuarioResponse[]>([])
   const [niveles, setNiveles] = useState<NivelResponse[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [mensaje, setMensaje] = useState<string | null>(null)
+  const [usuarioReset, setUsuarioReset] = useState<UsuarioResponse | null>(null)
+  const [nuevaPassword, setNuevaPassword] = useState('')
+  const [errorReset, setErrorReset] = useState<string | null>(null)
+  const [enviandoReset, setEnviandoReset] = useState(false)
 
   function cargar() {
     usuariosApi
@@ -49,10 +55,41 @@ export function AdminUsuariosPage() {
     }
   }
 
+  function abrirModalReset(usuario: UsuarioResponse) {
+    setUsuarioReset(usuario)
+    setNuevaPassword('')
+    setErrorReset(null)
+    setMensaje(null)
+  }
+
+  function cerrarModalReset() {
+    setUsuarioReset(null)
+  }
+
+  async function handleResetearPassword() {
+    if (!usuarioReset) return
+    if (nuevaPassword.length < 8) {
+      setErrorReset('La contraseña debe tener al menos 8 caracteres')
+      return
+    }
+    setErrorReset(null)
+    setEnviandoReset(true)
+    try {
+      await usuariosApi.resetearPassword(usuarioReset.id, nuevaPassword)
+      setMensaje(`Contraseña de ${usuarioReset.nombre} actualizada`)
+      setUsuarioReset(null)
+    } catch (err) {
+      setErrorReset(err instanceof ApiError ? err.message : 'No se pudo resetear la contraseña')
+    } finally {
+      setEnviandoReset(false)
+    }
+  }
+
   return (
     <div>
       <PageHeader title="Usuarios" subtitle="Gestioná roles y acceso de clientes, docentes y administradores" />
       {error && <p className="error">{error}</p>}
+      {mensaje && <p className="success">{mensaje}</p>}
       <div className="card table-card">
         <table>
           <thead>
@@ -110,6 +147,9 @@ export function AdminUsuariosPage() {
                     >
                       {u.activo ? 'Desactivar' : 'Activar'}
                     </button>
+                    <button className="secondary" style={{ marginLeft: 6 }} onClick={() => abrirModalReset(u)}>
+                      Resetear contraseña
+                    </button>
                   </td>
                 </tr>
               )
@@ -117,6 +157,29 @@ export function AdminUsuariosPage() {
           </tbody>
         </table>
       </div>
+      {usuarioReset && (
+        <Modal title={`Resetear contraseña de ${usuarioReset.nombre}`} onClose={cerrarModalReset}>
+          <label>
+            Contraseña nueva
+            <input
+              type="text"
+              value={nuevaPassword}
+              onChange={(e) => setNuevaPassword(e.target.value)}
+              placeholder="Mínimo 8 caracteres"
+              autoFocus
+            />
+          </label>
+          {errorReset && <p className="error">{errorReset}</p>}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+            <button type="button" className="secondary" onClick={cerrarModalReset}>
+              Cancelar
+            </button>
+            <button type="button" onClick={handleResetearPassword} disabled={enviandoReset}>
+              {enviandoReset ? 'Guardando...' : 'Confirmar'}
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }

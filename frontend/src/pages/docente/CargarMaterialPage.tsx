@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { cursosApi, type CursoResponse } from '../../api/cursos'
 import { documentosApi, type DocumentoResponse } from '../../api/documentos'
 import { useAuth } from '../../auth/AuthContext'
@@ -28,6 +28,16 @@ export function CargarMaterialPage() {
   }
 
   useEffect(cargar, [])
+
+  const materialesPorCurso = useMemo(() => {
+    const grupos = new Map<string, DocumentoResponse[]>()
+    for (const doc of misMateriales) {
+      const clave = doc.cursoNombre ?? 'Sin curso específico'
+      if (!grupos.has(clave)) grupos.set(clave, [])
+      grupos.get(clave)!.push(doc)
+    }
+    return Array.from(grupos.entries()).sort(([a], [b]) => a.localeCompare(b))
+  }, [misMateriales])
 
   function cerrarModal() {
     setModalAbierto(false)
@@ -84,11 +94,16 @@ export function CargarMaterialPage() {
 
       {misMateriales.length === 0 && <p className="empty-state">Todavía no cargaste materiales de curso.</p>}
 
-      <div className="order-grid">
-        {misMateriales.map((doc) => (
-          <DocumentoCard key={doc.id} documento={doc} />
-        ))}
-      </div>
+      {materialesPorCurso.map(([curso, docs]) => (
+        <div key={curso} style={{ marginBottom: 24 }}>
+          <h4 style={{ margin: '0 0 8px' }}>{curso}</h4>
+          <div className="order-grid">
+            {docs.map((doc) => (
+              <DocumentoCard key={doc.id} documento={doc} />
+            ))}
+          </div>
+        </div>
+      ))}
 
       {modalAbierto && (
         <Modal title="Nuevo material" onClose={cerrarModal}>

@@ -320,6 +320,30 @@ th {
   color: var(--danger);
 }
 
+.badge-listo {
+  background: var(--info-bg);
+  color: var(--info);
+}
+
+.edited-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px 2px 7px;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--border);
+  color: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 500;
+  font-style: italic;
+  cursor: default;
+}
+
+.edited-badge svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
 .row {
   display: flex;
   gap: 10px;
@@ -544,6 +568,10 @@ th {
 .order-card.estado-en_revision {
   border-left-color: var(--danger);
   box-shadow: 0 0 0 1px var(--danger-bg), var(--shadow-md);
+}
+
+.order-card.estado-listo {
+  border-left-color: var(--info);
 }
 
 .order-card.estado-entregado {

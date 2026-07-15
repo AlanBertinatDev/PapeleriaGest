@@ -13,11 +13,13 @@ import dev.alanbertinat.papeleriagest.repository.UsuarioRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 class UsuarioAdminServiceTest {
 
     private UsuarioRepository usuarioRepository;
     private NivelRepository nivelRepository;
+    private PasswordEncoder passwordEncoder;
     private UsuarioAdminService service;
 
     private Nivel nivelAdmin;
@@ -27,7 +29,8 @@ class UsuarioAdminServiceTest {
     void setUp() {
         usuarioRepository = mock(UsuarioRepository.class);
         nivelRepository = mock(NivelRepository.class);
-        service = new UsuarioAdminService(usuarioRepository, nivelRepository);
+        passwordEncoder = mock(PasswordEncoder.class);
+        service = new UsuarioAdminService(usuarioRepository, nivelRepository, passwordEncoder);
 
         nivelAdmin = Nivel.builder().id(1L).nombre("Administrador").admin(true).activo(true).build();
         nivelEstandar = Nivel.builder().id(2L).nombre("Estandar").estandar(true).activo(true).build();
@@ -103,5 +106,16 @@ class UsuarioAdminServiceTest {
 
         assertThatThrownBy(() -> service.cambiarActivo(actor, 1L, false))
                 .isInstanceOf(ConflictException.class);
+    }
+
+    @Test
+    void resetearPasswordGuardaElHashCodificado() {
+        Usuario objetivo = usuarioConNivel(2L, nivelEstandar);
+        when(usuarioRepository.findById(2L)).thenReturn(Optional.of(objetivo));
+        when(passwordEncoder.encode("nuevaPassword123")).thenReturn("hash-codificado");
+
+        service.resetearPassword(2L, "nuevaPassword123");
+
+        assertThat(objetivo.getPasswordHash()).isEqualTo("hash-codificado");
     }
 }

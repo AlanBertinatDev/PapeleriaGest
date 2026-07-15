@@ -1,5 +1,6 @@
 package dev.alanbertinat.papeleriagest.service;
 
+import dev.alanbertinat.papeleriagest.exception.ConflictException;
 import dev.alanbertinat.papeleriagest.repository.DocumentoRepository;
 import dev.alanbertinat.papeleriagest.repository.PedidoItemRepository;
 import dev.alanbertinat.papeleriagest.repository.PedidoRepository;
@@ -34,34 +35,45 @@ public class ReporteService {
 
     @Transactional(readOnly = true)
     public List<ProductoMasVendidoResponse> productosMasVendidos(LocalDate desde, LocalDate hasta) {
+        validarRango(desde, hasta);
         return pedidoItemRepository.productosMasVendidos(
                 desde.atStartOfDay(), hasta.atTime(23, 59, 59), PageRequest.of(0, TOP_N));
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioConteoResponse> usuariosConMasPedidos(LocalDate desde, LocalDate hasta) {
+        validarRango(desde, hasta);
         return pedidoRepository.usuariosConMasPedidos(
                 desde.atStartOfDay(), hasta.atTime(23, 59, 59), PageRequest.of(0, TOP_N));
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioGastoResponse> usuariosConMasGasto(LocalDate desde, LocalDate hasta) {
+        validarRango(desde, hasta);
         return pedidoRepository.usuariosConMasGasto(
                 desde.atStartOfDay(), hasta.atTime(23, 59, 59), PageRequest.of(0, TOP_N));
     }
 
     @Transactional(readOnly = true)
     public List<UsuarioConteoResponse> usuariosConMasDocumentos(LocalDate desde, LocalDate hasta) {
+        validarRango(desde, hasta);
         return documentoRepository.usuariosConMasDocumentos(desde, hasta, PageRequest.of(0, TOP_N));
     }
 
     @Transactional(readOnly = true)
     public ResumenReporteResponse resumen(LocalDate desde, LocalDate hasta) {
+        validarRango(desde, hasta);
         LocalDateTime desdeInicio = desde.atStartOfDay();
         LocalDateTime hastaFin = hasta.atTime(23, 59, 59);
         return new ResumenReporteResponse(
                 pedidoRepository.sumarIngresosEnRango(desdeInicio, hastaFin),
                 pedidoRepository.contarPedidosEnRango(desdeInicio, hastaFin),
                 documentoRepository.countByFechaIngresoBetween(desde, hasta));
+    }
+
+    private void validarRango(LocalDate desde, LocalDate hasta) {
+        if (hasta.isBefore(desde)) {
+            throw new ConflictException("La fecha \"hasta\" no puede ser anterior a la fecha \"desde\"");
+        }
     }
 }

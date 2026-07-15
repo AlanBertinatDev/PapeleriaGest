@@ -34,23 +34,30 @@ export function AdminReportesPage() {
   const [resumen, setResumen] = useState<ResumenReporteResponse | null>(null)
   const [productos, setProductos] = useState<ProductoMasVendidoResponse[]>([])
   const [usuariosGasto, setUsuariosGasto] = useState<UsuarioGastoResponse[]>([])
+  const [usuariosPedidos, setUsuariosPedidos] = useState<UsuarioConteoResponse[]>([])
   const [usuariosDocumentos, setUsuariosDocumentos] = useState<UsuarioConteoResponse[]>([])
   const [error, setError] = useState<string | null>(null)
   const [cargando, setCargando] = useState(false)
 
   async function generar(rangoDesde: string, rangoHasta: string) {
     setError(null)
+    if (rangoHasta < rangoDesde) {
+      setError('La fecha "hasta" no puede ser anterior a la fecha "desde"')
+      return
+    }
     setCargando(true)
     try {
-      const [r, p, ug, ud] = await Promise.all([
+      const [r, p, ug, up, ud] = await Promise.all([
         reportesApi.resumen(rangoDesde, rangoHasta),
         reportesApi.productosMasVendidos(rangoDesde, rangoHasta),
         reportesApi.usuariosConMasGasto(rangoDesde, rangoHasta),
+        reportesApi.usuariosConMasPedidos(rangoDesde, rangoHasta),
         reportesApi.usuariosConMasDocumentos(rangoDesde, rangoHasta),
       ])
       setResumen(r)
       setProductos(p)
       setUsuariosGasto(ug)
+      setUsuariosPedidos(up)
       setUsuariosDocumentos(ud)
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'No se pudieron generar los reportes')
@@ -153,6 +160,20 @@ export function AdminReportesPage() {
             label: u.usuarioNombre,
             value: Number(u.totalGastado),
             displayValue: `$${u.totalGastado}`,
+          }))}
+        />
+      </div>
+
+      <div className="card">
+        <h3>Top 5 clientes por cantidad de pedidos</h3>
+        <RankingBars
+          color="celeste"
+          emptyMessage="No hubo pedidos en este período."
+          items={usuariosPedidos.map((u) => ({
+            key: u.usuarioId,
+            label: u.usuarioNombre,
+            value: u.cantidad,
+            displayValue: `${u.cantidad}`,
           }))}
         />
       </div>

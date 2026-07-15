@@ -12,4 +12,6 @@ export const usuariosApi = {
   cambiarNivel: (id: number, nivelId: number) => api.put<UsuarioResponse>(`/usuarios/${id}/nivel`, { nivelId }),
   activar: (id: number) => api.put<UsuarioResponse>(`/usuarios/${id}/activar`, undefined),
   desactivar: (id: number) => api.put<UsuarioResponse>(`/usuarios/${id}/desactivar`, undefined),
+  resetearPassword: (id: number, newPassword: string) =>
+    api.put<void>(`/usuarios/${id}/password`, { newPassword }),
 }

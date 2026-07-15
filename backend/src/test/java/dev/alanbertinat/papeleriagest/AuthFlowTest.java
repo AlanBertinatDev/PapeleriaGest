@@ -65,4 +65,22 @@ class AuthFlowTest extends AbstractIntegrationTest {
                 "/api/auth/login", new LoginRequest("ana@example.com", "newpassword456"), AuthResponse.class);
         assertThat(newPasswordLogin.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
+
+    @Test
+    void bloqueaLoginTrasVariosIntentosFallidos() {
+        RegisterRequest registerRequest = new RegisterRequest(
+                "Beto Perez", "beto@example.com", "7654321", "099333444", "password123");
+        restTemplate.postForEntity("/api/auth/register", registerRequest, AuthResponse.class);
+
+        LoginRequest loginIncorrecto = new LoginRequest("beto@example.com", "incorrecta");
+        for (int i = 0; i < 5; i++) {
+            ResponseEntity<String> respuesta =
+                    restTemplate.postForEntity("/api/auth/login", loginIncorrecto, String.class);
+            assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        }
+
+        ResponseEntity<String> bloqueado = restTemplate.postForEntity(
+                "/api/auth/login", new LoginRequest("beto@example.com", "password123"), String.class);
+        assertThat(bloqueado.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);
+    }
 }

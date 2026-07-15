@@ -1,11 +1,12 @@
 package dev.alanbertinat.papeleriagest.web.dto;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.math.BigDecimal;
 
 public record ProductoRequest(
-        @NotNull Long codigoProducto,
+        @NotNull @Positive Long codigoProducto,
         @NotNull String nombre,
         String descripcion,
         @NotNull @PositiveOrZero BigDecimal precioVenta,

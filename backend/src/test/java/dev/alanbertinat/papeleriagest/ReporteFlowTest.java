@@ -137,6 +137,17 @@ class ReporteFlowTest extends AbstractIntegrationTest {
         assertThat(forbidden.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
     }
 
+    @Test
+    void rangoDeFechasInvertidoEsRechazado() {
+        String url = UriComponentsBuilder.fromPath("/api/reportes/resumen")
+                .queryParam("desde", java.time.LocalDate.now())
+                .queryParam("hasta", java.time.LocalDate.now().minusDays(5))
+                .toUriString();
+        ResponseEntity<String> respuesta = restTemplate.exchange(
+                url, HttpMethod.GET, new HttpEntity<>(authHeaders(adminToken)), String.class);
+        assertThat(respuesta.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
+    }
+
     private String login(String email, String password) {
         ResponseEntity<AuthResponse> response = restTemplate.postForEntity(
                 "/api/auth/login", new LoginRequest(email, password), AuthResponse.class);

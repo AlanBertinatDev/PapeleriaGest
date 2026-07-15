@@ -5,7 +5,7 @@ import { PedidoCard } from '../../components/PedidoCard'
 import { FilterPills } from '../../components/FilterPills'
 import { PageHeader } from '../../components/PageHeader'
 
-type Filtro = 'TODOS' | 'PENDIENTE' | 'EN_REVISION' | 'ENTREGADO' | 'CANCELADO'
+type Filtro = 'TODOS' | 'PENDIENTE' | 'EN_REVISION' | 'LISTO' | 'ENTREGADO' | 'CANCELADO'
 
 export function AdminPedidosPage() {
   const [pedidos, setPedidos] = useState<PedidoResponse[]>([])
@@ -40,6 +40,7 @@ export function AdminPedidosPage() {
         label: 'En revisión',
         count: pedidos.filter((p) => p.estado === 'EN_REVISION').length,
       },
+      { key: 'LISTO', label: 'Listos', count: pedidos.filter((p) => p.estado === 'LISTO').length },
       { key: 'ENTREGADO', label: 'Entregados', count: pedidos.filter((p) => p.estado === 'ENTREGADO').length },
       { key: 'CANCELADO', label: 'Cancelados', count: pedidos.filter((p) => p.estado === 'CANCELADO').length },
     ],
@@ -66,9 +67,9 @@ export function AdminPedidosPage() {
           const acciones = []
           if (pedido.estado === 'PENDIENTE') {
             acciones.push({
-              label: 'Marcar entregado',
+              label: 'Marcar listo',
               destacada: true,
-              onClick: () => handleCambiarEstado(pedido.id, 'ENTREGADO'),
+              onClick: () => handleCambiarEstado(pedido.id, 'LISTO'),
             })
             acciones.push({
               label: 'Cancelar',
@@ -79,6 +80,16 @@ export function AdminPedidosPage() {
               label: 'Volver a pendiente',
               destacada: true,
               onClick: () => handleCambiarEstado(pedido.id, 'PENDIENTE'),
+            })
+            acciones.push({
+              label: 'Cancelar',
+              onClick: () => handleCambiarEstado(pedido.id, 'CANCELADO'),
+            })
+          } else if (pedido.estado === 'LISTO') {
+            acciones.push({
+              label: 'Marcar entregado',
+              destacada: true,
+              onClick: () => handleCambiarEstado(pedido.id, 'ENTREGADO'),
             })
             acciones.push({
               label: 'Cancelar',

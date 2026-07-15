@@ -745,6 +745,9 @@ export function CatalogoPage() {
               Envío a domicilio
             </button>
           </div>
+          <p className="empty-state" style={{ padding: '4px 0 0' }}>
+            Envíos solo dentro de la ciudad de Paysandú
+          </p>
           {esEnvio && (
             <input
               className={styles.envioInput}
