@@ -229,7 +229,8 @@ class OfertaFlowTest extends AbstractIntegrationTest {
         assertThat(creada.getBody().tieneImagen()).isFalse();
 
         MultiValueMap<String, Object> partes = new LinkedMultiValueMap<>();
-        ByteArrayResource imagen = new ByteArrayResource("contenido-oferta".getBytes(StandardCharsets.UTF_8)) {
+        ByteArrayResource imagen = new ByteArrayResource(
+                new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0, 0, 0, 0, 0}) {
             @Override
             public String getFilename() {
                 return "oferta.jpg";
@@ -249,7 +250,8 @@ class OfertaFlowTest extends AbstractIntegrationTest {
                 "/api/ofertas/" + id + "/imagen", HttpMethod.GET,
                 new HttpEntity<>(authHeaders(estandarToken)), byte[].class);
         assertThat(descargada.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(descargada.getBody()).isEqualTo("contenido-oferta".getBytes(StandardCharsets.UTF_8));
+        assertThat(descargada.getBody())
+                .isEqualTo(new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0, 0, 0, 0, 0});
     }
 
     @Test

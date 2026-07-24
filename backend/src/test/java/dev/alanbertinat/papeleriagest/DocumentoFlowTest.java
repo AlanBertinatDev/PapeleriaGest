@@ -127,7 +127,7 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
                 "/api/documentos/" + documentoId + "/archivo", HttpMethod.GET,
                 new HttpEntity<>(authHeaders(ownerToken)), byte[].class);
         assertThat(descargaPropietario.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(descargaPropietario.getBody()).isEqualTo("contenido de prueba".getBytes(StandardCharsets.UTF_8));
+        assertThat(descargaPropietario.getBody()).isEqualTo(CONTENIDO_PDF_PRUEBA);
 
         ResponseEntity<String> descargaAjena = restTemplate.exchange(
                 "/api/documentos/" + documentoId + "/archivo", HttpMethod.GET,
@@ -335,6 +335,9 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
         assertThat(valido.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
+    private static final byte[] CONTENIDO_PDF_PRUEBA =
+            "%PDF-1.4 contenido de prueba".getBytes(StandardCharsets.UTF_8);
+
     private ResponseEntity<DocumentoResponse> subirDocumento(String token, String nombre, Long cursoId) {
         return restTemplate.exchange(
                 "/api/documentos", HttpMethod.POST, new HttpEntity<>(construirPartes(nombre, cursoId, null), multipartHeaders(token)),
@@ -371,7 +374,7 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
         if (materia != null) {
             partes.add("materia", materia);
         }
-        ByteArrayResource archivo = new ByteArrayResource("contenido de prueba".getBytes(StandardCharsets.UTF_8)) {
+        ByteArrayResource archivo = new ByteArrayResource(CONTENIDO_PDF_PRUEBA) {
             @Override
             public String getFilename() {
                 return "apunte.pdf";

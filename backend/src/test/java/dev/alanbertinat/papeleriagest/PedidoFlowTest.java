@@ -142,7 +142,10 @@ class PedidoFlowTest extends AbstractIntegrationTest {
         ResponseEntity<PedidoResponse[]> misPedidosDespues = restTemplate.exchange(
                 "/api/pedidos/mios", HttpMethod.GET,
                 new HttpEntity<>(authHeaders(ownerToken)), PedidoResponse[].class);
-        assertThat(misPedidosDespues.getBody()).extracting(PedidoResponse::id).doesNotContain(pedidoId);
+        assertThat(misPedidosDespues.getBody())
+                .filteredOn(p -> p.id().equals(pedidoId))
+                .extracting(PedidoResponse::estado)
+                .containsExactly("CANCELADO");
     }
 
     @Test

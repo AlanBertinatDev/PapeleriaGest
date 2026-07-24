@@ -64,6 +64,9 @@ public class PedidoService {
 
     @Transactional
     public PedidoResponse crear(Usuario usuario, CrearPedidoRequest request) {
+        if (request.esEnvio() && (request.direccion() == null || request.direccion().isBlank())) {
+            throw new ConflictException("Ingresá una dirección para el envío a domicilio");
+        }
         Pedido pedido = Pedido.builder()
                 .fechaPedido(LocalDateTime.now())
                 .fechaEntrega(request.fechaEntrega())
@@ -190,7 +193,7 @@ public class PedidoService {
     @Transactional(readOnly = true)
     public List<PedidoResponse> listarTodos() {
         return pedidoRepository
-                .findByActivoTrueOrderByFechaPedidoDesc(
+                .findAllByOrderByFechaPedidoDesc(
                         org.springframework.data.domain.PageRequest.of(0, LIMITE_LISTADO_ADMIN))
                 .stream()
                 .map(PedidoResponse::from)
@@ -200,8 +203,7 @@ public class PedidoService {
     @Transactional(readOnly = true)
     public List<PedidoResponse> listarMios(Usuario usuario) {
         return pedidoRepository
-                .findByActivoTrueAndUsuarioIdAndEstadoNotOrderByFechaPedidoDesc(
-                        usuario.getId(), EstadoPedido.CANCELADO)
+                .findByUsuarioIdOrderByFechaPedidoDesc(usuario.getId())
                 .stream()
                 .map(PedidoResponse::from)
                 .toList();

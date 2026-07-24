@@ -94,6 +94,8 @@ function itemsDeOfertas(ofertas: OfertaResponse[]): CatalogItem[] {
     const precio = Number(o.precio)
     const tieneDescuento = precioOriginal > 0 && precio > 0 && precioOriginal > precio
     const badge = o.tipo === 'SERVICIO' ? 'Servicio' : o.tipo === 'PACK' ? 'Oferta · Pack' : 'Oferta'
+    const stockDisponible =
+      o.productos.length > 0 ? Math.min(...o.productos.map((p) => p.cantidad)) : null
     return {
       key: `oferta-${o.id}`,
       nombre: o.titulo,
@@ -103,8 +105,8 @@ function itemsDeOfertas(ofertas: OfertaResponse[]): CatalogItem[] {
       tag,
       marca: o.productos[0]?.marca?.nombre ?? null,
       badge,
-      sinStock: false,
-      stockDisponible: null,
+      sinStock: stockDisponible !== null && stockDisponible <= 0,
+      stockDisponible,
       imagenSrc: o.tieneImagen
         ? `/ofertas/${o.id}/imagen`
         : o.productos[0]?.tieneImagen
@@ -600,20 +602,33 @@ export function CatalogoPage() {
         descripcion: detalle.trim() || null,
         items: requestItems,
       })
+
+      const documentosFallidos: string[] = []
       for (const doc of documentos) {
-        await documentosApi.solicitarImpresion({
-          documentoOrigenId: doc.documentoOrigenId,
-          pedidoId: pedido.id,
-          cantidadCopias: doc.cantidadCopias,
-          esDobleFaz: doc.esDobleFaz,
-          aColor: doc.modoColor !== 'BN',
-          modoColor: doc.modoColor,
-          tamanio: doc.tamanio,
-          tipoPapel: doc.tipoPapel,
-          paginasPorCara: doc.paginasPorCara,
-          orientacion: doc.orientacion,
-          terminacion: doc.terminacion,
-        })
+        try {
+          await documentosApi.solicitarImpresion({
+            documentoOrigenId: doc.documentoOrigenId,
+            pedidoId: pedido.id,
+            cantidadCopias: doc.cantidadCopias,
+            esDobleFaz: doc.esDobleFaz,
+            aColor: doc.modoColor !== 'BN',
+            modoColor: doc.modoColor,
+            tamanio: doc.tamanio,
+            tipoPapel: doc.tipoPapel,
+            paginasPorCara: doc.paginasPorCara,
+            orientacion: doc.orientacion,
+            terminacion: doc.terminacion,
+          })
+        } catch (err) {
+          documentosFallidos.push(doc.nombre)
+        }
+      }
+
+      if (documentosFallidos.length > 0) {
+        window.alert(
+          `El pedido #${pedido.id} se creó, pero no se pudo agregar la impresión de: ${documentosFallidos.join(', ')}. ` +
+            'Contactanos o volvé a intentar agregarlo desde Mis pedidos.',
+        )
       }
       navigate('/mis-pedidos', { state: { creado: pedido.id } })
     } catch (err) {

@@ -106,7 +106,8 @@ class CatalogFlowTest extends AbstractIntegrationTest {
         assertThat(created.getBody().tieneImagen()).isFalse();
 
         MultiValueMap<String, Object> partesImagen = new LinkedMultiValueMap<>();
-        ByteArrayResource imagen = new ByteArrayResource("contenido-imagen".getBytes(StandardCharsets.UTF_8)) {
+        ByteArrayResource imagen = new ByteArrayResource(
+                new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0, 0, 0, 0, 0}) {
             @Override
             public String getFilename() {
                 return "foto.jpg";
@@ -125,7 +126,8 @@ class CatalogFlowTest extends AbstractIntegrationTest {
                 "/api/productos/1001/imagen", HttpMethod.GET,
                 new HttpEntity<>(authHeaders(estandarToken)), byte[].class);
         assertThat(imagenDescargada.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(imagenDescargada.getBody()).isEqualTo("contenido-imagen".getBytes(StandardCharsets.UTF_8));
+        assertThat(imagenDescargada.getBody())
+                .isEqualTo(new byte[] {(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, 0, 0, 0, 0, 0});
 
         ResponseEntity<ProductoResponse[]> listAsEstandar = restTemplate.exchange(
                 "/api/productos", HttpMethod.GET,
