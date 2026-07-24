@@ -340,7 +340,7 @@ function DocumentoPickerModal({
 
           <div
             style={{
-              background: 'var(--color-primary, #2563eb)',
+              background: 'var(--accent)',
               color: '#fff',
               borderRadius: '8px',
               padding: '12px 16px',

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 
-const HUES = [20, 70, 155, 230]
+const HUES = [20, 45, 175, 300]
 
 export function hueForLabel(label: string): number {
   let hash = 0

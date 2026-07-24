@@ -61,8 +61,8 @@ export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActual
 
   const motivoParaMensaje = pedido.estado === 'EN_REVISION' && pedido.motivoRevision ? pedido.motivoRevision : null
   const mensajeContacto = motivoParaMensaje
-    ? `Hola ${pedido.usuarioNombre}, te escribo por tu pedido #${pedido.id} en Bertinat Papelería: ${motivoParaMensaje}. ¿Cómo preferís que sigamos?`
-    : `Hola ${pedido.usuarioNombre}, te escribo por tu pedido #${pedido.id} en Bertinat Papelería.`
+    ? `Hola ${pedido.usuarioNombre}, te escribo por tu pedido #${pedido.id} en crea+: ${motivoParaMensaje}. ¿Cómo preferís que sigamos?`
+    : `Hola ${pedido.usuarioNombre}, te escribo por tu pedido #${pedido.id} en crea+.`
 
   return (
     <div className={`order-card estado-${pedido.estado.toLowerCase()}`}>

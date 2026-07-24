@@ -27,15 +27,18 @@ function IconPin() {
   )
 }
 
-const DIRECCION = '18 de Julio 684, frente al Liceo N°1, Uruguay'
-const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(DIRECCION)}`
+const MAPS_URL =
+  'https://www.google.com/maps/place/Bertinat+Papeleria/@-32.3161616,-58.0953628,17.14z/data=!4m6!3m5!1s0x95afcb5947b942cf:0x23fd78bda71c7d21!8m2!3d-32.3161154!4d-58.0929586!16s%2Fg%2F11llm3vwcp?entry=ttu&g_ep=EgoyMDI2MDcyMS4wIKXMDSoASAFQAw%3D%3D'
 
 export function Footer() {
   return (
     <footer className={styles.footer}>
-      <div className={styles.copyright}>© {new Date().getFullYear()} Bertinat Papelería. Todos los derechos reservados.</div>
+      <div className={styles.copyright}>© {new Date().getFullYear()} crea+ · Bertinat Papelería. Todos los derechos reservados.</div>
 
       <div className={styles.info}>
+        <a className={styles.infoItem} href="/#nosotros">
+          Nosotros
+        </a>
         <a className={styles.infoItem} href="https://wa.me/59898254185" target="_blank" rel="noreferrer">
           <IconPhone /> 098 254 185
         </a>

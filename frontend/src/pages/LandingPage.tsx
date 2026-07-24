@@ -89,7 +89,7 @@ function HeroImage({ fotos }: { fotos: FotoHomeResponse[] }) {
       >
         {fotos.map((foto) => (
           <div className={styles.heroSlide} key={foto.id} style={{ flexBasis: `${100 / fotos.length}%` }}>
-            <AuthImage src={`/fotos-home/${foto.id}/imagen`} alt="Bertinat Papelería" />
+            <AuthImage src={`/fotos-home/${foto.id}/imagen`} alt="crea+ · Bertinat Papelería" />
           </div>
         ))}
       </div>
@@ -152,6 +152,19 @@ export function LandingPage() {
               </div>
             )
           })}
+        </div>
+      </section>
+
+      <section className={styles.section} id="nosotros">
+        <div className={styles.nosotros}>
+          <h2 className={styles.nosotrosTitle}>Más de 34 años en Paysandú</h2>
+          <p className={styles.nosotrosText}>
+            Bertinat Papelería lleva más de tres décadas siendo parte de la vida cotidiana de Paysandú: la
+            primera mochila, la primera agenda, la fotocopia urgente, el regalo de cumpleaños. Hoy seguimos
+            siendo esa papelería de siempre, pero con todo lo que sigue: más ideas, más herramientas, más
+            formas de crear. Somos crea+.
+          </p>
+          <p className={styles.nosotrosQuote}>Todo para crear y más.</p>
         </div>
       </section>
     </div>

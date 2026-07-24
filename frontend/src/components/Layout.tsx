@@ -60,10 +60,10 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="app-shell" style={{ flexDirection: 'column' }}>
         <header className="guest-header">
           <Link to="/" className="sidebar-brand">
-            <img src={logo} alt="Bertinat Papelería" />
+            <img src={logo} alt="crea+ · Bertinat Papelería" />
             <span>
-              Bertinat
-              <small>Papelería</small>
+              crea+
+              <small>Bertinat Papelería</small>
             </span>
           </Link>
           <div className="guest-header-actions">
@@ -105,8 +105,8 @@ export function Layout({ children }: { children: ReactNode }) {
           <span />
         </button>
         <Link to={isAdmin ? '/admin/dashboard' : '/'} className={styles.topbarBrand}>
-          <img src={logo} alt="Bertinat Papelería" className={styles.brandLogo} />
-          <span className={styles.brandText}>Bertinat</span>
+          <img src={logo} alt="crea+ · Bertinat Papelería" className={styles.brandLogo} />
+          <span className={styles.brandText}>crea+</span>
         </Link>
         <div className={styles.topbarAvatar}>{iniciales(usuario.nombre)}</div>
       </div>
@@ -115,10 +115,10 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <aside className={menuAbierto ? `${styles.sidebar} ${styles.sidebarOpen}` : styles.sidebar}>
         <Link to={isAdmin ? '/admin/dashboard' : '/'} className={styles.brand}>
-          <img src={logo} alt="Bertinat Papelería" className={styles.brandLogo} />
+          <img src={logo} alt="crea+ · Bertinat Papelería" className={styles.brandLogo} />
           <span className={styles.brandText}>
-            Bertinat
-            <span className={styles.brandSub}>Papelería</span>
+            crea+
+            <span className={styles.brandSub}>Bertinat Papelería</span>
           </span>
         </Link>
 

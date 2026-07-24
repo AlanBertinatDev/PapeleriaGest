@@ -2,26 +2,37 @@
 
 :root {
   /* Base surfaces */
-  --bg: oklch(0.985 0.003 75);
+  --bg: #faf6f0;
   --surface: #ffffff;
-  --surface-alt: oklch(0.95 0.004 75);
-  --border: oklch(0.92 0.006 75);
-  --border-soft: oklch(0.95 0.004 75);
+  --surface-alt: #f5eee6;
+  --border: #ede3d6;
+  --border-soft: #f3ece1;
 
   /* Text */
-  --ink: oklch(0.2 0.01 75);
-  --ink-soft: oklch(0.5 0.01 75);
-  --ink-faint: oklch(0.6 0.01 75);
+  --ink: #2b2b2b;
+  --ink-soft: #6b6b6b;
+  --ink-faint: #8a8a8a;
 
-  /* Accent (primary buttons, active nav) */
-  --accent: oklch(0.3 0.02 230);
-  --accent-soft: oklch(0.94 0.03 230);
+  /* Accent (primary buttons, active nav, CTA) — rosa pastel de marca */
+  --accent: #e89aa6;
+  --accent-soft: #fbe9ec;
 
-  /* Pastel hues used for categories/roles/tags — same chroma/lightness, hue rotates */
+  /* Paleta de marca CREA+ */
+  --brand-rosa: #e89aa6;
+  --brand-turquesa: #7bb8b0;
+  --brand-lila: #b6a6ce;
+  --brand-durazno: #f0bd8e;
+  --brand-oliva: #a8c0a0;
+  --brand-crudo: #faf6f0;
+  --brand-mostaza: #f2d98d;
+  --brand-azul: #a9c6da;
+  --brand-carbon: #2b2b2b;
+
+  /* Pastel hues (oklch) usadas para categorías/roles/tags — alineadas a los hues de marca */
   --hue-rosa: 20;
-  --hue-durazno: 70;
-  --hue-menta: 155;
-  --hue-celeste: 230;
+  --hue-durazno: 45;
+  --hue-turquesa: 175;
+  --hue-lila: 300;
 
   /* Semantic states (reuse the pastel system) */
   --ok: oklch(0.4 0.1 155);
@@ -43,10 +54,11 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
-  --shadow-accent: 0 2px 6px oklch(0.3 0.02 230 / 25%);
+  --shadow-accent: 0 2px 6px rgba(232, 154, 166, 0.35);
 
   --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --display: 'Poppins', var(--sans);
+  --display: 'Fraunces', Georgia, serif;
+  --script: 'Caveat', cursive;
 
   font: 14px/1.5 var(--sans);
   color-scheme: light;
