@@ -108,10 +108,10 @@ crear_producto_si_falta 9004 "Marcador fluorescente" 150 100 3   # stock bajo, a
 crear_producto_si_falta 9005 "Cartuchera escolar" 1200 900 0    # sin stock, a propósito
 
 echo "== Oferta vigente (pack) =="
-OFERTA_ID=$(psql_c "SELECT id FROM oferta WHERE titulo='Pack vuelta a clases (seed)';")
+OFERTA_ID=$(psql_c "SELECT id FROM oferta WHERE titulo='Pack vuelta a clases';")
 if [ -z "$OFERTA_ID" ]; then
   curl -s -X POST "$BASE_URL/api/ofertas" "${auth_admin[@]}" -d '{
-    "titulo":"Pack vuelta a clases (seed)","descripcion":"Cuaderno + lapicera + resma",
+    "titulo":"Pack vuelta a clases","descripcion":"Cuaderno + lapicera + resma",
     "precio":1100,"fechaDesde":"2026-07-01","fechaHasta":"2026-12-31",
     "tipo":"PACK","productoIds":[9001,9002,9003],
     "notificarPorCorreo":false,"audienciaNotificacion":null,"destacarHome":false}' >/dev/null
@@ -145,11 +145,11 @@ if [ "$PEDIDOS_EXISTENTES" = "0" ]; then
     curl -s -X POST "$BASE_URL/api/pedidos" "${auth_cliente[@]}" -d "$1" | json_get id
   }
 
-  P1=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"Retiro pendiente (seed)","items":[{"productoId":9001,"cantidad":2}]}')
-  P2=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"Pedido listo (seed)","items":[{"productoId":9002,"cantidad":3}]}')
-  P3=$(crear_pedido '{"esEnvio":true,"direccion":"Calle Falsa 123","descripcion":"Pedido entregado (seed)","items":[{"productoId":9003,"cantidad":1}]}')
-  P4=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"Pedido cancelado (seed)","items":[{"productoId":9004,"cantidad":1}]}')
-  P5=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"Pedido en revisión (seed)","items":[{"productoId":9002,"cantidad":1}]}')
+  P1=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"Retiro pendiente","items":[{"productoId":9001,"cantidad":2}]}')
+  P2=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"Pedido listo para retirar","items":[{"productoId":9002,"cantidad":3}]}')
+  P3=$(crear_pedido '{"esEnvio":true,"direccion":"Calle Falsa 123","descripcion":"Entregado con envío a domicilio","items":[{"productoId":9003,"cantidad":1}]}')
+  P4=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"Cancelado por el cliente","items":[{"productoId":9004,"cantidad":1}]}')
+  P5=$(crear_pedido '{"esEnvio":false,"direccion":null,"descripcion":"En revisión: falta stock de un color","items":[{"productoId":9002,"cantidad":1}]}')
 
   curl -s -X PUT "$BASE_URL/api/pedidos/$P2/estado" "${auth_admin[@]}" -d '{"estado":"LISTO"}' >/dev/null
 

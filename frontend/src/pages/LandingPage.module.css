@@ -205,22 +205,22 @@
 }
 
 .servicioDestacada {
-  background: oklch(0.2 0.01 75);
-  border-color: oklch(0.2 0.01 75);
+  background: oklch(0.93 0.004 75);
+  border-color: oklch(0.87 0.004 75);
   cursor: pointer;
 }
 
 .servicioDestacada:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
 }
 
 .servicioDestacada .servicioTitulo {
-  color: #fff;
+  color: var(--ink);
 }
 
 .servicioDestacada .servicioDescripcion {
-  color: oklch(0.78 0.006 75);
+  color: var(--ink-soft);
 }
 
 .servicioIcono {
@@ -242,7 +242,7 @@
 }
 
 .chipOscuro {
-  background: oklch(1 0 0 / 0.14);
+  background: oklch(1 0 0 / 0.6);
 }
 
 .servicioTitulo {

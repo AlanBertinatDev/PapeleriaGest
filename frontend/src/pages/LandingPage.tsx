@@ -52,7 +52,7 @@ const SERVICIOS = [
   },
   {
     Icono: IconCarrito,
-    color: '#fff',
+    color: 'oklch(0.35 0.01 75)',
     chipClase: styles.chipOscuro,
     titulo: 'Pedidos online',
     descripcion: 'Creá tu cuenta para armar pedidos, hacer seguimiento y recibir tus ofertas favoritas.',
