@@ -26,3 +26,6 @@ frontend/.vite/
 
 # Reference-only copy of the old ASP.NET project, not part of this codebase
 legacy/
+
+# Cotizaciones de proveedores (material privado, no va al repo)
+Cotizaci*.pdf
