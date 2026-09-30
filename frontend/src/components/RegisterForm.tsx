@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from '../auth/AuthContext'
 import { ApiError } from '../api/client'
+import { IconEye } from './IconEye'
+import styles from './AuthModal.module.css'
 
 export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   const { register } = useAuth()
@@ -9,6 +11,7 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
   const [cedula, setCedula] = useState('')
   const [telefono, setTelefono] = useState('')
   const [password, setPassword] = useState('')
+  const [mostrarPassword, setMostrarPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -46,13 +49,23 @@ export function RegisterForm({ onSuccess }: { onSuccess: () => void }) {
       </label>
       <label>
         Contraseña
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          minLength={8}
-          required
-        />
+        <div className={styles.passwordField}>
+          <input
+            type={mostrarPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={8}
+            required
+          />
+          <button
+            type="button"
+            className={styles.eyeToggle}
+            aria-label={mostrarPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+            onClick={() => setMostrarPassword((v) => !v)}
+          >
+            <IconEye open={mostrarPassword} />
+          </button>
+        </div>
       </label>
       {error && <p className="error">{error}</p>}
       <button type="submit" disabled={loading}>

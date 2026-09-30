@@ -74,6 +74,14 @@ public class FileStorageService {
         return nombreGuardado;
     }
 
+    public void borrar(String nombreGuardado) {
+        try {
+            Files.deleteIfExists(resolver(nombreGuardado));
+        } catch (IOException ex) {
+            throw new IllegalStateException("No se pudo borrar el archivo adjunto", ex);
+        }
+    }
+
     public Path resolver(String nombreGuardado) {
         Path resuelto = baseDir.resolve(nombreGuardado).normalize();
         if (!resuelto.startsWith(baseDir)) {

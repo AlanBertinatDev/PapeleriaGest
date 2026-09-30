@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
-# Carga datos de prueba persistentes en la base de dev (productos, ofertas, un curso
-# con docente y material, y pedidos en distintos estados) para poder abrir el frontend
-# y ver algo de inmediato en cualquier PC, sin depender de haber cargado datos a mano
-# antes. Pensado para correrse contra una base limpia (recién migrada) o una que ya
-# tenga estos mismos datos de un run anterior — es seguro volver a correrlo.
+# Carga datos de prueba persistentes en la base de dev (productos, ofertas, y pedidos
+# en distintos estados) para poder abrir el frontend y ver algo de inmediato en
+# cualquier PC, sin depender de haber cargado datos a mano antes. Pensado para
+# correrse contra una base limpia (recién migrada) o una que ya tenga estos mismos
+# datos de un run anterior — es seguro volver a correrlo.
 #
 # Requisitos: backend corriendo en localhost:8080, contenedor de Postgres
 # "papeleriagest-postgres-1" levantado (DB_PORT=5433), y `python3` disponible.
@@ -23,8 +23,6 @@ ADMIN_EMAIL="admin@papeleria.dev"
 ADMIN_PASS="Admin1234!"
 CLIENTE_EMAIL="cliente@papeleria.dev"
 CLIENTE_PASS="Cliente1234!"
-DOCENTE_EMAIL="docente@papeleria.dev"
-DOCENTE_PASS="Docente1234!"
 
 psql_c() {
   docker exec -i "$DB_CONTAINER" psql -U "$DB_USER" -d "$DB_NAME" -tA -c "$1"
@@ -58,19 +56,16 @@ register_si_falta() {
 echo "== Usuarios de prueba =="
 register_si_falta "Admin Dev" "$ADMIN_EMAIL" "90000001" "$ADMIN_PASS"
 register_si_falta "Cliente Dev" "$CLIENTE_EMAIL" "90000002" "$CLIENTE_PASS"
-register_si_falta "Docente Dev" "$DOCENTE_EMAIL" "90000003" "$DOCENTE_PASS"
 
-# nivel_id: 1=Administrador, 2=Estandar, 3=Docente (ver tabla `nivel`)
+# nivel_id: 1=Administrador, 2=Estandar (ver tabla `nivel`)
 psql_c "UPDATE usuario SET nivel_id=1 WHERE email='$ADMIN_EMAIL';" >/dev/null
 psql_c "UPDATE usuario SET nivel_id=2 WHERE email='$CLIENTE_EMAIL';" >/dev/null
-psql_c "UPDATE usuario SET nivel_id=3 WHERE email='$DOCENTE_EMAIL';" >/dev/null
 
 ADMIN_TOKEN=$(curl -s -X POST "$BASE_URL/api/auth/login" -H "Content-Type: application/json" \
   -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASS\"}" | json_get token)
 CLIENTE_LOGIN=$(curl -s -X POST "$BASE_URL/api/auth/login" -H "Content-Type: application/json" \
   -d "{\"email\":\"$CLIENTE_EMAIL\",\"password\":\"$CLIENTE_PASS\"}")
 CLIENTE_TOKEN=$(echo "$CLIENTE_LOGIN" | json_get token)
-DOCENTE_ID=$(psql_c "SELECT id FROM usuario WHERE email='$DOCENTE_EMAIL';")
 
 auth_admin=(-H "Authorization: Bearer $ADMIN_TOKEN" -H "Content-Type: application/json")
 auth_cliente=(-H "Authorization: Bearer $CLIENTE_TOKEN" -H "Content-Type: application/json")
@@ -118,24 +113,6 @@ if [ -z "$OFERTA_ID" ]; then
   echo "  creada oferta pack"
 fi
 
-echo "== Curso, docente asignado y material =="
-CURSO_ID=$(psql_c "SELECT id FROM curso WHERE grado='5' AND grupo='A';")
-if [ -z "$CURSO_ID" ]; then
-  curl -s -X POST "$BASE_URL/api/cursos" "${auth_admin[@]}" -d '{"grado":"5","grupo":"A"}' >/dev/null
-  CURSO_ID=$(psql_c "SELECT id FROM curso WHERE grado='5' AND grupo='A';")
-fi
-
-ASIGNACION=$(psql_c "SELECT id FROM materia_curso_docente WHERE curso_id=$CURSO_ID AND docente_id=$DOCENTE_ID;")
-if [ -z "$ASIGNACION" ]; then
-  curl -s -X POST "$BASE_URL/api/cursos/$CURSO_ID/docentes" "${auth_admin[@]}" \
-    -d "{\"docenteId\":$DOCENTE_ID,\"materia\":\"Matemática\"}" >/dev/null
-  echo "  docente asignado a 5°A - Matemática"
-fi
-
-psql_c "INSERT INTO curso_estudiante (curso_id, estudiante_id)
-        SELECT $CURSO_ID, id FROM usuario WHERE email='$CLIENTE_EMAIL'
-        ON CONFLICT DO NOTHING;" >/dev/null
-
 echo "== Pedidos del cliente (solo si todavía no tiene ninguno) =="
 CLIENTE_ID=$(echo "$CLIENTE_LOGIN" | python3 -c "import sys,json; print(json.loads(sys.stdin.read())['usuario']['id'])")
 PEDIDOS_EXISTENTES=$(psql_c "SELECT count(*) FROM pedido WHERE usuario_id=$CLIENTE_ID;")
@@ -173,7 +150,6 @@ cat <<EOF
 
    Admin:    $ADMIN_EMAIL   / $ADMIN_PASS
    Cliente:  $CLIENTE_EMAIL / $CLIENTE_PASS
-   Docente:  $DOCENTE_EMAIL / $DOCENTE_PASS
 
  Frontend: http://localhost:5175   Backend: http://localhost:8080
 ========================================================================

@@ -63,7 +63,12 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(
+                                "/api/auth/register",
+                                "/api/auth/login",
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password")
+                        .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/ofertas", "/api/ofertas/*/imagen").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/fotos-home", "/api/fotos-home/*/imagen").permitAll()
                         .anyRequest().authenticated())

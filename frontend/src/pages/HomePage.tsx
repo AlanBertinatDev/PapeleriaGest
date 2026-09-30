@@ -4,12 +4,10 @@ import { useAuth } from '../auth/AuthContext'
 import { PageHeader } from '../components/PageHeader'
 import { pedidosApi } from '../api/pedidos'
 import { ofertasApi } from '../api/ofertas'
-import { documentosApi } from '../api/documentos'
 import styles from './HomePage.module.css'
 
 const HUE_DURAZNO = 70
 const HUE_ROSA = 20
-const HUE_CELESTE = 230
 
 function hueStyle(hue: number): CSSProperties {
   return { '--h': hue } as CSSProperties
@@ -28,7 +26,6 @@ export function HomePage() {
   const { usuario, isAdmin } = useAuth()
   const [pedidosEnCurso, setPedidosEnCurso] = useState(0)
   const [ofertasVigentes, setOfertasVigentes] = useState(0)
-  const [documentosListos, setDocumentosListos] = useState(0)
 
   useEffect(() => {
     if (isAdmin) return
@@ -44,10 +41,6 @@ export function HomePage() {
     ofertasApi
       .listarVigentes()
       .then((ofertas) => setOfertasVigentes(ofertas.length))
-      .catch(() => {})
-    documentosApi
-      .misDocumentos()
-      .then((documentos) => setDocumentosListos(documentos.filter((d) => d.estado === 'IMPRESO').length))
       .catch(() => {})
   }, [isAdmin])
 
@@ -96,20 +89,6 @@ export function HomePage() {
             <div className={styles.cardDesc}>Descuentos y combos disponibles esta semana</div>
           </div>
         </Link>
-
-        <Link to="/mis-documentos" className={styles.card}>
-          <div className={styles.cardTop}>
-            <div className={styles.cardIcon} style={hueStyle(HUE_CELESTE)}>
-              🖨️
-            </div>
-            <Pill count={documentosListos} label="listo" hue={HUE_CELESTE} />
-          </div>
-          <div>
-            <div className={styles.cardTitle}>Mis documentos</div>
-            <div className={styles.cardDesc}>Archivos subidos para imprimir y su estado</div>
-          </div>
-        </Link>
-
       </div>
     </div>
   )

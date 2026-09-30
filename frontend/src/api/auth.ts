@@ -41,4 +41,7 @@ export const authApi = {
   actualizarPerfil: (data: UpdatePerfilRequest) => api.put<UsuarioResponse>('/auth/me', data),
   changePassword: (currentPassword: string, newPassword: string) =>
     api.put<void>('/auth/password', { currentPassword, newPassword }),
+  forgotPassword: (email: string) => api.post<void>('/auth/forgot-password', { email }),
+  resetPassword: (token: string, newPassword: string) =>
+    api.post<void>('/auth/reset-password', { token, newPassword }),
 }

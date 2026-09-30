@@ -13,9 +13,10 @@
   --ink-soft: #6b6b6b;
   --ink-faint: #8a8a8a;
 
-  /* Accent (primary buttons, active nav, CTA) — rosa pastel de marca */
-  --accent: #e89aa6;
-  --accent-soft: #fbe9ec;
+  /* Accent (primary buttons, active nav, CTA) — teal de marca */
+  --accent: #2f6f66;
+  --accent-hover: #245a52;
+  --accent-soft: #e4f1ee;
 
   /* Paleta de marca CREA+ */
   --brand-rosa: #e89aa6;
@@ -54,11 +55,10 @@
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
-  --shadow-accent: 0 2px 6px rgba(232, 154, 166, 0.35);
+  --shadow-accent: 0 2px 6px rgba(47, 111, 102, 0.35);
 
-  --sans: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
-  --display: 'Fraunces', Georgia, serif;
-  --script: 'Caveat', cursive;
+  --sans: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --display: 'Fredoka', system-ui, sans-serif;
 
   font: 14px/1.5 var(--sans);
   color-scheme: light;

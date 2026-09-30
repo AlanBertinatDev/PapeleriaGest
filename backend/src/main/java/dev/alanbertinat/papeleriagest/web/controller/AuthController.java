@@ -4,8 +4,10 @@ import dev.alanbertinat.papeleriagest.security.UsuarioPrincipal;
 import dev.alanbertinat.papeleriagest.service.AuthService;
 import dev.alanbertinat.papeleriagest.web.dto.AuthResponse;
 import dev.alanbertinat.papeleriagest.web.dto.ChangePasswordRequest;
+import dev.alanbertinat.papeleriagest.web.dto.ForgotPasswordRequest;
 import dev.alanbertinat.papeleriagest.web.dto.LoginRequest;
 import dev.alanbertinat.papeleriagest.web.dto.RegisterRequest;
+import dev.alanbertinat.papeleriagest.web.dto.ResetPasswordConfirmRequest;
 import dev.alanbertinat.papeleriagest.web.dto.UpdatePerfilRequest;
 import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
 import jakarta.validation.Valid;
@@ -56,6 +58,18 @@ public class AuthController {
             @AuthenticationPrincipal UsuarioPrincipal principal,
             @Valid @RequestBody ChangePasswordRequest request) {
         authService.changePassword(principal.usuario(), request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        authService.solicitarResetPassword(request.email());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Void> resetPassword(@Valid @RequestBody ResetPasswordConfirmRequest request) {
+        authService.restablecerPassword(request.token(), request.newPassword());
         return ResponseEntity.noContent().build();
     }
 }

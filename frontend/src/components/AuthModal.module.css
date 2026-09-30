@@ -14,9 +14,8 @@
   background: transparent;
   padding: 8px 12px;
   border-radius: var(--radius-pill);
-  font-family: var(--display);
   font-weight: 600;
-  font-size: 13.5px;
+  font-size: 15px;
   cursor: pointer;
   color: var(--ink-soft);
 }
@@ -27,9 +26,72 @@
   box-shadow: var(--shadow);
 }
 
-.switchHint {
-  text-align: center;
-  margin-top: 14px;
-  font-size: 13.5px;
+.authModal label {
+  text-transform: none;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: normal;
+  color: var(--ink);
+}
+
+.authModal input {
+  border-color: #cfc6b8;
+}
+
+.authModal input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.passwordLabelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgotLink {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  text-transform: none;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--accent);
+  cursor: pointer;
+}
+
+.forgotLink:hover {
+  color: var(--accent-hover);
+}
+
+.passwordField {
+  position: relative;
+}
+
+.passwordField input {
+  padding-right: 40px;
+  width: 100%;
+}
+
+.eyeToggle {
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  box-shadow: none;
   color: var(--ink-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.eyeToggle:hover {
+  background: var(--surface-alt);
 }

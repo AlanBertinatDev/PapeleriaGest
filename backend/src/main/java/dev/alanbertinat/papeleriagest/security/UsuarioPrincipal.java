@@ -14,9 +14,6 @@ public record UsuarioPrincipal(Usuario usuario) implements UserDetails {
         if (usuario.getNivel().isAdmin()) {
             return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
         }
-        if (usuario.getNivel().isDocente()) {
-            return List.of(new SimpleGrantedAuthority("ROLE_DOCENTE"));
-        }
         return List.of(new SimpleGrantedAuthority("ROLE_ESTANDAR"));
     }
 

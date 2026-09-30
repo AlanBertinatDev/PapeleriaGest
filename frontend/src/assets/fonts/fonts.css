@@ -1,39 +1,15 @@
 @font-face {
-  font-family: 'Inter';
+  font-family: 'Figtree';
   font-style: normal;
   font-weight: 400 700;
   font-display: swap;
-  src: url('./inter-variable.woff2') format('woff2');
+  src: url('./figtree-variable.woff2') format('woff2');
 }
 
 @font-face {
-  font-family: 'Poppins';
+  font-family: 'Fredoka';
   font-style: normal;
-  font-weight: 600;
+  font-weight: 500 700;
   font-display: swap;
-  src: url('./poppins-600.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Poppins';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('./poppins-700.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Fraunces';
-  font-style: normal;
-  font-weight: 600 700;
-  font-display: swap;
-  src: url('./fraunces-var.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Caveat';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('./caveat-600.woff2') format('woff2');
+  src: url('./fredoka-variable.woff2') format('woff2');
 }

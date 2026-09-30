@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="./image-slot.js"></script>
+<style>
+body{margin:0;background:#F7F4EF;color:#2A2622;font-family:'Figtree',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#2F6F66;text-decoration:none}a:hover{color:#1F4F48;text-decoration:underline;text-underline-offset:2px}
+*{box-sizing:border-box}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;flex-direction:column">
+
+  <header style="position:sticky;top:0;z-index:10;background:rgba(255,255,255,0.92);backdrop-filter:blur(8px);border-bottom:1px solid #ECE6DC">
+    <div style="max-width:1200px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+      <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:34px;letter-spacing:-0.01em;line-height:1;display:flex">
+        <span style="color:#EE8F95">c</span><span style="color:#EDB84A">r</span><span style="color:#6FB3A8">e</span><span style="color:#A996D2">a</span><span style="color:#8DB072">+</span>
+      </div>
+      <nav style="display:flex;gap:28px;font-weight:500;font-size:15px;flex:1;flex-wrap:wrap">
+        <a href="#visitanos" style="color:#2A2622">Contacto</a>
+      </nav>
+      <div style="display:flex;gap:10px;align-items:center">
+        <button onClick="{{ openLogin }}" style="font:inherit;font-weight:600;font-size:15px;padding:10px 16px;border-radius:999px;border:none;background:transparent;color:#2A2622;cursor:pointer" style-hover="background:#F1ECE4">Ingresar</button>
+        <button onClick="{{ openRegister }}" style="font:inherit;font-weight:600;font-size:15px;padding:10px 20px;border-radius:999px;border:none;background:#2F6F66;color:#fff;cursor:pointer" style-hover="background:#245A52">Registrarme</button>
+      </div>
+    </div>
+  </header>
+
+  <section style="max-width:1200px;width:100%;margin:0 auto;padding:56px 24px 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:48px;align-items:center">
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#6E5A2A;background:#FBEFD2;border-radius:999px;padding:6px 14px;width:fit-content">
+        <span style="width:6px;height:6px;border-radius:50%;background:#EDB84A"></span>
+        Papelería en Paysandú desde hace más de 34 años
+      </div>
+      <h1 style="margin:0;font-family:'Fredoka',sans-serif;font-weight:600;font-size:clamp(44px,6vw,72px);line-height:1.02;letter-spacing:-0.02em;text-wrap:balance">Todo para crear <span style="color:#2F6F66">y más.</span></h1>
+      <p style="margin:0;font-size:19px;line-height:1.55;color:#5A534B;max-width:34ch;text-wrap:pretty">Útiles escolares, de oficina y de regalo, e impresiones listas para retirar. Hacé tu pedido online y pasá a buscarlo.</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <a href="#" onClick="{{ openRegister }}" style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;padding:14px 24px;border-radius:999px;background:#2F6F66;color:#fff;text-decoration:none" style-hover="background:#245A52;color:#fff;text-decoration:none">Crear cuenta gratis <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></a>
+        <a href="#servicios" style="display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px;padding:13px 22px;border-radius:999px;border:1.5px solid #2A2622;color:#2A2622;text-decoration:none" style-hover="background:#2A2622;color:#fff;text-decoration:none">Enviar a imprimir</a>
+      </div>
+      <div style="display:flex;gap:20px;flex-wrap:wrap;font-size:14px;color:#5A534B;padding-top:4px">
+        <span style="display:flex;align-items:center;gap:6px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2F6F66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg>18 de Julio 684, frente al Liceo N°1</span>
+        <a href="#visitanos" style="display:flex;align-items:center;gap:6px;color:#2F6F66;font-weight:600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>Escribinos por WhatsApp</a>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="position:relative;aspect-ratio:5/4;width:100%">
+      <div style="position:absolute;inset:0;transform:rotate(2deg);border-radius:28px;background:{{ slideTint }};transition:background .6s"></div>
+      <div style="position:absolute;inset:0;opacity:{{ op0 }};pointer-events:{{ pe0 }};transition:opacity .6s ease">
+        <image-slot id="hero-local" shape="rounded" radius="28" placeholder="Foto 1 — el local"></image-slot>
+      </div>
+      <div style="position:absolute;inset:0;opacity:{{ op1 }};pointer-events:{{ pe1 }};transition:opacity .6s ease">
+        <image-slot id="hero-2" shape="rounded" radius="28" placeholder="Foto 2 — útiles / temporada escolar"></image-slot>
+      </div>
+      <div style="position:absolute;inset:0;opacity:{{ op2 }};pointer-events:{{ pe2 }};transition:opacity .6s ease">
+        <image-slot id="hero-3" shape="rounded" radius="28" placeholder="Foto 3 — imprenta / trabajos"></image-slot>
+      </div>
+      <div style="position:absolute;left:-16px;bottom:24px;background:#fff;border-radius:18px;padding:14px 18px;box-shadow:0 8px 24px rgba(42,38,34,0.10);display:flex;align-items:center;gap:12px">
+        <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:36px;line-height:1;color:#8DB072">34</div>
+        <div style="font-size:13px;line-height:1.3;font-weight:600">años en<br>Paysandú</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:12px">
+      <div style="display:flex;gap:6px">
+        <sc-for list="{{ dots }}" as="d" hint-placeholder-count="3">
+          <button onClick="{{ d.go }}" aria-label="{{ d.label }}" style="{{ d.style }}"></button>
+        </sc-for>
+      </div>
+      <button onClick="{{ prev }}" aria-label="Anterior" style="width:40px;height:40px;border-radius:50%;border:1.5px solid #CFC6B8;background:#fff;cursor:pointer;display:grid;place-items:center;color:#2A2622" style-hover="border-color:#2A2622"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"></path></svg></button>
+      <button onClick="{{ next }}" aria-label="Siguiente" style="width:40px;height:40px;border-radius:50%;border:1.5px solid #CFC6B8;background:#fff;cursor:pointer;display:grid;place-items:center;color:#2A2622" style-hover="border-color:#2A2622"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"></path></svg></button>
+    </div>
+    </div>
+  </section>
+
+  <section id="servicios" style="max-width:1200px;width:100%;margin:0 auto;padding:40px 24px 72px">
+    <h2 style="margin:0 0 24px;font-family:'Fredoka',sans-serif;font-weight:600;font-size:32px;letter-spacing:-0.01em">¿Qué necesitás hoy?</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px">
+      <a href="#" style="display:flex;flex-direction:column;gap:14px;padding:28px;border-radius:22px;background:#FCE8E9;color:#2A2622;text-decoration:none;transition:transform .15s" style-hover="transform:translateY(-3px);color:#2A2622;text-decoration:none">
+        <div style="width:52px;height:52px;border-radius:14px;background:#fff;display:grid;place-items:center;color:#C4545C"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"></path></svg></div>
+        <h3 style="margin:8px 0 0;font-family:'Fredoka',sans-serif;font-weight:600;font-size:24px">Papelería y librería</h3>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:#4A443D">Útiles escolares, de oficina y de regalo, con stock renovado todo el año.</p>
+        <span style="margin-top:auto;padding-top:8px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;color:#A2383F">Ingresá para ver el catálogo <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span>
+      </a>
+      <a href="#" style="display:flex;flex-direction:column;gap:14px;padding:28px;border-radius:22px;background:#FBEFD2;color:#2A2622;text-decoration:none;transition:transform .15s" style-hover="transform:translateY(-3px);color:#2A2622;text-decoration:none">
+        <div style="width:52px;height:52px;border-radius:14px;background:#fff;display:grid;place-items:center;color:#A77A12"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><path d="M6 14h12v8H6z"></path></svg></div>
+        <h3 style="margin:8px 0 0;font-family:'Fredoka',sans-serif;font-weight:600;font-size:24px">Imprenta</h3>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:#4A443D">Impresiones en blanco y negro o color, simples o a doble faz, listas para retirar.</p>
+        <span style="margin-top:auto;padding-top:8px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;color:#7D5A08">Enviar archivo <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span>
+      </a>
+      <a href="#" style="display:flex;flex-direction:column;gap:14px;padding:28px;border-radius:22px;background:#EEE9F7;color:#2A2622;text-decoration:none;transition:transform .15s" style-hover="transform:translateY(-3px);color:#2A2622;text-decoration:none">
+        <div style="width:52px;height:52px;border-radius:14px;background:#fff;display:grid;place-items:center;color:#6B55A8"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg></div>
+        <h3 style="margin:8px 0 0;font-family:'Fredoka',sans-serif;font-weight:600;font-size:24px">Pedidos online</h3>
+        <p style="margin:0;font-size:16px;line-height:1.5;color:#4A443D">Creá tu cuenta para armar pedidos, hacer seguimiento y recibir tus ofertas favoritas.</p>
+        <span style="margin-top:auto;padding-top:8px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:15px;color:#553F92">Crear cuenta <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></span>
+      </a>
+    </div>
+  </section>
+
+  <section id="visitanos" style="max-width:1200px;width:100%;margin:0 auto;padding:72px 24px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,380px),1fr));gap:20px;border-radius:28px;background:#E4F1EE;padding:20px">
+      <div style="padding:28px;display:flex;flex-direction:column;gap:24px">
+        <h2 style="margin:0;font-family:'Fredoka',sans-serif;font-weight:600;font-size:36px;letter-spacing:-0.01em">Visitanos</h2>
+        <div style="display:flex;flex-direction:column;gap:18px;font-size:16px">
+          <div style="display:flex;gap:12px"><svg style="flex:none;margin-top:2px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2F6F66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path><circle cx="12" cy="10" r="3"></circle></svg><div><div style="font-weight:600">18 de Julio 684</div><div style="color:#4A443D">Frente al Liceo N°1, Paysandú</div></div></div>
+          <div style="display:flex;gap:12px"><svg style="flex:none;margin-top:2px" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2F6F66" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg><div><div style="font-weight:600">Horarios</div><div style="color:#4A443D">[Completar horario de atención]</div></div></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <a href="#" style="display:flex;align-items:center;gap:8px;font-weight:600;padding:12px 18px;border-radius:999px;background:#2F6F66;color:#fff;text-decoration:none" style-hover="background:#245A52;color:#fff;text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>098 254 185</a>
+          <a href="#" style="display:flex;align-items:center;gap:8px;font-weight:600;padding:11px 18px;border-radius:999px;border:1.5px solid #2F6F66;color:#2F6F66;text-decoration:none" style-hover="background:#fff;text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>098 846 144</a>
+          <a href="#" style="display:flex;align-items:center;gap:8px;font-weight:600;padding:11px 18px;border-radius:999px;border:1.5px solid #2F6F66;color:#2F6F66;text-decoration:none" style-hover="background:#fff;text-decoration:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="0.5"></circle></svg>@bertinatpapeleria</a>
+        </div>
+      </div>
+      <div style="min-height:300px;position:relative"><div style="position:absolute;inset:0"><image-slot id="mapa" shape="rounded" radius="20" placeholder="Mapa de Google (embed)"></image-slot></div></div>
+    </div>
+  </section>
+
+  <footer style="margin-top:auto;background:#2A2622;color:#D9D2C7">
+    <div style="max-width:1200px;margin:0 auto;padding:48px 24px 28px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font-family:'Fredoka',sans-serif;font-weight:700;font-size:28px;line-height:1;display:flex"><span style="color:#EE8F95">c</span><span style="color:#EDB84A">r</span><span style="color:#6FB3A8">e</span><span style="color:#A996D2">a</span><span style="color:#8DB072">+</span></div>
+        <div style="font-size:14px">Bertinat Papelería</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
+        <div style="font-weight:700;color:#fff;margin-bottom:4px">Tienda</div>
+        <a href="#servicios" style="color:#D9D2C7">Servicios</a><a href="#visitanos" style="color:#D9D2C7">Contacto</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
+        <div style="font-weight:700;color:#fff;margin-bottom:4px">Contacto</div>
+        <a href="#" style="color:#D9D2C7">098 254 185</a><a href="#" style="color:#D9D2C7">098 846 144</a><a href="#" style="color:#D9D2C7">@bertinatpapeleria</a>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:14px">
+        <div style="font-weight:700;color:#fff;margin-bottom:4px">Dirección</div>
+        <span>18 de Julio 684</span><span>Frente al Liceo N°1</span>
+      </div>
+    </div>
+    <div style="max-width:1200px;margin:0 auto;padding:18px 24px 28px;border-top:1px solid #443E37;font-size:13px;color:#A69E92">© 2026 crea+ · Bertinat Papelería. Todos los derechos reservados.</div>
+  </footer>
+
+  <sc-if value="{{ modalOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ closeLogin }}" style="position:fixed;inset:0;z-index:50;background:rgba(42,38,34,0.45);display:grid;place-items:center;padding:20px">
+      <div onClick="{{ stop }}" style="width:100%;max-width:420px;background:#fff;border-radius:24px;padding:28px;display:flex;flex-direction:column;gap:20px;box-shadow:0 24px 60px rgba(42,38,34,0.25)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-family:'Fredoka',sans-serif;font-weight:600;font-size:24px">{{ modalTitle }}</div>
+          <button onClick="{{ closeLogin }}" aria-label="Cerrar" style="width:36px;height:36px;border-radius:50%;border:none;background:#F1ECE4;display:grid;place-items:center;cursor:pointer;color:#2A2622"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;padding:4px;background:#F1ECE4;border-radius:999px">
+          <button onClick="{{ tabLogin }}" style="{{ tabLoginStyle }}">Ingresar</button>
+          <button onClick="{{ tabRegister }}" style="{{ tabRegisterStyle }}">Registrarme</button>
+        </div>
+        <sc-if value="{{ isRegister }}" hint-placeholder-val="{{ false }}">
+          <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Nombre
+            <input placeholder="Tu nombre" style="font:inherit;font-weight:400;font-size:16px;padding:12px 14px;border-radius:12px;border:1.5px solid #CFC6B8;outline:none" style-focus="border-color:#2F6F66;box-shadow:0 0 0 3px rgba(47,111,102,0.18)"></input>
+          </label>
+        </sc-if>
+        <label style="display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:600">Email
+          <input type="email" placeholder="nombre@correo.com" style="font:inherit;font-weight:400;font-size:16px;padding:12px 14px;border-radius:12px;border:1.5px solid #CFC6B8;outline:none" style-focus="border-color:#2F6F66;box-shadow:0 0 0 3px rgba(47,111,102,0.18)"></input>
+        </label>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:600"><span>Contraseña</span><sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}"><a href="#" style="font-weight:600">¿La olvidaste?</a></sc-if></div>
+          <div style="position:relative">
+            <input type="{{ pwdType }}" placeholder="••••••••" style="width:100%;font:inherit;font-size:16px;padding:12px 48px 12px 14px;border-radius:12px;border:1.5px solid #CFC6B8;outline:none" style-focus="border-color:#2F6F66;box-shadow:0 0 0 3px rgba(47,111,102,0.18)"></input>
+            <button onClick="{{ togglePwd }}" aria-label="Mostrar contraseña" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:none;background:transparent;cursor:pointer;color:#5A534B;display:grid;place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          </div>
+        </div>
+        <button style="font:inherit;font-weight:700;font-size:16px;padding:14px;border-radius:999px;border:none;background:#2F6F66;color:#fff;cursor:pointer" style-hover="background:#245A52">{{ submitLabel }}</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showLogin&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;autoplay&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { open: null, tab: 'login', showPwd: false, slide: 0 };
+  componentDidMount() { this.startTimer(); }
+  componentWillUnmount() { clearInterval(this.t); }
+  startTimer() {
+    clearInterval(this.t);
+    if (this.props.autoplay === false) return;
+    this.t = setInterval(() => this.setState(s => ({ slide: (s.slide + 1) % 3 })), 5000);
+  }
+  go(i) { this.setState({ slide: (i + 3) % 3 }); this.startTimer(); }
+  renderVals() {
+    const sl = this.state.slide;
+    const tints = ['#F6D9DA', '#FBEFD2', '#EEE9F7'];
+    const slides = {};
+    [0, 1, 2].forEach(i => { slides['op' + i] = sl === i ? 1 : 0; slides['pe' + i] = sl === i ? 'auto' : 'none'; });
+    const dots = [0, 1, 2].map(i => ({
+      go: () => this.go(i), label: 'Foto ' + (i + 1),
+      style: { width: sl === i ? 24 : 8, height: 8, borderRadius: 999, border: 'none', padding: 0, cursor: 'pointer', background: sl === i ? '#2A2622' : '#CFC6B8', transition: 'width .2s, background .2s' },
+    }));
+    const open = this.state.open ?? (this.props.showLogin ?? false);
+    const reg = this.state.tab === 'register';
+    const base = { font: 'inherit', fontWeight: 600, fontSize: 15, padding: '10px', borderRadius: 999, border: 'none', cursor: 'pointer' };
+    const on = { ...base, background: '#fff', color: '#2A2622', boxShadow: '0 1px 3px rgba(42,38,34,0.12)' };
+    const off = { ...base, background: 'transparent', color: '#5A534B' };
+    return {
+      ...slides, dots, slideTint: tints[sl],
+      prev: () => this.go(sl - 1), next: () => this.go(sl + 1),
+      modalOpen: open,
+      isRegister: reg, isLogin: !reg,
+      modalTitle: reg ? 'Creá tu cuenta' : 'Hola de nuevo',
+      submitLabel: reg ? 'Crear cuenta' : 'Ingresar',
+      tabLoginStyle: reg ? off : on, tabRegisterStyle: reg ? on : off,
+      pwdType: this.state.showPwd ? 'text' : 'password',
+      openLogin: () => this.setState({ open: true, tab: 'login' }),
+      openRegister: e => { e && e.preventDefault && e.preventDefault(); this.setState({ open: true, tab: 'register' }); },
+      closeLogin: () => this.setState({ open: false }),
+      stop: e => e.stopPropagation(),
+      tabLogin: () => this.setState({ tab: 'login' }),
+      tabRegister: () => this.setState({ tab: 'register' }),
+      togglePwd: () => this.setState(s => ({ showPwd: !s.showPwd })),
+    };
+  }
+}
+</script>
+</body>
+</html>

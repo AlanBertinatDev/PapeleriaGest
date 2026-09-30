@@ -1,6 +1,7 @@
 package dev.alanbertinat.papeleriagest.web.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 public record DocumentoRequest(
@@ -11,15 +12,9 @@ public record DocumentoRequest(
         String descripcion,
         boolean esEnvio,
         String direccion,
-        String materia,
-        String codigo,
         @Positive int cantidadCopias,
-        boolean esPractico,
-        int nroPractico,
         boolean esImagen,
-        boolean esPropio,
-        Long pedidoId,
-        Long cursoId,
+        @NotNull Long pedidoId,
         String tamanio,
         String tipoPapel,
         String modoColor,

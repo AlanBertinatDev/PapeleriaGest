@@ -41,7 +41,7 @@ export function AdminDashboardPage() {
               <div className="stat-value">{dashboard.pedidosPendientes}</div>
               <div className="stat-label">Pedidos pendientes</div>
             </Link>
-            <Link to="/admin/documentos" className="stat-card warn" style={{ textDecoration: 'none' }}>
+            <Link to="/admin/pedidos" className="stat-card warn" style={{ textDecoration: 'none' }}>
               <div className="stat-value">{dashboard.documentosPendientes}</div>
               <div className="stat-label">Documentos por imprimir</div>
             </Link>

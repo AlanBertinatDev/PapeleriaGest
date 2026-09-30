@@ -13,7 +13,6 @@ import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.RelationTargetAuditMode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -60,15 +59,7 @@ public class Documento {
 
     private String direccion;
 
-    private String materia;
-
-    private String codigo;
-
     private int cantidadCopias;
-
-    private boolean esPractico;
-
-    private int nroPractico;
 
     private LocalDate fechaIngreso;
 
@@ -83,9 +74,6 @@ public class Documento {
     @Enumerated(EnumType.STRING)
     private EstadoDocumento estado;
 
-    @Enumerated(EnumType.STRING)
-    private OrigenDocumento origen;
-
     private BigDecimal precio;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -93,11 +81,6 @@ public class Documento {
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "pedido_id")
+    @JoinColumn(name = "pedido_id", nullable = false)
     private Pedido pedido;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "curso_id")
-    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-    private Curso curso;
 }

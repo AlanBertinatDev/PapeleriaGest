@@ -86,7 +86,7 @@
 .valuePill.currency {
   background: var(--info-bg);
   color: var(--info);
-  font-family: 'Poppins', sans-serif;
+  font-family: 'Fredoka', sans-serif;
   font-weight: 700;
 }
 
@@ -180,12 +180,12 @@
 }
 
 .currencyPrefix {
-  font: 700 15px 'Poppins', sans-serif;
+  font: 700 15px 'Fredoka', sans-serif;
   color: var(--accent);
 }
 
 .currencyBox input {
-  font: 700 16px 'Poppins', sans-serif;
+  font: 700 16px 'Fredoka', sans-serif;
   color: var(--ink);
 }
 

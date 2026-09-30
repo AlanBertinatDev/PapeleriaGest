@@ -16,23 +16,16 @@ export interface DocumentoResponse {
   descripcion: string | null
   esEnvio: boolean
   direccion: string | null
-  materia: string | null
-  codigo: string | null
   cantidadCopias: number
-  esPractico: boolean
-  nroPractico: number
   fechaIngreso: string
   activo: boolean
   nombreArchivoOriginal: string | null
   esImagen: boolean
   estado: 'PENDIENTE' | 'IMPRESO' | 'ENTREGADO'
-  origen: 'CLIENTE' | 'PROPIO' | 'DOCENTE'
   precio: string
   usuarioId: number
   usuarioNombre: string
   pedidoId: number | null
-  cursoId: number | null
-  cursoNombre: string | null
   tamanio: string | null
   tipoPapel: string | null
   modoColor: string | null
@@ -49,15 +42,9 @@ export interface DocumentoFormData {
   descripcion?: string | null
   esEnvio: boolean
   direccion?: string | null
-  materia?: string | null
-  codigo?: string | null
   cantidadCopias: number
-  esPractico: boolean
-  nroPractico: number
   esImagen: boolean
-  esPropio?: boolean
-  pedidoId?: number | null
-  cursoId?: number | null
+  pedidoId: number
   archivo: File
   tamanio?: string
   tipoPapel?: string
@@ -76,15 +63,9 @@ function construirFormData(data: DocumentoFormData): FormData {
   if (data.descripcion) formData.append('descripcion', data.descripcion)
   formData.append('esEnvio', String(data.esEnvio))
   if (data.direccion) formData.append('direccion', data.direccion)
-  if (data.materia) formData.append('materia', data.materia)
-  if (data.codigo) formData.append('codigo', data.codigo)
   formData.append('cantidadCopias', String(data.cantidadCopias))
-  formData.append('esPractico', String(data.esPractico))
-  formData.append('nroPractico', String(data.nroPractico))
   formData.append('esImagen', String(data.esImagen))
-  formData.append('esPropio', String(data.esPropio ?? false))
-  if (data.pedidoId != null) formData.append('pedidoId', String(data.pedidoId))
-  if (data.cursoId != null) formData.append('cursoId', String(data.cursoId))
+  formData.append('pedidoId', String(data.pedidoId))
   if (data.tamanio) formData.append('tamanio', data.tamanio)
   if (data.tipoPapel) formData.append('tipoPapel', data.tipoPapel)
   if (data.modoColor) formData.append('modoColor', data.modoColor)
@@ -93,20 +74,6 @@ function construirFormData(data: DocumentoFormData): FormData {
   if (data.terminacion) formData.append('terminacion', data.terminacion)
   formData.append('archivo', data.archivo)
   return formData
-}
-
-export interface SolicitarImpresionRequest {
-  documentoOrigenId: number
-  pedidoId: number
-  cantidadCopias: number
-  esDobleFaz: boolean
-  aColor: boolean
-  tamanio?: string
-  tipoPapel?: string
-  modoColor?: string
-  paginasPorCara?: string
-  orientacion?: string
-  terminacion?: string
 }
 
 export interface CotizarImpresionRequest {
@@ -119,15 +86,9 @@ export interface CotizarImpresionRequest {
 
 export const documentosApi = {
   crear: (data: DocumentoFormData) => api.postForm<DocumentoResponse>('/documentos', construirFormData(data)),
-  solicitarImpresion: (data: SolicitarImpresionRequest) =>
-    api.post<DocumentoResponse>('/documentos/solicitar-impresion', data),
   cotizar: (data: CotizarImpresionRequest) =>
     api.post<{ precio: string }>('/documentos/cotizar', data),
-  misDocumentos: () => api.get<DocumentoResponse[]>('/documentos/mios'),
-  listarTodos: () => api.get<DocumentoResponse[]>('/documentos'),
-  listarPorCurso: (cursoId: number) => api.get<DocumentoResponse[]>(`/documentos/por-curso/${cursoId}`),
   cambiarEstado: (id: number, estado: string) => api.put<DocumentoResponse>(`/documentos/${id}/estado`, { estado }),
-  eliminar: (id: number) => api.delete<void>(`/documentos/${id}`),
   descargar: (doc: DocumentoResponse) =>
     descargarArchivo(`/documentos/${doc.id}/archivo`, doc.nombreArchivoOriginal ?? doc.nombre),
 }

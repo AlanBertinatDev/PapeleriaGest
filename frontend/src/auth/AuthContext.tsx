@@ -6,7 +6,6 @@ interface AuthContextValue {
   usuario: UsuarioResponse | null
   loading: boolean
   isAdmin: boolean
-  isDocente: boolean
   login: (data: LoginRequest) => Promise<void>
   register: (data: RegisterRequest) => Promise<void>
   logout: () => void
@@ -53,11 +52,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const isAdmin = usuario?.nivel === 'Administrador'
-  const isDocente = usuario?.nivel === 'Docente'
 
   return (
     <AuthContext.Provider
-      value={{ usuario, loading, isAdmin, isDocente, login, register, logout, actualizarUsuario }}
+      value={{ usuario, loading, isAdmin, login, register, logout, actualizarUsuario }}
     >
       {children}
     </AuthContext.Provider>

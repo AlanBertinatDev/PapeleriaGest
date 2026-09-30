@@ -5,7 +5,7 @@ import { NotificationCenter } from './NotificationCenter'
 import { AuthModal, type AuthTab } from './AuthModal'
 import { MiCuentaModal } from './MiCuentaModal'
 import { Footer } from './Footer'
-import logo from '../assets/logo.jpeg'
+import logo from '../assets/logo.svg'
 import styles from './Layout.module.css'
 import { iniciales } from '../lib/iniciales'
 
@@ -18,7 +18,7 @@ function SidebarLink({ to, children }: { to: string; children: ReactNode }) {
 }
 
 export function Layout({ children }: { children: ReactNode }) {
-  const { usuario, isAdmin, isDocente, logout, loading } = useAuth()
+  const { usuario, isAdmin, logout, loading } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [authTab, setAuthTab] = useState<AuthTab | null>(null)
@@ -60,12 +60,11 @@ export function Layout({ children }: { children: ReactNode }) {
       <div className="app-shell" style={{ flexDirection: 'column' }}>
         <header className="guest-header">
           <Link to="/" className="sidebar-brand">
-            <img src={logo} alt="crea+ · Bertinat Papelería" />
-            <span>
-              crea+
-              <small>Bertinat Papelería</small>
-            </span>
+            <img src={logo} alt="crea+" />
           </Link>
+          <nav className="guest-header-nav">
+            <a href="/#visitanos">Contacto</a>
+          </nav>
           <div className="guest-header-actions">
             <button className="guest-header-login" onClick={() => setAuthTab('login')}>
               Ingresar
@@ -105,8 +104,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <span />
         </button>
         <Link to={isAdmin ? '/admin/dashboard' : '/'} className={styles.topbarBrand}>
-          <img src={logo} alt="crea+ · Bertinat Papelería" className={styles.brandLogo} />
-          <span className={styles.brandText}>crea+</span>
+          <img src={logo} alt="crea+" className={styles.brandLogo} />
         </Link>
         <div className={styles.topbarAvatar}>{iniciales(usuario.nombre)}</div>
       </div>
@@ -115,11 +113,7 @@ export function Layout({ children }: { children: ReactNode }) {
 
       <aside className={menuAbierto ? `${styles.sidebar} ${styles.sidebarOpen}` : styles.sidebar}>
         <Link to={isAdmin ? '/admin/dashboard' : '/'} className={styles.brand}>
-          <img src={logo} alt="crea+ · Bertinat Papelería" className={styles.brandLogo} />
-          <span className={styles.brandText}>
-            crea+
-            <span className={styles.brandSub}>Bertinat Papelería</span>
-          </span>
+          <img src={logo} alt="crea+" className={styles.brandLogo} />
         </Link>
 
         <nav className={styles.nav} onClick={() => setMenuAbierto(false)}>
@@ -132,8 +126,6 @@ export function Layout({ children }: { children: ReactNode }) {
                 <SidebarLink to="/admin/pedidos">Pedidos</SidebarLink>
                 <SidebarLink to="/admin/ofertas">Ofertas</SidebarLink>
                 <SidebarLink to="/admin/fotos-home">Fotos del home</SidebarLink>
-                <SidebarLink to="/admin/documentos">Documentos</SidebarLink>
-                <SidebarLink to="/admin/cursos">Cursos</SidebarLink>
                 <SidebarLink to="/admin/usuarios">Usuarios</SidebarLink>
                 <SidebarLink to="/admin/reportes">Reportes</SidebarLink>
                 <SidebarLink to="/admin/configuracion">Configuración</SidebarLink>
@@ -154,21 +146,6 @@ export function Layout({ children }: { children: ReactNode }) {
                 </div>
               </div>
 
-              <div>
-                <div className={styles.sectionTitle}>Imprimir</div>
-                <div className={styles.links}>
-                  <SidebarLink to="/mis-documentos">Mis documentos</SidebarLink>
-                </div>
-              </div>
-
-              {isDocente && (
-                <div>
-                  <div className={styles.sectionTitle}>Docencia</div>
-                  <div className={styles.links}>
-                    <SidebarLink to="/docente/materiales">Cargar material</SidebarLink>
-                  </div>
-                </div>
-              )}
             </>
           )}
         </nav>

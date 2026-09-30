@@ -3,36 +3,26 @@ package dev.alanbertinat.papeleriagest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.alanbertinat.papeleriagest.domain.CategoriaProducto;
-import dev.alanbertinat.papeleriagest.domain.Curso;
 import dev.alanbertinat.papeleriagest.domain.EstadoDocumento;
-import dev.alanbertinat.papeleriagest.domain.Nivel;
 import dev.alanbertinat.papeleriagest.domain.Producto;
-import dev.alanbertinat.papeleriagest.domain.Usuario;
 import dev.alanbertinat.papeleriagest.repository.CategoriaProductoRepository;
-import dev.alanbertinat.papeleriagest.repository.CursoRepository;
 import dev.alanbertinat.papeleriagest.repository.NivelRepository;
 import dev.alanbertinat.papeleriagest.repository.ProductoRepository;
 import dev.alanbertinat.papeleriagest.repository.UsuarioRepository;
-import dev.alanbertinat.papeleriagest.web.dto.AsignarDocenteRequest;
-import dev.alanbertinat.papeleriagest.web.dto.AsignarEstudianteRequest;
 import dev.alanbertinat.papeleriagest.web.dto.AuthResponse;
 import dev.alanbertinat.papeleriagest.web.dto.CambiarEstadoDocumentoRequest;
-import dev.alanbertinat.papeleriagest.web.dto.CambiarNivelRequest;
 import dev.alanbertinat.papeleriagest.web.dto.ConfiguracionRequest;
 import dev.alanbertinat.papeleriagest.web.dto.ConfiguracionResponse;
 import dev.alanbertinat.papeleriagest.web.dto.CrearPedidoRequest;
-import dev.alanbertinat.papeleriagest.web.dto.CursoResponse;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoResponse;
 import dev.alanbertinat.papeleriagest.web.dto.LoginRequest;
 import dev.alanbertinat.papeleriagest.web.dto.NotificacionResponse;
-import dev.alanbertinat.papeleriagest.web.dto.PedidoItemRequest;
 import dev.alanbertinat.papeleriagest.web.dto.PedidoResponse;
 import dev.alanbertinat.papeleriagest.web.dto.RegisterRequest;
-import dev.alanbertinat.papeleriagest.web.dto.SolicitarImpresionRequest;
-import dev.alanbertinat.papeleriagest.web.dto.UsuarioResponse;
+import dev.alanbertinat.papeleriagest.domain.Usuario;
+import java.util.List;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -60,9 +50,6 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
 
     @Autowired
     private NivelRepository nivelRepository;
-
-    @Autowired
-    private CursoRepository cursoRepository;
 
     @Autowired
     private CategoriaProductoRepository categoriaProductoRepository;
@@ -113,7 +100,13 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
 
     @Test
     void ownerUploadsDocumentAdminManagesItAndNotificationIsRecorded() {
-        DocumentoResponse created = subirDocumento(ownerToken, "Apunte matemática", null).getBody();
+        CrearPedidoRequest crearPedido = new CrearPedidoRequest(null, null, false, null, "Pedido con impresión", List.of());
+        ResponseEntity<PedidoResponse> pedido = restTemplate.exchange(
+                "/api/pedidos", HttpMethod.POST,
+                new HttpEntity<>(crearPedido, authHeaders(ownerToken)), PedidoResponse.class);
+        Long pedidoId = pedido.getBody().id();
+
+        DocumentoResponse created = subirDocumento(ownerToken, "Apunte matemática", pedidoId).getBody();
         Long documentoId = created.id();
         assertThat(created.estado()).isEqualTo("PENDIENTE");
         assertThat(created.nombreArchivoOriginal()).isEqualTo("apunte.pdf");
@@ -133,21 +126,6 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
                 "/api/documentos/" + documentoId + "/archivo", HttpMethod.GET,
                 new HttpEntity<>(authHeaders(otherToken)), String.class);
         assertThat(descargaAjena.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        ResponseEntity<DocumentoResponse[]> propios = restTemplate.exchange(
-                "/api/documentos/mios", HttpMethod.GET,
-                new HttpEntity<>(authHeaders(ownerToken)), DocumentoResponse[].class);
-        assertThat(propios.getBody()).extracting(DocumentoResponse::id).contains(documentoId);
-
-        ResponseEntity<String> listarTodosForbidden = restTemplate.exchange(
-                "/api/documentos", HttpMethod.GET,
-                new HttpEntity<>(authHeaders(ownerToken)), String.class);
-        assertThat(listarTodosForbidden.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        ResponseEntity<DocumentoResponse[]> todos = restTemplate.exchange(
-                "/api/documentos", HttpMethod.GET,
-                new HttpEntity<>(authHeaders(adminToken)), DocumentoResponse[].class);
-        assertThat(todos.getBody()).extracting(DocumentoResponse::id).contains(documentoId);
 
         ResponseEntity<DocumentoResponse> impreso = restTemplate.exchange(
                 "/api/documentos/" + documentoId + "/estado", HttpMethod.PUT,
@@ -185,102 +163,6 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
         assertThat(noLeidasDespues.getBody())
                 .extracting(NotificacionResponse::id)
                 .doesNotContain(notificacionDelDocumento.id());
-
-        ResponseEntity<Void> deleteForbidden = restTemplate.exchange(
-                "/api/documentos/" + documentoId, HttpMethod.DELETE,
-                new HttpEntity<>(authHeaders(otherToken)), Void.class);
-        assertThat(deleteForbidden.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        ResponseEntity<Void> deleted = restTemplate.exchange(
-                "/api/documentos/" + documentoId, HttpMethod.DELETE,
-                new HttpEntity<>(authHeaders(ownerToken)), Void.class);
-        assertThat(deleted.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
-
-    @Test
-    void materialDeCursoRequiereDocenteAsignadoYSoloElDuenoODescargaElArchivo() {
-        Curso curso = cursoRepository.save(Curso.builder().grado("5").grupo("B").build());
-
-        String docenteToken = register("Docente Material", "docente-material@example.com", "docente-material-cedula", "docentepass123");
-        Long docenteId = obtenerUsuarioId(docenteToken);
-        Long nivelDocenteId = nivelRepository.findAll().stream()
-                .filter(Nivel::isDocente).findFirst().orElseThrow().getId();
-        restTemplate.exchange(
-                "/api/usuarios/" + docenteId + "/nivel", HttpMethod.PUT,
-                new HttpEntity<>(new CambiarNivelRequest(nivelDocenteId), authHeaders(adminToken)),
-                UsuarioResponse.class);
-
-        String estudianteToken = register("Estudiante Material", "estudiante-material@example.com", "estudiante-material-cedula", "estupass123");
-        Long estudianteId = obtenerUsuarioId(estudianteToken);
-        restTemplate.exchange(
-                "/api/cursos/" + curso.getId() + "/estudiantes", HttpMethod.POST,
-                new HttpEntity<>(new AsignarEstudianteRequest(estudianteId), authHeaders(adminToken)),
-                Object.class);
-
-        // Un usuario Estándar (no docente) no puede cargar material de curso.
-        ResponseEntity<String> noDocenteRechazado = subirDocumentoEsperandoError(
-                ownerToken, "Guía sin permiso", curso.getId(), "Matemática");
-        assertThat(noDocenteRechazado.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        // El docente aún no tiene esa materia asignada en este curso.
-        ResponseEntity<String> materiaNoAsignada = subirDocumentoEsperandoError(
-                docenteToken, "Guía materia ajena", curso.getId(), "Matemática");
-        assertThat(materiaNoAsignada.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        restTemplate.exchange(
-                "/api/cursos/" + curso.getId() + "/docentes", HttpMethod.POST,
-                new HttpEntity<>(new AsignarDocenteRequest(docenteId, "Matemática"), authHeaders(adminToken)),
-                Object.class);
-
-        DocumentoResponse creado = subirDocumento(docenteToken, "Guía de curso", curso.getId(), "Matemática").getBody();
-        assertThat(creado.origen()).isEqualTo("DOCENTE");
-        assertThat(creado.codigo()).isEqualTo("M1");
-
-        // Ni el usuario ajeno ni el alumno inscripto pueden descargar el archivo original directamente.
-        ResponseEntity<String> descargaAjena = restTemplate.exchange(
-                "/api/documentos/" + creado.id() + "/archivo", HttpMethod.GET,
-                new HttpEntity<>(authHeaders(otherToken)), String.class);
-        assertThat(descargaAjena.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        ResponseEntity<String> descargaAlumno = restTemplate.exchange(
-                "/api/documentos/" + creado.id() + "/archivo", HttpMethod.GET,
-                new HttpEntity<>(authHeaders(estudianteToken)), String.class);
-        assertThat(descargaAlumno.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        ResponseEntity<byte[]> descargaDocente = restTemplate.exchange(
-                "/api/documentos/" + creado.id() + "/archivo", HttpMethod.GET,
-                new HttpEntity<>(authHeaders(docenteToken)), byte[].class);
-        assertThat(descargaDocente.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-        // Listar materiales del curso: solo inscriptos/docente asignado/admin.
-        ResponseEntity<String> listadoAjenoRechazado = restTemplate.exchange(
-                "/api/documentos/por-curso/" + curso.getId(), HttpMethod.GET,
-                new HttpEntity<>(authHeaders(otherToken)), String.class);
-        assertThat(listadoAjenoRechazado.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        ResponseEntity<DocumentoResponse[]> listadoAlumno = restTemplate.exchange(
-                "/api/documentos/por-curso/" + curso.getId(), HttpMethod.GET,
-                new HttpEntity<>(authHeaders(estudianteToken)), DocumentoResponse[].class);
-        assertThat(listadoAlumno.getBody()).extracting(DocumentoResponse::id).contains(creado.id());
-
-        // Solicitar impresión: el alumno inscripto puede pedirlo; un usuario ajeno no.
-        PedidoResponse pedidoAjeno = crearPedido(otherToken);
-        ResponseEntity<String> solicitudAjenaRechazada = restTemplate.exchange(
-                "/api/documentos/solicitar-impresion", HttpMethod.POST,
-                new HttpEntity<>(
-                        new SolicitarImpresionRequest(creado.id(), pedidoAjeno.id(), 1, false, false, null, null, null, null, null, null),
-                        authHeaders(otherToken)),
-                String.class);
-        assertThat(solicitudAjenaRechazada.getStatusCode()).isEqualTo(HttpStatus.FORBIDDEN);
-
-        PedidoResponse pedidoAlumno = crearPedido(estudianteToken);
-        ResponseEntity<DocumentoResponse> solicitudAlumno = restTemplate.exchange(
-                "/api/documentos/solicitar-impresion", HttpMethod.POST,
-                new HttpEntity<>(
-                        new SolicitarImpresionRequest(creado.id(), pedidoAlumno.id(), 1, false, false, null, null, null, null, null, null),
-                        authHeaders(estudianteToken)),
-                DocumentoResponse.class);
-        assertThat(solicitudAlumno.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
     @Test
@@ -338,42 +220,22 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
     private static final byte[] CONTENIDO_PDF_PRUEBA =
             "%PDF-1.4 contenido de prueba".getBytes(StandardCharsets.UTF_8);
 
-    private ResponseEntity<DocumentoResponse> subirDocumento(String token, String nombre, Long cursoId) {
+    private ResponseEntity<DocumentoResponse> subirDocumento(String token, String nombre, Long pedidoId) {
         return restTemplate.exchange(
-                "/api/documentos", HttpMethod.POST, new HttpEntity<>(construirPartes(nombre, cursoId, null), multipartHeaders(token)),
+                "/api/documentos", HttpMethod.POST,
+                new HttpEntity<>(construirPartes(nombre, pedidoId), multipartHeaders(token)),
                 DocumentoResponse.class);
     }
 
-    private ResponseEntity<DocumentoResponse> subirDocumento(String token, String nombre, Long cursoId, String materia) {
-        return restTemplate.exchange(
-                "/api/documentos", HttpMethod.POST,
-                new HttpEntity<>(construirPartes(nombre, cursoId, materia), multipartHeaders(token)),
-                DocumentoResponse.class);
-    }
-
-    private ResponseEntity<String> subirDocumentoEsperandoError(String token, String nombre, Long cursoId, String materia) {
-        return restTemplate.exchange(
-                "/api/documentos", HttpMethod.POST,
-                new HttpEntity<>(construirPartes(nombre, cursoId, materia), multipartHeaders(token)), String.class);
-    }
-
-    private MultiValueMap<String, Object> construirPartes(String nombre, Long cursoId, String materia) {
+    private MultiValueMap<String, Object> construirPartes(String nombre, Long pedidoId) {
         MultiValueMap<String, Object> partes = new LinkedMultiValueMap<>();
         partes.add("nombre", nombre);
         partes.add("esDobleFaz", "true");
         partes.add("aColor", "false");
         partes.add("esEnvio", "false");
         partes.add("cantidadCopias", "1");
-        partes.add("esPractico", "false");
-        partes.add("nroPractico", "0");
         partes.add("esImagen", "false");
-        partes.add("esPropio", "false");
-        if (cursoId != null) {
-            partes.add("cursoId", cursoId.toString());
-        }
-        if (materia != null) {
-            partes.add("materia", materia);
-        }
+        partes.add("pedidoId", String.valueOf(pedidoId));
         ByteArrayResource archivo = new ByteArrayResource(CONTENIDO_PDF_PRUEBA) {
             @Override
             public String getFilename() {
@@ -388,20 +250,6 @@ class DocumentoFlowTest extends AbstractIntegrationTest {
         HttpHeaders headers = authHeaders(token);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         return headers;
-    }
-
-    private Long obtenerUsuarioId(String token) {
-        ResponseEntity<UsuarioResponse> response = restTemplate.exchange(
-                "/api/auth/me", HttpMethod.GET, new HttpEntity<>(authHeaders(token)), UsuarioResponse.class);
-        return response.getBody().id();
-    }
-
-    private PedidoResponse crearPedido(String token) {
-        CrearPedidoRequest request = new CrearPedidoRequest(
-                null, null, false, null, "Pedido de prueba", List.of(new PedidoItemRequest(productoId, null, 1)));
-        ResponseEntity<PedidoResponse> response = restTemplate.exchange(
-                "/api/pedidos", HttpMethod.POST, new HttpEntity<>(request, authHeaders(token)), PedidoResponse.class);
-        return response.getBody();
     }
 
     private String login(String email, String password) {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { notificacionesApi, rutaDeNotificacion, type NotificacionResponse } from '../api/notificaciones'
+import { notificacionesApi, type NotificacionResponse } from '../api/notificaciones'
 
 const POLL_MS = 12000
 const TOAST_MS = 8000
@@ -69,7 +69,7 @@ export function NotificationCenter() {
     } catch {
       // no bloqueamos la navegación si falla marcar como leída
     }
-    navigate(rutaDeNotificacion(n))
+    navigate('/admin/pedidos')
   }
 
   async function marcarTodasLeidas() {

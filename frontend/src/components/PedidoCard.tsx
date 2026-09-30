@@ -30,6 +30,32 @@ const MOTIVOS_PRESET = [
   'Otro',
 ]
 
+const ETIQUETAS_COLOR: Record<string, string> = {
+  BN: 'Blanco y negro',
+  COLOR_LASER: 'Color láser',
+  COLOR_TINTA: 'Color tinta',
+}
+
+const ETIQUETAS_TERMINACION: Record<string, string> = {
+  NINGUNA: 'Sin acabado',
+  ENCUADERNACION: 'Encuadernación',
+  GRAPADO: 'Grapado',
+  AGUJEROS: '2 agujeros',
+}
+
+function especificacionesImpresion(doc: DocumentoResponse): string {
+  const partes: string[] = []
+  if (doc.modoColor) partes.push(ETIQUETAS_COLOR[doc.modoColor] ?? doc.modoColor)
+  if (doc.tamanio) partes.push(doc.tamanio)
+  if (doc.tipoPapel) partes.push(doc.tipoPapel)
+  partes.push(doc.esDobleFaz ? 'Doble faz' : 'Simple faz')
+  if (doc.orientacion) partes.push(doc.orientacion === 'HORIZONTAL' ? 'Horizontal' : 'Vertical')
+  if (doc.terminacion && doc.terminacion !== 'NINGUNA') {
+    partes.push(ETIQUETAS_TERMINACION[doc.terminacion] ?? doc.terminacion)
+  }
+  return partes.join(' · ')
+}
+
 export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActualizado }: PedidoCardProps) {
   const [eligiendoMotivo, setEligiendoMotivo] = useState(false)
   const [motivoElegido, setMotivoElegido] = useState(MOTIVOS_PRESET[0])
@@ -203,6 +229,7 @@ export function PedidoCard({ pedido, mostrarCliente, acciones, onDocumentoActual
                   {doc.nombre} (Impresión) x{doc.cantidadCopias}{' '}
                   {doc.estado !== pedido.estado && <EstadoBadge estado={doc.estado} variant="outline" />}
                 </div>
+                <div className="order-card-item-context">{especificacionesImpresion(doc)}</div>
                 <div className="order-card-doc-actions">
                   <button className="secondary order-download-btn" onClick={() => documentosApi.descargar(doc)}>
                     <svg

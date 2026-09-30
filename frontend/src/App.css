@@ -30,12 +30,17 @@
 }
 
 .guest-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 40px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  gap: 32px;
+  padding: 14px 24px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #ece6dc;
 }
 
 .guest-header .sidebar-brand {
@@ -46,29 +51,24 @@
 }
 
 .guest-header .sidebar-brand img {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  object-fit: cover;
+  height: 34px;
+  width: auto;
+  object-fit: contain;
 }
 
-.guest-header .sidebar-brand span {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: 16px;
-  line-height: 1.2;
+.guest-header-nav {
+  flex: 1;
+}
+
+.guest-header-nav a {
+  font-weight: 500;
+  font-size: 15px;
   color: var(--ink);
-  display: flex;
-  flex-direction: column;
+  text-decoration: none;
 }
 
-.guest-header .sidebar-brand span small {
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
+.guest-header-nav a:hover {
+  color: var(--accent);
 }
 
 .guest-header-actions {
@@ -191,10 +191,20 @@ button {
   font-weight: 600;
   font-size: 13px;
   box-shadow: var(--shadow-accent);
-  transition: opacity 0.15s ease, transform 0.05s ease;
+  transition: background 0.15s ease, transform 0.05s ease;
 }
 
 button:hover {
+  background: var(--accent-hover);
+}
+
+button.secondary:hover {
+  background: var(--surface);
+  opacity: 0.88;
+}
+
+button.danger:hover {
+  background: var(--danger);
   opacity: 0.88;
 }
 
@@ -469,16 +479,22 @@ th {
 }
 
 .modal-close {
-  background: transparent;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--surface-alt);
   border: none;
   color: var(--ink-soft);
   font-size: 16px;
-  padding: 4px 8px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   box-shadow: none;
 }
 
 .modal-close:hover {
-  background: var(--surface-alt);
+  color: var(--ink);
   opacity: 1;
 }
 
@@ -828,26 +844,6 @@ th {
 
 .order-card-contacto a.secondary:hover {
   color: var(--ink);
-}
-
-.documento-propio {
-  background: var(--surface-alt);
-  border-style: dashed;
-}
-
-.documento-tag-cliente {
-  background: var(--info-bg);
-  color: var(--info);
-}
-
-.documento-tag-propio {
-  background: var(--neutral-bg);
-  color: var(--neutral);
-}
-
-.documento-tag-docente {
-  background: var(--ok-bg);
-  color: var(--ok);
 }
 
 .order-card-alerta {

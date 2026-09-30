@@ -87,7 +87,7 @@ export function AdminUsuariosPage() {
 
   return (
     <div>
-      <PageHeader title="Usuarios" subtitle="Gestioná roles y acceso de clientes, docentes y administradores" />
+      <PageHeader title="Usuarios" subtitle="Gestioná roles y acceso de clientes y administradores" />
       {error && <p className="error">{error}</p>}
       {mensaje && <p className="success">{mensaje}</p>}
       <div className="card table-card">

@@ -16,7 +16,3 @@ export const notificacionesApi = {
   marcarLeida: (id: number) => api.put<void>(`/notificaciones/${id}/leida`),
   marcarTodasLeidas: () => api.put<void>('/notificaciones/leer-todas'),
 }
-
-export function rutaDeNotificacion(n: NotificacionResponse): string {
-  return n.tipoNotificacion === 'Notificaciones Documentos' ? '/admin/documentos' : '/admin/pedidos'
-}

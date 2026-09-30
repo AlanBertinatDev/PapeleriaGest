@@ -32,7 +32,5 @@ public class Nivel {
 
     private boolean estandar;
 
-    private boolean docente;
-
     private boolean activo;
 }

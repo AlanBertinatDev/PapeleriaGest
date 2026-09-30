@@ -1,26 +1,23 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import { AuthProvider, useAuth } from './auth/AuthContext'
-import { ProtectedRoute, AdminRoute, DocenteRoute } from './auth/ProtectedRoute'
+import { ProtectedRoute, AdminRoute } from './auth/ProtectedRoute'
 import { Layout } from './components/Layout'
 import { LandingPage } from './pages/LandingPage'
 import { HomePage } from './pages/HomePage'
 import { CatalogoPage } from './pages/CatalogoPage'
 import { MisPedidosPage } from './pages/MisPedidosPage'
 import { OfertasPage } from './pages/OfertasPage'
-import { MisDocumentosPage } from './pages/MisDocumentosPage'
-import { CargarMaterialPage } from './pages/docente/CargarMaterialPage'
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage'
 import { AdminProductosPage } from './pages/admin/AdminProductosPage'
 import { AdminProductoDetallePage } from './pages/admin/AdminProductoDetallePage'
 import { AdminPedidosPage } from './pages/admin/AdminPedidosPage'
 import { AdminOfertasPage } from './pages/admin/AdminOfertasPage'
 import { AdminFotosHomePage } from './pages/admin/AdminFotosHomePage'
-import { AdminDocumentosPage } from './pages/admin/AdminDocumentosPage'
-import { AdminCursosPage } from './pages/admin/AdminCursosPage'
 import { AdminUsuariosPage } from './pages/admin/AdminUsuariosPage'
 import { AdminReportesPage } from './pages/admin/AdminReportesPage'
 import { AdminConfiguracionPage } from './pages/admin/AdminConfiguracionPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 
 function RootRoute() {
   const { usuario, loading } = useAuth()
@@ -43,6 +40,7 @@ function App() {
           <Routes>
             <Route path="/login" element={<GuestOnlyRoute />} />
             <Route path="/registrarse" element={<GuestOnlyRoute />} />
+            <Route path="/restablecer-password" element={<ResetPasswordPage />} />
             <Route path="/" element={<RootRoute />} />
             <Route
               path="/catalogo"
@@ -66,22 +64,6 @@ function App() {
                 <ProtectedRoute>
                   <OfertasPage />
                 </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/mis-documentos"
-              element={
-                <ProtectedRoute>
-                  <MisDocumentosPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/docente/materiales"
-              element={
-                <DocenteRoute>
-                  <CargarMaterialPage />
-                </DocenteRoute>
               }
             />
             <Route
@@ -137,22 +119,6 @@ function App() {
               element={
                 <AdminRoute>
                   <AdminFotosHomePage />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/documentos"
-              element={
-                <AdminRoute>
-                  <AdminDocumentosPage />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="/admin/cursos"
-              element={
-                <AdminRoute>
-                  <AdminCursosPage />
                 </AdminRoute>
               }
             />

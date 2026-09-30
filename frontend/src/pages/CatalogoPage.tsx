@@ -5,7 +5,6 @@ import { ofertasApi, type OfertaResponse } from '../api/ofertas'
 import { pedidosApi, type PedidoItemRequest, type TarifasResponse } from '../api/pedidos'
 import {
   documentosApi,
-  type DocumentoResponse,
   type ModoColor,
   type Tamanio,
   type TipoPapel,
@@ -13,7 +12,6 @@ import {
   type Orientacion,
   type Terminacion,
 } from '../api/documentos'
-import { cursosApi, type CursoResponse } from '../api/cursos'
 import { ApiError } from '../api/client'
 import { AuthImage } from '../components/AuthImage'
 import { PageHeader } from '../components/PageHeader'
@@ -42,7 +40,7 @@ interface CatalogItem {
 
 interface DocumentoLinea {
   key: string
-  documentoOrigenId: number
+  archivo: File
   nombre: string
   cantidadCopias: number
   esDobleFaz: boolean
@@ -208,19 +206,15 @@ function CatalogCard({
   )
 }
 
-function DocumentoPickerModal({
+function DocumentoUploadModal({
   onClose,
   onAdd,
 }: {
   onClose: () => void
   onAdd: (linea: Omit<DocumentoLinea, 'key'>) => void
 }) {
-  const [tab, setTab] = useState<'mios' | 'curso'>('mios')
-  const [misDocumentos, setMisDocumentos] = useState<DocumentoResponse[]>([])
-  const [cursos, setCursos] = useState<CursoResponse[]>([])
-  const [cursoId, setCursoId] = useState('')
-  const [materiales, setMateriales] = useState<DocumentoResponse[]>([])
-  const [seleccionado, setSeleccionado] = useState<DocumentoResponse | null>(null)
+  const [archivo, setArchivo] = useState<File | null>(null)
+  const [nombre, setNombre] = useState('')
   const [cantidadCopias, setCantidadCopias] = useState(1)
   const [esDobleFaz, setEsDobleFaz] = useState(false)
   const [modoColor, setModoColor] = useState<ModoColor>('BN')
@@ -232,231 +226,144 @@ function DocumentoPickerModal({
   const [precio, setPrecio] = useState(0)
 
   useEffect(() => {
-    documentosApi.misDocumentos().then(setMisDocumentos).catch(() => {})
-    cursosApi.misCursos().then((lista) => {
-      setCursos(lista)
-      if (lista.length === 1) {
-        handleBuscarCurso(String(lista[0].id))
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }).catch(() => {})
-  }, [])
-
-  useEffect(() => {
-    if (!seleccionado) return
     documentosApi
       .cotizar({ cantidadCopias, modoColor, tamanio, tipoPapel, terminacion })
       .then((res) => setPrecio(Number(res.precio)))
       .catch(() => setPrecio(0))
-  }, [seleccionado, cantidadCopias, modoColor, tamanio, tipoPapel, terminacion])
+  }, [cantidadCopias, modoColor, tamanio, tipoPapel, terminacion])
 
-  function handleBuscarCurso(id: string) {
-    setCursoId(id)
-    if (!id) {
-      setMateriales([])
-      return
-    }
-    documentosApi
-      .listarPorCurso(Number(id))
-      .then(setMateriales)
-      .catch(() => {})
-  }
-
-  const lista = tab === 'mios' ? misDocumentos : materiales
-
-  if (seleccionado) {
-    return (
-      <Modal title={`Imprimir "${seleccionado.nombre}"`} onClose={onClose}>
-        <div className={styles.pickerForm}>
-          <label>
-            Cantidad de copias
-            <input
-              type="number"
-              min={1}
-              value={cantidadCopias}
-              onChange={(e) => setCantidadCopias(Math.max(1, Number(e.target.value)))}
-            />
-          </label>
-
-          <label>
-            Color de impresión
-            <select value={modoColor} onChange={(e) => setModoColor(e.target.value as ModoColor)}>
-              <option value="BN">Blanco y negro</option>
-              <option value="COLOR_LASER">Color láser</option>
-              <option value="COLOR_TINTA">Color tinta</option>
-            </select>
-          </label>
-
-          <label>
-            Tamaño de papel
-            <select value={tamanio} onChange={(e) => setTamanio(e.target.value as Tamanio)}>
-              <option value="A4">A4 (297 × 210 mm)</option>
-              <option value="A3">A3 (420 × 297 mm)</option>
-              <option value="A5">A5 (210 × 148 mm)</option>
-            </select>
-          </label>
-
-          <label>
-            Tipo de papel
-            <select value={tipoPapel} onChange={(e) => setTipoPapel(e.target.value as TipoPapel)}>
-              <option value="75g">75g — papel común</option>
-              <option value="160g">160g — papel grueso</option>
-              <option value="200g">200g — cartulina</option>
-              <option value="FOTO">Fotográfico</option>
-            </select>
-          </label>
-
-          <label>
-            Páginas por cara
-            <select value={paginasPorCara} onChange={(e) => setPaginasPorCara(e.target.value as PaginasPorCara)}>
-              <option value="1">Normal (1 página por cara)</option>
-              <option value="2">2 páginas por cara</option>
-              <option value="4">4 páginas por cara</option>
-            </select>
-          </label>
-
-          <label>
-            Orientación
-            <select value={orientacion} onChange={(e) => setOrientacion(e.target.value as Orientacion)}>
-              <option value="VERTICAL">Vertical (retrato)</option>
-              <option value="HORIZONTAL">Horizontal (paisaje)</option>
-            </select>
-          </label>
-
-          <label>
-            Terminación
-            <select value={terminacion} onChange={(e) => setTerminacion(e.target.value as Terminacion)}>
-              <option value="NINGUNA">Sin acabado</option>
-              <option value="ENCUADERNACION">Encuadernación</option>
-              <option value="GRAPADO">Grapado</option>
-              <option value="AGUJEROS">2 agujeros</option>
-            </select>
-          </label>
-
-          <label className="checkbox-row">
-            <input type="checkbox" checked={esDobleFaz} onChange={(e) => setEsDobleFaz(e.target.checked)} />
-            Doble faz
-          </label>
-
-          <div
-            style={{
-              background: 'var(--accent)',
-              color: '#fff',
-              borderRadius: '8px',
-              padding: '12px 16px',
-              margin: '8px 0',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <span style={{ fontWeight: 500 }}>Precio</span>
-            <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>${precio.toFixed(2)}</span>
-          </div>
-
-          <div className={styles.pickerFormActions}>
-            <button type="button" className="secondary" onClick={() => setSeleccionado(null)}>
-              Volver
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                onAdd({
-                  documentoOrigenId: seleccionado.id,
-                  nombre: seleccionado.nombre,
-                  cantidadCopias,
-                  esDobleFaz,
-                  modoColor,
-                  tamanio,
-                  tipoPapel,
-                  paginasPorCara,
-                  orientacion,
-                  terminacion,
-                  precio,
-                })
-              }
-            >
-              Agregar al pedido
-            </button>
-          </div>
-        </div>
-      </Modal>
-    )
+  function handleElegirArchivo(file: File | null) {
+    setArchivo(file)
+    if (file && !nombre) setNombre(file.name)
   }
 
   return (
-    <Modal title="Agregar documento a imprimir" onClose={onClose}>
-      <div className={styles.pickerTabs}>
-        <button
-          type="button"
-          className={tab === 'mios' ? `${styles.pickerTab} ${styles.pickerTabActive}` : styles.pickerTab}
-          onClick={() => setTab('mios')}
-        >
-          Mis documentos
-        </button>
-        <button
-          type="button"
-          className={tab === 'curso' ? `${styles.pickerTab} ${styles.pickerTabActive}` : styles.pickerTab}
-          onClick={() => setTab('curso')}
-        >
-          Material de un curso
-        </button>
-      </div>
-
-      {tab === 'curso' && cursos.length === 0 && (
-        <p className="empty-state">Todavía no estás inscripto en ningún curso.</p>
-      )}
-
-      {tab === 'curso' && cursos.length > 1 && (
+    <Modal title="Adjuntar documento a imprimir" onClose={onClose}>
+      <div className={styles.pickerForm}>
         <label>
-          Curso
-          <select value={cursoId} onChange={(e) => handleBuscarCurso(e.target.value)}>
-            <option value="">Seleccioná un curso</option>
-            {cursos.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.grado} {c.grupo}
-              </option>
-            ))}
+          Archivo
+          <input type="file" onChange={(e) => handleElegirArchivo(e.target.files?.[0] ?? null)} />
+        </label>
+
+        <label>
+          Nombre
+          <input value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Ej: Trabajo de historia" />
+        </label>
+
+        <label>
+          Cantidad de copias
+          <input
+            type="number"
+            min={1}
+            value={cantidadCopias}
+            onChange={(e) => setCantidadCopias(Math.max(1, Number(e.target.value)))}
+          />
+        </label>
+
+        <label>
+          Color de impresión
+          <select value={modoColor} onChange={(e) => setModoColor(e.target.value as ModoColor)}>
+            <option value="BN">Blanco y negro</option>
+            <option value="COLOR_LASER">Color láser</option>
+            <option value="COLOR_TINTA">Color tinta</option>
           </select>
         </label>
-      )}
 
-      {lista.length === 0 && (tab === 'mios' || cursos.length > 0) ? (
-        <p className="empty-state">
-          {tab === 'mios'
-            ? 'Todavía no cargaste ningún documento propio.'
-            : cursoId
-              ? 'No hay materiales cargados para tu curso todavía.'
-              : 'Elegí un curso para ver sus materiales.'}
-        </p>
-      ) : null}
-      {lista.length > 0 && (
-        <div className={styles.pickerList}>
-          {lista.map((doc) => (
-            <button
-              type="button"
-              key={doc.id}
-              className={styles.pickerListItem}
-              onClick={() => {
-                setSeleccionado(doc)
-                setCantidadCopias(1)
-                setEsDobleFaz(false)
-                setModoColor('BN')
-                setTamanio('A4')
-                setTipoPapel('75g')
-                setPaginasPorCara('1')
-                setOrientacion('VERTICAL')
-                setTerminacion('NINGUNA')
-                setPrecio(0)
-              }}
-            >
-              {doc.nombre}
-              {doc.materia && <span className={styles.pickerListMeta}> · {doc.materia}</span>}
-              {doc.codigo && <span className={styles.pickerListMeta}> · código {doc.codigo}</span>}
-            </button>
-          ))}
+        <label>
+          Tamaño de papel
+          <select value={tamanio} onChange={(e) => setTamanio(e.target.value as Tamanio)}>
+            <option value="A4">A4 (297 × 210 mm)</option>
+            <option value="A3">A3 (420 × 297 mm)</option>
+            <option value="A5">A5 (210 × 148 mm)</option>
+          </select>
+        </label>
+
+        <label>
+          Tipo de papel
+          <select value={tipoPapel} onChange={(e) => setTipoPapel(e.target.value as TipoPapel)}>
+            <option value="75g">75g — papel común</option>
+            <option value="160g">160g — papel grueso</option>
+            <option value="200g">200g — cartulina</option>
+            <option value="FOTO">Fotográfico</option>
+          </select>
+        </label>
+
+        <label>
+          Páginas por cara
+          <select value={paginasPorCara} onChange={(e) => setPaginasPorCara(e.target.value as PaginasPorCara)}>
+            <option value="1">Normal (1 página por cara)</option>
+            <option value="2">2 páginas por cara</option>
+            <option value="4">4 páginas por cara</option>
+          </select>
+        </label>
+
+        <label>
+          Orientación
+          <select value={orientacion} onChange={(e) => setOrientacion(e.target.value as Orientacion)}>
+            <option value="VERTICAL">Vertical (retrato)</option>
+            <option value="HORIZONTAL">Horizontal (paisaje)</option>
+          </select>
+        </label>
+
+        <label>
+          Terminación
+          <select value={terminacion} onChange={(e) => setTerminacion(e.target.value as Terminacion)}>
+            <option value="NINGUNA">Sin acabado</option>
+            <option value="ENCUADERNACION">Encuadernación</option>
+            <option value="GRAPADO">Grapado</option>
+            <option value="AGUJEROS">2 agujeros</option>
+          </select>
+        </label>
+
+        <label className="checkbox-row">
+          <input type="checkbox" checked={esDobleFaz} onChange={(e) => setEsDobleFaz(e.target.checked)} />
+          Doble faz
+        </label>
+
+        <div
+          style={{
+            background: 'var(--accent)',
+            color: '#fff',
+            borderRadius: '8px',
+            padding: '12px 16px',
+            margin: '8px 0',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <span style={{ fontWeight: 500 }}>Precio</span>
+          <span style={{ fontSize: '1.25rem', fontWeight: 700 }}>${precio.toFixed(2)}</span>
         </div>
-      )}
+
+        <div className={styles.pickerFormActions}>
+          <button type="button" className="secondary" onClick={onClose}>
+            Cancelar
+          </button>
+          <button
+            type="button"
+            disabled={!archivo || !nombre.trim()}
+            onClick={() =>
+              archivo &&
+              onAdd({
+                archivo,
+                nombre: nombre.trim(),
+                cantidadCopias,
+                esDobleFaz,
+                modoColor,
+                tamanio,
+                tipoPapel,
+                paginasPorCara,
+                orientacion,
+                terminacion,
+                precio,
+              })
+            }
+          >
+            Agregar al pedido
+          </button>
+        </div>
+      </div>
     </Modal>
   )
 }
@@ -547,7 +454,7 @@ export function CatalogoPage() {
   }
 
   function agregarDocumento(linea: Omit<DocumentoLinea, 'key'>) {
-    setDocumentos((prev) => [...prev, { ...linea, key: `doc-${linea.documentoOrigenId}-${Date.now()}` }])
+    setDocumentos((prev) => [...prev, { ...linea, key: `doc-${Date.now()}-${Math.random()}` }])
     setPickerAbierto(false)
   }
 
@@ -606,12 +513,15 @@ export function CatalogoPage() {
       const documentosFallidos: string[] = []
       for (const doc of documentos) {
         try {
-          await documentosApi.solicitarImpresion({
-            documentoOrigenId: doc.documentoOrigenId,
-            pedidoId: pedido.id,
-            cantidadCopias: doc.cantidadCopias,
+          await documentosApi.crear({
+            nombre: doc.nombre,
             esDobleFaz: doc.esDobleFaz,
             aColor: doc.modoColor !== 'BN',
+            esEnvio,
+            cantidadCopias: doc.cantidadCopias,
+            esImagen: false,
+            pedidoId: pedido.id,
+            archivo: doc.archivo,
             modoColor: doc.modoColor,
             tamanio: doc.tamanio,
             tipoPapel: doc.tipoPapel,
@@ -924,7 +834,7 @@ export function CatalogoPage() {
       )}
 
       {pickerAbierto && (
-        <DocumentoPickerModal onClose={() => setPickerAbierto(false)} onAdd={agregarDocumento} />
+        <DocumentoUploadModal onClose={() => setPickerAbierto(false)} onAdd={agregarDocumento} />
       )}
 
       {revisando && (

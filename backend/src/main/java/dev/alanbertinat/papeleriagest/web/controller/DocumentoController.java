@@ -8,10 +8,8 @@ import dev.alanbertinat.papeleriagest.web.dto.CotizacionImpresionResponse;
 import dev.alanbertinat.papeleriagest.web.dto.CotizarImpresionRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoResponse;
-import dev.alanbertinat.papeleriagest.web.dto.SolicitarImpresionRequest;
 import jakarta.validation.Valid;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,33 +47,9 @@ public class DocumentoController {
                 .body(documentoService.crear(principal.usuario(), request, archivo));
     }
 
-    @PostMapping("/solicitar-impresion")
-    public ResponseEntity<DocumentoResponse> solicitarImpresion(
-            @AuthenticationPrincipal UsuarioPrincipal principal, @Valid @RequestBody SolicitarImpresionRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(documentoService.solicitarImpresion(principal.usuario(), request));
-    }
-
     @PostMapping("/cotizar")
     public CotizacionImpresionResponse cotizar(@Valid @RequestBody CotizarImpresionRequest request) {
         return new CotizacionImpresionResponse(documentoService.cotizarImpresion(request));
-    }
-
-    @GetMapping("/mios")
-    public List<DocumentoResponse> listarPropios(@AuthenticationPrincipal UsuarioPrincipal principal) {
-        return documentoService.listarPropios(principal.usuario());
-    }
-
-    @GetMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public List<DocumentoResponse> listarTodos() {
-        return documentoService.listarTodos();
-    }
-
-    @GetMapping("/por-curso/{cursoId}")
-    public List<DocumentoResponse> listarPorCurso(
-            @AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Long cursoId) {
-        return documentoService.listarPorCurso(cursoId, principal.usuario());
     }
 
     @GetMapping("/{id}")
@@ -102,9 +75,4 @@ public class DocumentoController {
         return documentoService.cambiarEstado(id, request.estado());
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminar(@AuthenticationPrincipal UsuarioPrincipal principal, @PathVariable Long id) {
-        documentoService.eliminar(id, principal.usuario());
-        return ResponseEntity.noContent().build();
-    }
 }

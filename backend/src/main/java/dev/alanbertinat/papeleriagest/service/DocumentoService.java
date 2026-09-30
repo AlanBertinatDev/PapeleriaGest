@@ -1,28 +1,19 @@
 package dev.alanbertinat.papeleriagest.service;
 
-import dev.alanbertinat.papeleriagest.domain.Curso;
 import dev.alanbertinat.papeleriagest.domain.Documento;
 import dev.alanbertinat.papeleriagest.domain.EstadoDocumento;
-import dev.alanbertinat.papeleriagest.domain.EstadoPedido;
-import dev.alanbertinat.papeleriagest.domain.OrigenDocumento;
 import dev.alanbertinat.papeleriagest.domain.Pedido;
 import dev.alanbertinat.papeleriagest.domain.Usuario;
-import dev.alanbertinat.papeleriagest.exception.ConflictException;
 import dev.alanbertinat.papeleriagest.exception.ResourceNotFoundException;
 import dev.alanbertinat.papeleriagest.repository.ConfiguracionRepository;
-import dev.alanbertinat.papeleriagest.repository.CursoEstudianteRepository;
-import dev.alanbertinat.papeleriagest.repository.CursoRepository;
 import dev.alanbertinat.papeleriagest.repository.DocumentoRepository;
-import dev.alanbertinat.papeleriagest.repository.MateriaCursoDocenteRepository;
 import dev.alanbertinat.papeleriagest.repository.PedidoRepository;
 import dev.alanbertinat.papeleriagest.web.dto.CotizarImpresionRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoRequest;
 import dev.alanbertinat.papeleriagest.web.dto.DocumentoResponse;
-import dev.alanbertinat.papeleriagest.web.dto.SolicitarImpresionRequest;
 import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.time.LocalDate;
-import java.util.List;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.security.access.AccessDeniedException;
@@ -39,9 +30,6 @@ public class DocumentoService {
 
     private final DocumentoRepository documentoRepository;
     private final PedidoRepository pedidoRepository;
-    private final CursoRepository cursoRepository;
-    private final CursoEstudianteRepository cursoEstudianteRepository;
-    private final MateriaCursoDocenteRepository materiaCursoDocenteRepository;
     private final ConfiguracionRepository configuracionRepository;
     private final NotificacionService notificacionService;
     private final EmailService emailService;
@@ -50,18 +38,12 @@ public class DocumentoService {
     public DocumentoService(
             DocumentoRepository documentoRepository,
             PedidoRepository pedidoRepository,
-            CursoRepository cursoRepository,
-            CursoEstudianteRepository cursoEstudianteRepository,
-            MateriaCursoDocenteRepository materiaCursoDocenteRepository,
             ConfiguracionRepository configuracionRepository,
             NotificacionService notificacionService,
             EmailService emailService,
             FileStorageService fileStorageService) {
         this.documentoRepository = documentoRepository;
         this.pedidoRepository = pedidoRepository;
-        this.cursoRepository = cursoRepository;
-        this.cursoEstudianteRepository = cursoEstudianteRepository;
-        this.materiaCursoDocenteRepository = materiaCursoDocenteRepository;
         this.configuracionRepository = configuracionRepository;
         this.notificacionService = notificacionService;
         this.emailService = emailService;
@@ -70,45 +52,18 @@ public class DocumentoService {
 
     @Transactional
     public DocumentoResponse crear(Usuario usuario, DocumentoRequest request, MultipartFile archivo) {
-        Pedido pedido = null;
-        if (request.pedidoId() != null) {
-            pedido = pedidoRepository.findById(request.pedidoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado: " + request.pedidoId()));
+        Pedido pedido = pedidoRepository.findById(request.pedidoId())
+                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado: " + request.pedidoId()));
+        if (!pedido.getUsuario().getId().equals(usuario.getId()) && !usuario.getNivel().isAdmin()) {
+            throw new AccessDeniedException("No tenés acceso a este pedido");
         }
 
-        Curso curso = null;
-        String codigo = null;
-        OrigenDocumento origen = request.esPropio() && usuario.getNivel().isAdmin()
-                ? OrigenDocumento.PROPIO
-                : OrigenDocumento.CLIENTE;
-
-        if (request.cursoId() != null) {
-            curso = cursoRepository.findById(request.cursoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Curso no encontrado: " + request.cursoId()));
-
-            if (!usuario.getNivel().isAdmin()) {
-                if (!usuario.getNivel().isDocente()) {
-                    throw new AccessDeniedException("Solo docentes pueden cargar material de curso");
-                }
-                if (request.materia() == null || request.materia().isBlank()
-                        || !materiaCursoDocenteRepository.existsByCursoIdAndDocenteIdAndMateria(
-                                curso.getId(), usuario.getId(), request.materia())) {
-                    throw new AccessDeniedException("No tenés esa materia asignada en este curso");
-                }
-            }
-            origen = OrigenDocumento.DOCENTE;
-
-            if (request.codigo() != null && !request.codigo().isBlank()) {
-                if (documentoRepository.existsByCursoIdAndPedidoIsNullAndCodigoIgnoreCase(
-                        curso.getId(), request.codigo().trim())) {
-                    throw new ConflictException("Ya existe un material con ese código en este curso");
-                }
-                codigo = request.codigo().trim();
-            } else {
-                long siguiente = documentoRepository.countByCursoIdAndPedidoIsNull(curso.getId()) + 1;
-                codigo = "M" + siguiente;
-            }
-        }
+        String modoColor = request.modoColor();
+        boolean aColor = modoColor != null ? !"BN".equals(modoColor) : request.aColor();
+        String tamanio = request.tamanio() != null ? request.tamanio() : "A4";
+        String tipoPapel = request.tipoPapel() != null ? request.tipoPapel() : "75g";
+        String terminacion = request.terminacion() != null ? request.terminacion() : "NINGUNA";
+        BigDecimal precio = calcularPrecio(modoColor, aColor, tamanio, tipoPapel, terminacion, request.cantidadCopias());
 
         String nombreGuardado = fileStorageService.guardar(archivo, FileStorageService.EXTENSIONES_DOCUMENTO);
 
@@ -116,87 +71,20 @@ public class DocumentoService {
                 .nombre(request.nombre())
                 .formato(request.formato())
                 .esDobleFaz(request.esDobleFaz())
-                .aColor(request.aColor())
+                .aColor(aColor)
                 .descripcion(request.descripcion())
                 .esEnvio(request.esEnvio())
                 .direccion(request.direccion())
-                .materia(request.materia())
-                .codigo(codigo)
                 .cantidadCopias(request.cantidadCopias())
-                .esPractico(request.esPractico())
-                .nroPractico(request.nroPractico())
                 .fechaIngreso(LocalDate.now())
                 .activo(true)
                 .ruta(nombreGuardado)
                 .nombreArchivoOriginal(archivo.getOriginalFilename())
                 .esImagen(request.esImagen())
                 .estado(EstadoDocumento.PENDIENTE)
-                .origen(origen)
-                .precio(BigDecimal.ZERO)
-                .usuario(usuario)
-                .pedido(pedido)
-                .curso(curso)
-                .tamanio(request.tamanio() != null ? request.tamanio() : "A4")
-                .tipoPapel(request.tipoPapel() != null ? request.tipoPapel() : "75g")
-                .modoColor(request.modoColor())
-                .paginasPorCara(request.paginasPorCara() != null ? request.paginasPorCara() : "1")
-                .orientacion(request.orientacion() != null ? request.orientacion() : "VERTICAL")
-                .terminacion(request.terminacion() != null ? request.terminacion() : "NINGUNA")
-                .build();
-
-        Documento guardado = documentoRepository.save(documento);
-        notificacionService.registrarDocumento(usuario, "Cargó el material " + guardado.getNombre(), guardado.getId());
-        emailService.notificarAdmin(
-                "Nuevo documento cargado: " + guardado.getNombre(),
-                usuario.getNombre() + " cargó el documento \"" + guardado.getNombre() + "\" para imprimir.");
-        return DocumentoResponse.from(guardado);
-    }
-
-    @Transactional
-    public DocumentoResponse solicitarImpresion(Usuario usuario, SolicitarImpresionRequest request) {
-        Documento origen = buscarEntidad(request.documentoOrigenId());
-        verificarAccesoSolicitud(origen, usuario);
-
-        Pedido pedido = pedidoRepository.findById(request.pedidoId())
-                .orElseThrow(() -> new ResourceNotFoundException("Pedido no encontrado: " + request.pedidoId()));
-        if (!pedido.getUsuario().getId().equals(usuario.getId())) {
-            throw new AccessDeniedException("No tenés acceso a este pedido");
-        }
-        if (pedido.getEstado() != EstadoPedido.PENDIENTE) {
-            throw new ConflictException("Solo se pueden agregar documentos a un pedido pendiente");
-        }
-
-        String tamanio = request.tamanio() != null ? request.tamanio() : "A4";
-        String tipoPapel = request.tipoPapel() != null ? request.tipoPapel() : "75g";
-        String modoColor = request.modoColor();
-        String terminacion = request.terminacion() != null ? request.terminacion() : "NINGUNA";
-        boolean aColor = modoColor != null ? !"BN".equals(modoColor) : request.aColor();
-
-        BigDecimal precio = calcularPrecio(modoColor, aColor, tamanio, tipoPapel, terminacion, request.cantidadCopias());
-
-        Documento copia = Documento.builder()
-                .nombre(origen.getNombre())
-                .formato(origen.getFormato())
-                .esDobleFaz(request.esDobleFaz())
-                .aColor(aColor)
-                .descripcion(origen.getDescripcion())
-                .esEnvio(pedido.isEsEnvio())
-                .direccion(pedido.getDireccion())
-                .materia(origen.getMateria())
-                .cantidadCopias(request.cantidadCopias())
-                .esPractico(origen.isEsPractico())
-                .nroPractico(origen.getNroPractico())
-                .fechaIngreso(LocalDate.now())
-                .activo(true)
-                .ruta(origen.getRuta())
-                .nombreArchivoOriginal(origen.getNombreArchivoOriginal())
-                .esImagen(origen.isEsImagen())
-                .estado(EstadoDocumento.PENDIENTE)
-                .origen(OrigenDocumento.CLIENTE)
                 .precio(precio)
                 .usuario(usuario)
                 .pedido(pedido)
-                .curso(origen.getCurso())
                 .tamanio(tamanio)
                 .tipoPapel(tipoPapel)
                 .modoColor(modoColor)
@@ -205,11 +93,10 @@ public class DocumentoService {
                 .terminacion(terminacion)
                 .build();
 
-        Documento guardado = documentoRepository.save(copia);
+        Documento guardado = documentoRepository.save(documento);
 
         pedido.setPrecio(pedido.getPrecio().add(precio));
         pedidoRepository.save(pedido);
-
         notificacionService.registrarDocumento(
                 usuario, "Pidió imprimir " + guardado.getNombre() + " en el pedido #" + pedido.getId(), guardado.getId());
         emailService.notificarAdmin(
@@ -301,48 +188,19 @@ public class DocumentoService {
         return new ArchivoDescarga(recurso, nombreOriginal);
     }
 
-    @Transactional(readOnly = true)
-    public List<DocumentoResponse> listarPropios(Usuario usuario) {
-        return documentoRepository
-                .findByActivoTrueAndUsuarioIdAndPedidoIsNullOrderByFechaIngresoDesc(usuario.getId()).stream()
-                .map(DocumentoResponse::from)
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<DocumentoResponse> listarPorCurso(Long cursoId, Usuario actor) {
-        boolean tieneAcceso = actor.getNivel().isAdmin()
-                || cursoEstudianteRepository.existsByCursoIdAndEstudianteId(cursoId, actor.getId())
-                || materiaCursoDocenteRepository.existsByCursoIdAndDocenteId(cursoId, actor.getId());
-        if (!tieneAcceso) {
-            throw new AccessDeniedException("No tenés acceso a los materiales de este curso");
-        }
-        return documentoRepository
-                .findByActivoTrueAndCursoIdAndPedidoIsNullOrderByFechaIngresoDesc(cursoId).stream()
-                .map(DocumentoResponse::from)
-                .toList();
-    }
-
-    @Transactional(readOnly = true)
-    public List<DocumentoResponse> listarTodos() {
-        return documentoRepository.findByActivoTrueAndPedidoIsNullOrderByFechaIngresoDesc().stream()
-                .map(DocumentoResponse::from)
-                .toList();
-    }
-
     @Transactional
     public DocumentoResponse cambiarEstado(Long id, EstadoDocumento nuevoEstado) {
         Documento documento = buscarEntidad(id);
         documento.setEstado(nuevoEstado);
-        return DocumentoResponse.from(documentoRepository.save(documento));
-    }
+        DocumentoResponse response = DocumentoResponse.from(documento);
 
-    @Transactional
-    public void eliminar(Long id, Usuario actor) {
-        Documento documento = buscarEntidad(id);
-        verificarPropietarioOAdmin(documento, actor);
-        documento.setActivo(false);
-        documentoRepository.save(documento);
+        if (nuevoEstado == EstadoDocumento.ENTREGADO) {
+            fileStorageService.borrar(documento.getRuta());
+            documentoRepository.delete(documento);
+            return response;
+        }
+
+        return DocumentoResponse.from(documentoRepository.save(documento));
     }
 
     private Documento buscarEntidad(Long id) {
@@ -354,16 +212,6 @@ public class DocumentoService {
         boolean esPropietario = documento.getUsuario().getId().equals(actor.getId());
         boolean esAdmin = actor.getNivel().isAdmin();
         if (!esPropietario && !esAdmin) {
-            throw new AccessDeniedException("No tenés acceso a este documento");
-        }
-    }
-
-    private void verificarAccesoSolicitud(Documento documento, Usuario actor) {
-        boolean esPropietario = documento.getUsuario().getId().equals(actor.getId());
-        boolean esAdmin = actor.getNivel().isAdmin();
-        boolean esInscriptoEnCurso = documento.getCurso() != null
-                && cursoEstudianteRepository.existsByCursoIdAndEstudianteId(documento.getCurso().getId(), actor.getId());
-        if (!esPropietario && !esAdmin && !esInscriptoEnCurso) {
             throw new AccessDeniedException("No tenés acceso a este documento");
         }
     }
